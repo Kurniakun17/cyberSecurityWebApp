@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ active = 'projects' }: { active?: string }) => {
