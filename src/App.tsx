@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Projects from './pages/Projects';
 import Navbar from './components/Navbar';
 import Templates from './pages/Templates';
@@ -17,6 +17,7 @@ const App = () => {
         <Route path="/projects/:id" element={ProjectDetail()} />
         <Route path="/templates" element={Templates()} />
         <Route path="/templates/:id" element={TemplateDetail()} />
+        <Route path="*" element={<Navigate to={'/projects'} />} />
       </Routes>
     </div>
   );
