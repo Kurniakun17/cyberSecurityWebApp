@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom';
+import { MoreVertical } from 'lucide-react';
 
 const ProjectCard = ({
-  index,
-  toolTipIndex,
+  id,
+  toolTipId,
   onSetToolTip,
 }: {
-  index: number;
-  toolTipIndex: number;
-  onSetToolTip: (index: number) => void;
+  id: string;
+  toolTipId: string;
+  onSetToolTip: (id: string) => void;
 }) => {
   const navigate = useNavigate();
 
@@ -21,19 +22,20 @@ const ProjectCard = ({
       <div className="flex justify-between items-center">
         <h3 className="font-bold">Kemdikbud Pentest</h3>
         <button
-          className="font-bold px-4 cursor-pointer"
-          onClick={() => {
-            onSetToolTip(index);
+          className="font-bold cursor-pointer relative z-10"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSetToolTip(id);
           }}
         >
-          ...
+          <MoreVertical size={'16px'} />
         </button>
       </div>
       <p className="text-[#8B879B]">Created at 2023-07-10</p>
       <div
         className={`${
-          toolTipIndex === index ? 'flex' : 'hidden'
-        }  px-5 py-3 absolute z-[2] top-[-60px] right-[-60px] flex flex-col gap-3 bg-white rounded-lg border border-[#D7D7D7]`}
+          toolTipId === id ? 'flex' : 'hidden'
+        }  px-5 py-3 absolute z-10 top-[-60px] right-[-100px] flex flex-col gap-3 bg-white rounded-lg border border-[#D7D7D7]`}
       >
         <button type="button" className="text-left">
           Closed Project

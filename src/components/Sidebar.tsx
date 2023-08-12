@@ -4,7 +4,7 @@ const Sidebar = ({ active = 'projects' }: { active?: string }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-[300px] pt-8 h-screen border border-l-2 border-l-black">
+    <div className="w-[300px] mt-[72px] pt-8 fixed h-screen border border-l-2 border-l-black">
       <ul>
         <li
           onClick={() => {

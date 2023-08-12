@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 const Navbar = () => {
   const navigate = useNavigate();
   return (
-    <div className="h-[72px] text-white flex items-center justify-between px-8 bg-blue-500">
+    <div className="h-[72px] w-full z-50 fixed text-white flex items-center justify-between px-8 bg-blue-500">
       <button
         className="font-bold text-2xl"
         onClick={() => {

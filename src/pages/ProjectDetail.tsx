@@ -1,11 +1,12 @@
+import ChecklistItem from '../components/ChecklistItem';
 import Sidebar from '../components/Sidebar';
 
 const ProjectDetail = () => {
   return (
     <div className="flex">
       <Sidebar />
-      <div className="pt-8 grow ">
-        <div className="w-[85%] mx-auto flex flex-col gap-6 ">
+      <div className="pt-8 grow ml-[300px] mt-[72px]">
+        <div className="w-[85%]  mx-auto flex flex-col gap-6 ">
           <h2 className="text-4xl font-bold">Kemdikbud Pen Test</h2>
           <div className="flex gap-6 w-fit items-center px-8 py-6 border mx-auto border-[#D7D7D7] rounded-2xl">
             <div className="flex flex-col gap-3">
@@ -28,7 +29,7 @@ const ProjectDetail = () => {
               </table>
             </div>
           </div>
-          <p className=" block w-fit">
+          <p className="block w-fit">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem
             dolor sed viverra ipsum nunc aliquet. Lacus laoreet non curabitur
@@ -44,31 +45,12 @@ const ProjectDetail = () => {
             convallis tellus id. Faucibus interdum posuere lorem ipsum dolor sit
             amet. Pellentesque dignissim enim sit amet venenatis urna.
           </p>
-          <button className="py-2 px-3 gap-3 rounded-xl border border-[#D7D7D7] w-fit">
-            <span className="text-blue-500 text-lg">+</span> Add checklist tag
+          <button className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] w-fit">
+            <span className="text-blue-500 text-lg font-bold">+</span> Add
+            checklist tag
           </button>
           <h4 className="text-2xl">Checklist Tag</h4>
-          <label
-            htmlFor="check"
-            className="ml-6 p-4 px-8 flex items-center justify-between border border-[#D7D7D7] rounded-2xl cursor-pointer"
-          >
-            <div className="flex gap-3 items-center">
-              <input
-                id="check"
-                type="checkbox"
-                className="w-[20px] h-[20px] rounded-xl"
-              />
-              <p>Penetration Link</p>
-            </div>
-            <div className="flex gap-2">
-              <button className="py-1 px-4 gap-3 rounded-lg border border-[#D7D7D7]">
-                Edit
-              </button>
-              <button className="py-1 px-4 gap-3 rounded-lg border border-[#D7D7D7]">
-                Delete
-              </button>
-            </div>
-          </label>
+          <ChecklistItem />
         </div>
       </div>
     </div>
