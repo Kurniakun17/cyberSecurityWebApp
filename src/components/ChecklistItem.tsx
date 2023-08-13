@@ -1,7 +1,13 @@
 import { useRef } from 'react';
 import Modal from './Modal';
 import ChecklistModal from './ChecklistModal';
-const ChecklistItem = () => {
+const ChecklistItem = ({
+  id,
+  onDeleteCheckListItem,
+}: {
+  id: number;
+  onDeleteCheckListItem: (id: number) => void;
+}) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
@@ -28,7 +34,12 @@ const ChecklistItem = () => {
           >
             Edit
           </button>
-          <button className="py-1 px-4 gap-3 rounded-lg border border-[#D7D7D7]">
+          <button
+            onClick={() => {
+              onDeleteCheckListItem(id);
+            }}
+            className="py-1 px-4 gap-3 rounded-lg border border-[#D7D7D7]"
+          >
             Delete
           </button>
         </div>

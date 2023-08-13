@@ -5,10 +5,14 @@ const ProjectCard = ({
   id,
   toolTipId,
   onSetToolTip,
+  onDeleteProjects,
+  isOpen = true,
 }: {
   id: string;
   toolTipId: string;
   onSetToolTip: (id: string) => void;
+  onDeleteProjects: (id: string) => void;
+  isOpen?: boolean;
 }) => {
   const navigate = useNavigate();
 
@@ -37,10 +41,35 @@ const ProjectCard = ({
           toolTipId === id ? 'flex' : 'hidden'
         }  px-5 py-3 absolute z-10 top-[-60px] right-[-100px] flex flex-col gap-3 bg-white rounded-lg border border-[#D7D7D7]`}
       >
-        <button type="button" className="text-left">
-          Closed Project
-        </button>
-        <button type="button" className="text-left">
+        {isOpen ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            type="button"
+            className="text-left"
+          >
+            Closed Project
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            type="button"
+            className="text-left"
+          >
+            Re-Open Project
+          </button>
+        )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDeleteProjects(id);
+          }}
+          type="button"
+          className="text-left"
+        >
           Delete
         </button>
       </div>

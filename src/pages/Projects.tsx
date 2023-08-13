@@ -4,17 +4,27 @@ import ProjectCard from '../components/ProjectCard';
 import Modal from '../components/Modal';
 
 const Projects = () => {
+  const [projects, setProjects] = useState([
+    'project-1',
+    'project-2',
+    'project-3',
+  ]);
   const [toolTipId, setToolTipId] = useState('');
   const dialogRef = useRef<HTMLDialogElement>(null);
+
   const onSetToolTip = (index: string) => {
     setToolTipId((prev: string) => (prev === index ? '' : index));
+  };
+
+  const onDeleteProjects = (id: string) => {
+    setProjects((prev) => prev.filter((card) => card !== id));
   };
 
   return (
     <>
       <div className="flex">
         <Sidebar />
-        <div className="ml-[300px] mt-[72px] py-8 grow">
+        <div className="lg:ml-[300px] mt-[72px] py-8 grow">
           <div className="w-[85%] mx-auto flex flex-col gap-6 overflow-auto ">
             <div className="flex flex-col gap-6">
               <div className="flex justify-between">
@@ -29,26 +39,29 @@ const Projects = () => {
                   Project
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-5 gap-y-4">
-                {['a', 'b', 'c', 'd'].map((_, index: number) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-5 gap-y-4">
+                {projects.map((id, index: number) => (
                   <ProjectCard
                     key={index}
-                    id={`open-${index}`}
+                    id={id}
                     toolTipId={toolTipId}
                     onSetToolTip={onSetToolTip}
+                    onDeleteProjects={onDeleteProjects}
                   />
                 ))}
               </div>
             </div>
             <div className="flex flex-col gap-6">
               <h2 className="font-bold text-2xl">Closed Projects</h2>
-              <div className="grid grid-cols-3 gap-5 gap-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-5 gap-y-4">
                 {['a', 'b'].map((_, index: number) => (
                   <ProjectCard
                     key={index}
+                    isOpen={false}
                     id={`closed-${index}`}
                     toolTipId={toolTipId}
                     onSetToolTip={onSetToolTip}
+                    onDeleteProjects={onDeleteProjects}
                   />
                 ))}
               </div>
