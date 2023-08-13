@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import ChecklistItem from '../components/ChecklistItem';
 import Sidebar from '../components/Sidebar';
+import { useParams } from 'react-router-dom';
+import useProjectDetail from '../hooks/useProjectDetail';
 
 const ProjectDetail = () => {
+  const { id } = useParams();
+  const [projectDetail, setProjectDetail] = useProjectDetail(id);
   const [checkListItem, setCheckListItem] = useState([1]);
   const onDeleteCheckListItem = (id: number) => {
     setCheckListItem((prev) => prev.filter((item: number) => item !== id));
   };
 
-  console.log(checkListItem);
   return (
     <div className="flex">
       <Sidebar />

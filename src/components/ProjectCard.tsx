@@ -3,15 +3,21 @@ import { MoreVertical } from 'lucide-react';
 
 const ProjectCard = ({
   id,
+  name,
+  createdAt,
   toolTipId,
   onSetToolTip,
   onDeleteProjects,
+  onToggleProjects,
   isOpen = true,
 }: {
   id: string;
+  name: string;
+  createdAt: string;
   toolTipId: string;
   onSetToolTip: (id: string) => void;
   onDeleteProjects: (id: string) => void;
+  onToggleProjects: (id: string) => void;
   isOpen?: boolean;
 }) => {
   const navigate = useNavigate();
@@ -19,12 +25,12 @@ const ProjectCard = ({
   return (
     <div
       onClick={() => {
-        navigate('/projects/id');
+        navigate(`/projects/${id}`);
       }}
-      className="relative cursor-pointer p-6 rounded-xl flex flex-col justify-between h-[132px] xl:h-[160px]  border border-[#D7D7D7]"
+      className="overflow-visible relative cursor-pointer p-6 rounded-xl flex flex-col justify-between h-[132px] xl:h-[160px]  border border-[#D7D7D7]"
     >
       <div className="flex justify-between items-center">
-        <h3 className="font-bold">Kemdikbud Pentest</h3>
+        <h3 className="font-bold">{name}</h3>
         <button
           className="font-bold cursor-pointer relative z-10"
           onClick={(e) => {
@@ -35,7 +41,7 @@ const ProjectCard = ({
           <MoreVertical size={'16px'} />
         </button>
       </div>
-      <p className="text-[#8B879B]">Created at 2023-07-10</p>
+      <p className="text-[#8B879B]">Created at {createdAt.substring(0, 10)}</p>
       <div
         className={`${
           toolTipId === id ? 'flex' : 'hidden'
@@ -45,6 +51,7 @@ const ProjectCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              onToggleProjects(id);
             }}
             type="button"
             className="text-left"
@@ -55,6 +62,7 @@ const ProjectCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              onToggleProjects(id);
             }}
             type="button"
             className="text-left"

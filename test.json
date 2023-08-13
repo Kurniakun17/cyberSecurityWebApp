@@ -1,0 +1,33 @@
+{
+    "success": true,
+    "data": {
+        "totalItems": 2,
+        "items": [
+            {
+                "id": "5b773944-d87d-450b-b789-044b648721ac",
+                "name": "project 2",
+                "description": "project 2 desc",
+                "target_url": "https://www.facebook.com",
+                "target_ip": "",
+                "progress": "in-progress",
+                "template_id": "1abc2ea0-73f5-4339-9ba0-743c7aff39d1",
+                "createdAt": "2023-08-13T09:32:05.000Z",
+                "updatedAt": "2023-08-13T09:32:05.000Z"
+            },
+            {
+                "id": "a4d4badd-8487-43af-9a76-03db1bacf5ee",
+                "name": "project 1",
+                "description": "project 1 desc",
+                "target_url": "https://binusmaya.binus.ac.id",
+                "target_ip": "",
+                "progress": "done",
+                "template_id": "bc3f45b1-1450-42d3-90dd-a566ddc11a0e",
+                "createdAt": "2023-08-13T09:32:05.000Z",
+                "updatedAt": "2023-08-13T09:32:05.000Z"
+            }
+        ],
+        "totalPages": 1,
+        "currentPage": 0,
+        "success": true
+    }
+}
