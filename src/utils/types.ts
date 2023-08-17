@@ -10,7 +10,7 @@ type projectsType={
   "updatedAt": string
 };
 
-interface ChecklistItem {
+interface ChecklistItemType {
   id: string;
   type: string;
   progress: number;
@@ -21,7 +21,7 @@ interface ChecklistItem {
 interface ChecklistTag {
   id: string;
   name: string;
-  checklist: ChecklistItem[];
+  checklist: ChecklistItemType[];
 }
 
 interface Template {
@@ -30,7 +30,7 @@ interface Template {
   checklist_tag: ChecklistTag[];
 }
 
-interface projectDetail {
+type projectDetailType = {
   done_checklist: number;
   total_checklist: number;
   total_vulnerability: number;
@@ -54,4 +54,4 @@ interface projectDetail {
 
 
 
-export type { projectsType, projectDetail }
+export type { projectsType, projectDetailType, ChecklistItemType }

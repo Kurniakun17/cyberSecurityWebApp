@@ -9,7 +9,7 @@ import { toggleProjects } from '../utils/helper';
 const Projects = () => {
   const [toolTipId, setToolTipId] = useState('');
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [projects, setProjects] = useProjects();
+  const [projects, setProjects] = useProjects<projectsType[] | []>();
 
   const onSetToolTip = (id: string) => {
     setToolTipId((prev: string) => (prev === id ? '' : id));
@@ -17,6 +17,7 @@ const Projects = () => {
 
   const onToggleProjects = (id: string) => {
     let newProgress: string;
+
     setProjects((prev: projectsType[]) => {
       const newProjects = prev.map((project: projectsType) => {
         if (project.id === id) {
@@ -50,7 +51,7 @@ const Projects = () => {
     <>
       <div className="flex">
         <Sidebar />
-        <div className="lg:ml-[300px] mt-[72px] py-8 grow">
+        <div className="lg:ml-[300px] my-[72px] py-8 grow">
           <div className="w-[85%] mx-auto flex flex-col gap-6 overflow-auto ">
             <div className="flex flex-col gap-6">
               <div className="flex justify-between">

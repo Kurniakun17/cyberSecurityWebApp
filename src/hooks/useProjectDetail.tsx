@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react';
 import { fetchProjectDetail } from '../utils/helper';
-import { projectDetail } from '../utils/types.ts';
 
-const useProjectDetail = (id: string) => {
-  const [value, setValue] = useState<projectDetail[]>([]);
+const useProjectDetail = <T,>(id: string): [T | null, () => void] => {
+  const [value, setValue] = useState<T | null>(null);
 
-  const triggerFetchProject = async () => {
-    const result = (await fetchProjectDetail(id)).data;
-    console.log(result);
-    setValue(result);
+  const triggerFetchProjectDetail = async () => {
+    const result = (await fetchProjectDetail(id)).data as T;
+    setValue({ ...result });
   };
 
   useEffect(() => {
-    triggerFetchProject();
+    triggerFetchProjectDetail();
   }, []);
 
-  return [value, setValue];
+  return [value, triggerFetchProjectDetail];
 };
 
 export default useProjectDetail;

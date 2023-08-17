@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { fetchProjects } from '../utils/helper.ts';
-import { projectsType } from '../utils/types.ts';
 
-const useProjects = () => {
-  const [value, setValue] = useState<projectsType[]>([]);
+const useProjects = <T,>(): [T | [], Dispatch<SetStateAction<T | []>>] => {
+  const [value, setValue] = useState<T | []>([]);
 
   const triggerFetchProject = async () => {
-    const result = (await fetchProjects()).data.items;
+    const result = (await fetchProjects()).data.items as T;
     setValue(result);
   };
 
