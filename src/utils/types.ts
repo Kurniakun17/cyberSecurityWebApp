@@ -52,6 +52,15 @@ type projectDetailType = {
   template: Template;
 }
 
+type cvss31ValueT = {
+    AV: 'N' | 'A' | 'L' | 'P';
+    AC: 'H' | 'L';
+    UI: 'N' | 'R';
+    S: 'U' | 'C';
+    PR: 'N' | 'L' | 'H';
+    C: 'N' | 'L' | 'H';
+    I: 'N' | 'L' | 'H';
+    A: 'N' | 'L' | 'H';
+  }
 
-
-export type { projectsType, projectDetailType, ChecklistItemType }
+export type { projectsType, projectDetailType, ChecklistItemType, cvss31ValueT }

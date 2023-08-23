@@ -24,7 +24,7 @@ const ProjectDetail = () => {
   const { id } = useParams();
   const [projectDetail, triggerFetchProjectDetail] =
     useProjectDetail<projectDetailType>(id as string);
-  const { register, handleSubmit } = useForm<inputs>();
+  const { register, handleSubmit, reset, resetField } = useForm<inputs>();
   const [checklistTagId, setChecklistTagId] = useState('');
   const [checklistItemId] = useState('');
   const dialogTagRef = useRef<HTMLDialogElement>(null);
@@ -43,11 +43,13 @@ const ProjectDetail = () => {
 
     if (result.success) {
       triggerFetchProjectDetail();
+      reset();
     }
   };
 
   const onChecklistModalSubmit: SubmitHandler<inputs> = async (data) => {
     console.log(data);
+    resetField('checklist_name');
     const res = await addChecklistTagItem(
       projectDetail?.template.id as string,
       checklistTagId,
@@ -55,6 +57,7 @@ const ProjectDetail = () => {
     );
     if (res.success) {
       triggerFetchProjectDetail();
+      reset();
     }
   };
 
@@ -65,6 +68,7 @@ const ProjectDetail = () => {
     const res = await deleteChecklistItem(templateId, checklistItemId);
     if (res.success) {
       triggerFetchProjectDetail();
+      reset();
     }
   };
 
@@ -73,6 +77,7 @@ const ProjectDetail = () => {
     dialogDeleteTag.current?.close();
     if (res.success) {
       triggerFetchProjectDetail();
+      reset();
     }
   };
 

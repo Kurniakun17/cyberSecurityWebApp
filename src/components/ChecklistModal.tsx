@@ -1,5 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 import CvssCalculator from './CvssCalculator';
+import { cvss31ValueT } from '../utils/types';
 
 const ChecklistModal = ({
   dialogRef,
@@ -9,14 +10,15 @@ const ChecklistModal = ({
   const [checkListType, setCheckListType] = useState<
     'none' | 'attack narrative' | 'vulnerability'
   >('none');
-  const [cvssValue, setCvssValue] = useState({
+  const [baseScore, setBaseScore] = useState(0.0);
+  const [cvssValue, setCvssValue] = useState<cvss31ValueT>({
     AV: 'N',
     S: 'U',
     AC: 'L',
-    C: 'N',
     PR: 'N',
-    I: 'N',
     UI: 'N',
+    C: 'N',
+    I: 'N',
     A: 'N',
   });
   const [affectedTarget, setAffectedTarget] = useState([0]);
@@ -90,7 +92,12 @@ const ChecklistModal = ({
             <textarea name="" id="" className="col-span-4 " />
           </div>
 
-          <CvssCalculator cvssValue={cvssValue} setCvssValue={setCvssValue} />
+          <CvssCalculator
+            baseScore={baseScore}
+            setBaseScore={setBaseScore}
+            cvssValue={cvssValue}
+            setCvssValue={setCvssValue}
+          />
 
           <div className="grid grid-cols-6 gap-6">
             <label htmlFor="" className="col-span-2">
