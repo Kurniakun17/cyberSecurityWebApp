@@ -4,7 +4,7 @@ import ProjectCard from '../components/ProjectCard';
 import Modal from '../components/Modal';
 import useProjects from '../hooks/useProjects';
 import { projectsType } from '../utils/types';
-import { toggleProjects } from '../utils/helper';
+import { deleteProject, toggleProject } from '../utils/helper';
 
 const Projects = () => {
   const [toolTipId, setToolTipId] = useState('');
@@ -23,7 +23,7 @@ const Projects = () => {
         if (project.id === id) {
           newProgress =
             project.progress === 'in-progress' ? 'done' : 'in-progress';
-          toggleProjects(id, newProgress);
+          toggleProject(id, newProgress);
           return {
             ...project,
             progress: newProgress,
@@ -37,7 +37,8 @@ const Projects = () => {
     setToolTipId('');
   };
 
-  const onDeleteProjects = (id: string) => {
+  const onDeleteProjects = async (id: string) => {
+    deleteProject(id);
     setProjects((prev: projectsType[]) =>
       prev.filter((project: projectsType) => project.id !== id)
     );

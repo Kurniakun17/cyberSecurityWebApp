@@ -53,14 +53,77 @@ type projectDetailType = {
 }
 
 type cvss31ValueT = {
-    AV: 'N' | 'A' | 'L' | 'P';
-    AC: 'H' | 'L';
-    UI: 'N' | 'R';
-    S: 'U' | 'C';
-    PR: 'N' | 'L' | 'H';
-    C: 'N' | 'L' | 'H';
-    I: 'N' | 'L' | 'H';
-    A: 'N' | 'L' | 'H';
+    AV: 'Network' | 'Adjacent' | 'Local' | 'Physical';
+    AC: 'High' | 'Low';
+    UI: 'None' | 'Required';
+    S: 'Unchanged' | 'Changed';
+    PR: 'None' | 'Low' | 'High';
+    C: 'None' | 'Low' | 'High';
+    I: 'None' | 'Low' | 'High';
+    A: 'None' | 'Low' | 'High';
   }
 
-export type { projectsType, projectDetailType, ChecklistItemType, cvss31ValueT }
+type ChecklistDetailT = {
+  id: string;
+  type: string;
+  progress: number;
+  title: string;
+  description: string;
+  best_practice: string;
+  vulnerability_name: string;
+  vulnerability_description: string;
+  generate_to_word: boolean;
+  cvss_Score: string;
+  severity_level: string;
+  attack_vector: string;
+  attack_complexity: string;
+  privilege_required: string;
+  user_interaction: string;
+  scope: string;
+  confidentiality: string;
+  integrity: string;
+  availability: string;
+  status: string;
+  affected_target: string;
+  reference: string;
+  capec_owasp_cwe: string;
+  impact: string;
+  recommendation: string;
+  poc: string;
+  checklisttag_id: string;
+  createdAt: string;
+  updatedAt: string;
+  images: string[]; 
+};
+
+interface checklistItemInputT {
+    title: string;
+    type: string;
+    progress: number;
+    description: string;
+    generate_to_word: boolean;
+    best_practice: string;
+    poc: string;
+    affected_target: string| string[];
+    reference: string|string[];
+    capec_owasp_cwe: string|string[];
+    vulnerability_name: string;
+    vulnerability_description: string;
+    impact: string;
+    recommendation: string;
+    status: string;
+    attack_vector? : 'Network' | 'Adjacent' | 'Local' | 'Physical';
+    attack_complexity? : 'High' | 'Low';
+    user_interaction?: 'None' | 'Required';
+    scope?: 'Unchanged' | 'Changed';
+    privilege_required?: 'None' | 'Low' | 'High';
+    confidentiality?: 'None' | 'Low' | 'High';
+    integrity?: 'None' | 'Low' | 'High';
+    availability?: 'None' | 'Low' | 'High';
+}
+
+
+
+
+
+export type { projectsType, projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }

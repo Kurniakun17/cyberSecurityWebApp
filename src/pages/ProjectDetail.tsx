@@ -1,23 +1,34 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ChecklistItem from '../components/ChecklistItem';
 import Sidebar from '../components/Sidebar';
 import { useParams } from 'react-router-dom';
 import useProjectDetail from '../hooks/useProjectDetail';
 import Modal from '../components/Modal';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { ChecklistItemType, projectDetailType } from '../utils/types';
+import {
+  ChecklistDetailT,
+  ChecklistItemType,
+  projectDetailType,
+} from '../utils/types';
 import {
   addChecklistTag,
   addChecklistTagItem,
   deleteChecklistItem,
   deleteChecklistTag,
+  exportToDocx,
+  fetchChecklistDetail,
   toggleChecklist,
 } from '../utils/helper';
-import { Trash } from 'lucide-react';
+import { FileText, Trash } from 'lucide-react';
+import ChecklistModal from '../components/ChecklistModal';
+import useLoading from '../hooks/useLoading';
+import { Jelly } from '@uiball/loaders';
 
 type inputs = {
   tag_name: string;
   checklist_name: string;
+  client_name: string;
+  report_type: string;
 };
 
 const ProjectDetail = () => {
@@ -26,16 +37,28 @@ const ProjectDetail = () => {
     useProjectDetail<projectDetailType>(id as string);
   const { register, handleSubmit, reset, resetField } = useForm<inputs>();
   const [checklistTagId, setChecklistTagId] = useState('');
-  const [checklistItemId] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const dialogTagRef = useRef<HTMLDialogElement>(null);
   const dialogChecklistRef = useRef<HTMLDialogElement>(null);
   const dialogDeleteTag = useRef<HTMLDialogElement>(null);
   const dialogDeleteChecklist = useRef<HTMLDialogElement>(null);
+  const dialogDetailChecklist = useRef<HTMLDialogElement>(null);
+  const dialogExportToDocx = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => {}, []);
+  const [checklistDetailData, setChecklistDetailData] =
+    useState<ChecklistDetailT | null>(null);
+
+  const asyncFetchChecklistDetail = async (
+    checklistId: string,
+    templateId: string
+  ) => {
+    const res = await fetchChecklistDetail(checklistId, templateId);
+
+    setChecklistDetailData(res.data);
+  };
 
   const onTagModalSubmit: SubmitHandler<inputs> = async (data) => {
-    console.log(data);
     const result = await addChecklistTag(
       projectDetail?.template.id as string,
       data.tag_name
@@ -47,8 +70,23 @@ const ProjectDetail = () => {
     }
   };
 
+  const onExportModalSubmit: SubmitHandler<inputs> = async (data) => {
+    try {
+      dialogExportToDocx.current?.close();
+      setLoading(true);
+      const res = await exportToDocx(projectDetail?.id as string, {
+        client: data.client_name,
+        report_type: data.report_type,
+      });
+      console.log(res);
+    } catch (error) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onChecklistModalSubmit: SubmitHandler<inputs> = async (data) => {
-    console.log(data);
     resetField('checklist_name');
     const res = await addChecklistTagItem(
       projectDetail?.template.id as string,
@@ -99,11 +137,32 @@ const ProjectDetail = () => {
 
   return (
     <>
-      <div className="flex">
+      <div className={`flex ${loading && 'overflow-hidden'}`}>
+        {loading && (
+          <div className="fixed z-[9999] flex flex-col gap-24 justify-center items-center h-screen w-screen bg-[rgba(255,255,255,0.9)] ">
+            <Jelly size={100} color="#3b82f6" />
+            <h1 className="text-2xl text-blue-500 font-bold">
+              Exporting projects to docx...
+            </h1>
+          </div>
+        )}
         <Sidebar />
         <div className="pt-8 grow lg:ml-[300px] my-[72px]">
           <div className="w-[85%]  mx-auto flex flex-col gap-6 ">
-            <h2 className="text-4xl font-bold">{projectDetail.name}</h2>
+            <div className="flex justify-between">
+              <h2 className="text-4xl font-bold">{projectDetail.name}</h2>
+              <button
+                onClick={() => {
+                  dialogExportToDocx.current?.showModal();
+                }}
+                className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] w-fit"
+              >
+                <div className="flex gap-2">
+                  Export to docx
+                  <FileText color="#3b82f6" />
+                </div>
+              </button>
+            </div>
             <div className="flex gap-6 w-fit items-center px-8 py-6 border mx-auto border-[#D7D7D7] rounded-2xl">
               <div className="flex flex-col gap-3">
                 <span className="font-bold text-[32px]">
@@ -174,11 +233,15 @@ const ProjectDetail = () => {
                     <ChecklistItem
                       key={`checklistItem-${checklistItem.id}`}
                       id={checklistItem.id}
+                      dialogRef={dialogDetailChecklist}
+                      triggerFetchProjectDetail={triggerFetchProjectDetail}
+                      dialogDeleteChecklist={dialogDeleteChecklist}
                       templateId={projectDetail.template.id}
                       title={checklistItem.title}
                       progress={checklistItem.progress}
                       onToggleProgress={onToggleProgress}
                       onDeleteCheckListItem={onDeleteCheckListItem}
+                      onModalOpen={asyncFetchChecklistDetail}
                     />
                   ))}
                   <button
@@ -197,6 +260,8 @@ const ProjectDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Add Tag */}
       <Modal dialogRef={dialogTagRef}>
         <form
           className="flex flex-col gap-4"
@@ -219,6 +284,8 @@ const ProjectDetail = () => {
           </button>
         </form>
       </Modal>
+
+      {/* Modal Add Checklist */}
       <Modal dialogRef={dialogChecklistRef}>
         <form
           className="flex flex-col gap-4"
@@ -241,6 +308,8 @@ const ProjectDetail = () => {
           </button>
         </form>
       </Modal>
+
+      {/* Modal Delete Tag */}
       <Modal dialogRef={dialogDeleteTag}>
         <div className="flex flex-col gap-8">
           <h1 className="font-bold text-red-500 text-2xl text-center ">
@@ -270,37 +339,51 @@ const ProjectDetail = () => {
           </div>
         </div>
       </Modal>
-      <Modal dialogRef={dialogDeleteChecklist}>
-        <div className="flex flex-col gap-8">
-          <h1 className="font-bold text-red-500 text-2xl text-center ">
-            Delete Checklist Item
+
+      {/* Modal Delete Checklist */}
+      <Modal dialogRef={dialogDetailChecklist} maxW="custom">
+        <ChecklistModal
+          dialogRef={dialogDetailChecklist}
+          data={checklistDetailData}
+          templateId={projectDetail.template_id}
+          triggerFetchProjectDetail={triggerFetchProjectDetail}
+          asyncFetchChecklistDetail={asyncFetchChecklistDetail}
+        />
+      </Modal>
+
+      <Modal dialogRef={dialogExportToDocx}>
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={handleSubmit(onExportModalSubmit)}
+        >
+          <h1 className="font-bold text-blue-500 text-2xl text-center mb-1">
+            Export project to Docx
           </h1>
-          <p>
-            Are you sure you want to delete this tag? (All of the data that
-            exist on this checklist would also be deleted)
-          </p>
-          <div className="flex gap-6">
-            <button
-              className="w-full py-2 bg-gray-500 text-white rounded-md"
-              onClick={() => {
-                dialogDeleteTag.current?.close();
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              className="w-full py-2 bg-red-500 rounded-md text-white"
-              onClick={() => {
-                onDeleteCheckListItem(
-                  projectDetail.template.id,
-                  checklistItemId
-                );
-              }}
-            >
-              Delete
-            </button>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="">Client Name</label>
+            <input
+              placeholder="PT ABC"
+              type="text"
+              {...register('client_name')}
+            />
           </div>
-        </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="">Report Type</label>
+            <input
+              placeholder="Early Report Web App ABC"
+              type="text"
+              {...register('report_type')}
+            />
+          </div>
+          <button
+            onClick={() => {
+              dialogChecklistRef.current?.close();
+            }}
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 font-bold  text-white py-2"
+          >
+            Create docx
+          </button>
+        </form>
       </Modal>
     </>
   );

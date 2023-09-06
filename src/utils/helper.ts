@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 const fetchProjects = async () => {
   const res = await axios.get('http://localhost:3000/project');
 
@@ -32,13 +31,62 @@ const deleteChecklistTag = async (templateId: string, checklistTagId: string) =>
   return res.data;
 }
 
-const toggleChecklist = async (templateId:string, checklistTagId: string, progress: number) => {
-  const res = await axios.put(`http://localhost:3000/template/${templateId}/checklist/${checklistTagId}`, {progress})
+const fetchChecklistDetail = async (checklistId: string, templateId:string, ) => {
+  const url = `http://localhost:3000/template/${templateId}/checklist/${checklistId}`;
+  const res = await axios.get(url);
   return res.data;
 }
 
-const toggleProjects = async (id: string, progress: string) => {
+const updateChecklistItem = async (templateId: string, checklistId: string, body: {title: string}) => {
+  const res = await axios.put(`http://localhost:3000/template/${templateId}/checklist/${checklistId}`, body)
+  return res.data;
+}
+
+const uploadPocImage = async( templateId: string ,checklistId: string,  objectImage: {file: File, caption: string}) => {
+  const formData = new FormData();
+  formData.append('file', objectImage.file);
+  formData.append('caption', objectImage.caption);
+
+  const url = `http://localhost:3000/template/${templateId}/checklist/${checklistId}/upload`;
+  const res= await axios.post(url, formData, { headers: {
+          "Content-Type": "multipart/form-data",}})
+  return res.data;
+};
+
+const exportToDocx = async (projectId: string, body: {client: string, report_type:string}) => {
+  const url =`http://localhost:3000/project/${projectId}/export`;
+  console.log(url);
+  const res= await axios.post(url,body)
+  if(res.data.success){
+    axios.get(`http://localhost:3000${res.data.response.path.replace('.', '')}`)
+  }
+  console.log(res.data);
+  return res.data;
+}
+
+const deletePOCImage = async( templateId: string ,checklistId: string,  imageId:string) => {
+  const url = `http://localhost:3000/template/${templateId}/checklist/${checklistId}/upload/${imageId}`;
+  const res= await axios.delete(url);
+  return res.data;
+};
+
+
+const toggleChecklist = async (templateId:string, checklistId: string, progress: number) => {
+  const url = `http://localhost:3000/template/${templateId}/checklist/${checklistId}`;
+  const res = await axios.put(url, {progress})
+  return res.data;
+}
+
+const toggleProject = async (id: string, progress: string) => {
   await axios.put(`http://localhost:3000/project/${id}`, {progress}) 
 }
 
-export { fetchProjects, fetchProjectDetail, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, toggleChecklist, toggleProjects };
+const deleteProject = async (id: string) => {
+    await axios.delete(`http://localhost:3000/project/${id}`)
+}
+
+
+
+
+
+export { fetchProjects, fetchProjectDetail, exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };

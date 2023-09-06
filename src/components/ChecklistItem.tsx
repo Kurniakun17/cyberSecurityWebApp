@@ -1,27 +1,33 @@
-import { useRef } from 'react';
+import React from 'react';
 import Modal from './Modal';
-import ChecklistModal from './ChecklistModal';
+// import Modal from './Modal';
+// import ChecklistModal from './ChecklistModal';
 const ChecklistItem = ({
   id,
   templateId,
   title,
   progress,
+  dialogRef,
+  dialogDeleteChecklist,
   onDeleteCheckListItem,
   onToggleProgress,
+  onModalOpen,
 }: {
   id: string;
   templateId: string;
   title: string;
   progress: number;
+  dialogRef: React.RefObject<HTMLDialogElement>;
+  dialogDeleteChecklist: React.RefObject<HTMLDialogElement>;
   onDeleteCheckListItem: (templateId: string, checklistId: string) => void;
   onToggleProgress: (
     templateId: string,
     checklistId: string,
     progress: number
   ) => void;
+  onModalOpen: (checklistId: string, templateId: string) => void;
+  triggerFetchProjectDetail: () => void;
 }) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
   return (
     <>
       <label
@@ -33,7 +39,7 @@ const ChecklistItem = ({
             id={id}
             checked={Boolean(progress)}
             type="checkbox"
-            className="w-[20px] h-[20px] rounded-xl"
+            className="w-[20px] h-[20px] rounded-xl hover:cursor-pointer"
             onChange={() => {
               onToggleProgress(templateId, id, progress);
             }}
@@ -44,6 +50,7 @@ const ChecklistItem = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
+              onModalOpen(id, templateId);
               dialogRef.current?.showModal();
             }}
             className="py-1 px-4 gap-3 rounded-lg border border-[#D7D7D7]"
@@ -53,7 +60,7 @@ const ChecklistItem = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onDeleteCheckListItem(templateId, id);
+              dialogDeleteChecklist.current?.showModal();
             }}
             className="py-1 px-4 gap-3 rounded-lg border border-[#D7D7D7]"
           >
@@ -61,8 +68,34 @@ const ChecklistItem = ({
           </button>
         </div>
       </label>
-      <Modal dialogRef={dialogRef} maxW="custom">
-        <ChecklistModal dialogRef={dialogRef} />
+      <Modal dialogRef={dialogDeleteChecklist}>
+        <div className="flex flex-col gap-8">
+          <h1 className="font-bold text-red-500 text-2xl text-center ">
+            Delete Checklist Item
+          </h1>
+          <p>
+            Are you sure you want to delete this checklist item? (All of the
+            data that exist on this checklist would also be deleted)
+          </p>
+          <div className="flex gap-6">
+            <button
+              className="w-full py-2 bg-gray-500 text-white rounded-md"
+              onClick={() => {
+                dialogDeleteChecklist.current?.close();
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              className="w-full py-2 bg-red-500 rounded-md text-white"
+              onClick={() => {
+                onDeleteCheckListItem(templateId, id);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       </Modal>
     </>
   );

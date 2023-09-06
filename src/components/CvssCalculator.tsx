@@ -20,11 +20,13 @@ const CvssCalculator = ({
   const scopeCoefficient = 1.08;
 
   const baseScoreStatus = () => {
-    const res = severityRatings.filter(
-      (item) => baseScore >= item.bottom && baseScore <= item.top
-    );
-    console.log(res[0].name);
-    return res[0].name;
+    if (baseScore) {
+      const res = severityRatings.filter(
+        (item) => baseScore >= item.bottom && baseScore <= item.top
+      );
+      return res[0].name;
+    }
+    return 'Please Fill All of The Options';
   };
 
   const updateBaseScore = () => {
@@ -35,11 +37,11 @@ const CvssCalculator = ({
         (1 - CVSS31Weight.I[cvssValue.I]) *
         (1 - CVSS31Weight.A[cvssValue.A]);
 
-    if (cvssValue.S === 'U') {
-      impact = CVSS31Weight['S'][cvssValue.S] * iss;
+    if (cvssValue.S === 'Unchanged') {
+      impact = CVSS31Weight.S[cvssValue.S] * iss;
     } else {
       impact =
-        CVSS31Weight['S'][cvssValue.S] * (iss - 0.029) -
+        CVSS31Weight.S[cvssValue.S] * (iss - 0.029) -
         3.25 * Math.pow(iss - 0.02, 15);
     }
 
@@ -53,7 +55,7 @@ const CvssCalculator = ({
     if (impact <= 0) {
       setBaseScore(0);
     } else {
-      if (cvssValue.S === 'U') {
+      if (cvssValue.S === 'Unchanged') {
         setBaseScore(Roundup(Math.min(exploitability + impact, 10)));
       } else {
         setBaseScore(
@@ -64,8 +66,36 @@ const CvssCalculator = ({
   };
 
   useEffect(() => {
-    updateBaseScore();
+    if (
+      cvssValue.AV &&
+      cvssValue.AC &&
+      cvssValue.PR &&
+      cvssValue.S &&
+      cvssValue.UI &&
+      cvssValue.C &&
+      cvssValue.I &&
+      cvssValue.A
+    ) {
+      updateBaseScore();
+    }
   }, [cvssValue]);
+
+  const generateVectorString = () => {
+    if (
+      cvssValue.AV &&
+      cvssValue.AC &&
+      cvssValue.PR &&
+      cvssValue.S &&
+      cvssValue.UI &&
+      cvssValue.C &&
+      cvssValue.I &&
+      cvssValue.A
+    )
+      return `CVSS:3.1/AV: ${cvssValue.AV[0]}/AC:${cvssValue.AC[0]}
+            /PR:${cvssValue.PR[0]}/UI:${cvssValue.UI[0]}/S:${cvssValue.S[0]}/C:
+            ${cvssValue.C[0]}/I:${cvssValue.I[0]}/A:${cvssValue.A[0]}`;
+    return `Please select all of the available options to generate vector string`;
+  };
 
   return (
     <div className="border border-[#d7d7d7] p-4 rounded-xl flex flex-col gap-2">
@@ -81,10 +111,10 @@ const CvssCalculator = ({
                 | 'High'
                 | 'Critical'
             ]
-          } flex flex-col items-center pb-1 px-6 rounded-xl w-[108px]`}
+          } flex flex-col items-center pb-1 px-6 rounded-xl min-w-[108px]`}
         >
           <h4 className="font-bold text-white text-xl">{baseScore}</h4>
-          <p className="text-white text-sm">( {baseScoreStatus()} )</p>
+          <p className="text-white text-sm">({baseScoreStatus()})</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-y-4">
@@ -92,13 +122,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">Attack Vector (AV)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, AV: 'N' };
+                  return { ...prev, AV: 'Network' };
                 });
               }}
               className={`${
-                cvssValue.AV === 'N'
+                cvssValue.AV === 'Network'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -106,13 +137,14 @@ const CvssCalculator = ({
               <p>Network (N)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, AV: 'A' };
+                  return { ...prev, AV: 'Adjacent' };
                 });
               }}
               className={`${
-                cvssValue.AV === 'A'
+                cvssValue.AV === 'Adjacent'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -120,13 +152,14 @@ const CvssCalculator = ({
               <p>Adjecent (A)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, AV: 'L' };
+                  return { ...prev, AV: 'Local' };
                 });
               }}
               className={`${
-                cvssValue.AV === 'L'
+                cvssValue.AV === 'Local'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -134,13 +167,14 @@ const CvssCalculator = ({
               <p>Local (L)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, AV: 'P' };
+                  return { ...prev, AV: 'Physical' };
                 });
               }}
               className={`${
-                cvssValue.AV === 'P'
+                cvssValue.AV === 'Physical'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -153,13 +187,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">Scope (S)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, S: 'U' };
+                  return { ...prev, S: 'Unchanged' };
                 });
               }}
               className={`${
-                cvssValue.S === 'U'
+                cvssValue.S === 'Unchanged'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -167,13 +202,14 @@ const CvssCalculator = ({
               <p>Unchanged (U)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, S: 'C' };
+                  return { ...prev, S: 'Changed' };
                 });
               }}
               className={`${
-                cvssValue.S === 'C'
+                cvssValue.S === 'Changed'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -186,13 +222,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">Attack Complexity (AC)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, AC: 'L' };
+                  return { ...prev, AC: 'Low' };
                 });
               }}
               className={`${
-                cvssValue.AC === 'L'
+                cvssValue.AC === 'Low'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -200,13 +237,14 @@ const CvssCalculator = ({
               <p>Low (L)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, AC: 'H' };
+                  return { ...prev, AC: 'High' };
                 });
               }}
               className={`${
-                cvssValue.AC === 'H'
+                cvssValue.AC === 'High'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -219,13 +257,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">Confidentiality (C)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, C: 'N' };
+                  return { ...prev, C: 'None' };
                 });
               }}
               className={`${
-                cvssValue.C === 'N'
+                cvssValue.C === 'None'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -233,13 +272,14 @@ const CvssCalculator = ({
               <p>None (N)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, C: 'L' };
+                  return { ...prev, C: 'Low' };
                 });
               }}
               className={`${
-                cvssValue.C === 'L'
+                cvssValue.C === 'Low'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -247,13 +287,14 @@ const CvssCalculator = ({
               <p>Low (L)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, C: 'H' };
+                  return { ...prev, C: 'High' };
                 });
               }}
               className={`${
-                cvssValue.C === 'H'
+                cvssValue.C === 'High'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -266,13 +307,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">Previliges Required (PR)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, PR: 'N' };
+                  return { ...prev, PR: 'None' };
                 });
               }}
               className={`${
-                cvssValue.PR === 'N'
+                cvssValue.PR === 'None'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -280,13 +322,14 @@ const CvssCalculator = ({
               <p>None (N)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, PR: 'L' };
+                  return { ...prev, PR: 'Low' };
                 });
               }}
               className={`${
-                cvssValue.PR === 'L'
+                cvssValue.PR === 'Low'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -294,13 +337,14 @@ const CvssCalculator = ({
               <p>Low (L)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, PR: 'H' };
+                  return { ...prev, PR: 'High' };
                 });
               }}
               className={`${
-                cvssValue.PR === 'H'
+                cvssValue.PR === 'High'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -313,13 +357,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">Integrity (I)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, I: 'N' };
+                  return { ...prev, I: 'None' };
                 });
               }}
               className={`${
-                cvssValue.I === 'N'
+                cvssValue.I === 'None'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -327,13 +372,14 @@ const CvssCalculator = ({
               <p>None (N)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, I: 'L' };
+                  return { ...prev, I: 'Low' };
                 });
               }}
               className={`${
-                cvssValue.I === 'L'
+                cvssValue.I === 'Low'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -341,13 +387,14 @@ const CvssCalculator = ({
               <p>Low (L)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, I: 'H' };
+                  return { ...prev, I: 'High' };
                 });
               }}
               className={`${
-                cvssValue.I === 'H'
+                cvssValue.I === 'High'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -360,13 +407,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">User Interaction(UI)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, UI: 'N' };
+                  return { ...prev, UI: 'None' };
                 });
               }}
               className={`${
-                cvssValue.UI === 'N'
+                cvssValue.UI === 'None'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -374,13 +422,14 @@ const CvssCalculator = ({
               <p>None (N)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, UI: 'R' };
+                  return { ...prev, UI: 'Required' };
                 });
               }}
               className={`${
-                cvssValue.UI === 'R'
+                cvssValue.UI === 'Required'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -393,13 +442,14 @@ const CvssCalculator = ({
           <h4 className="font-bold text-blue-500">Availability (A)</h4>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, A: 'N' };
+                  return { ...prev, A: 'None' };
                 });
               }}
               className={`${
-                cvssValue.A === 'N'
+                cvssValue.A === 'None'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -407,13 +457,14 @@ const CvssCalculator = ({
               <p>None (N)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, A: 'L' };
+                  return { ...prev, A: 'Low' };
                 });
               }}
               className={`${
-                cvssValue.A === 'L'
+                cvssValue.A === 'Low'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -421,13 +472,14 @@ const CvssCalculator = ({
               <p>Low (L)</p>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setCvssValue((prev) => {
-                  return { ...prev, A: 'H' };
+                  return { ...prev, A: 'High' };
                 });
               }}
               className={`${
-                cvssValue.A === 'H'
+                cvssValue.A === 'High'
                   ? 'bg-blue-500 text-white border-blue-500'
                   : 'border-[#d7d7d7] text-black'
               } border p-1 px-2 rounded-md`}
@@ -438,11 +490,7 @@ const CvssCalculator = ({
         </div>
         <div className="my-2 col-span-2 flex items-center bg-blue-500 p-2 px-4 gap-2 text-white rounded-lg">
           <h4 className="text-lg">Vector String - </h4>
-          <span className="font-bold text-sm">
-            CVSS:3.1/AV:{cvssValue.AV}/AC:{cvssValue.AC}
-            /PR:{cvssValue.PR}/UI:{cvssValue.UI}/S:{cvssValue.S}/C:
-            {cvssValue.C}/I:{cvssValue.I}/A:{cvssValue.A}
-          </span>
+          <span className="font-bold text-sm">{generateVectorString()}</span>
         </div>
       </div>
     </div>
@@ -461,6 +509,7 @@ function Roundup(input: number) {
 }
 
 const colorRatings = {
+  'Please Fill All of The Options': 'bg-[#000000]',
   None: 'bg-[#53aa33]',
   Low: 'bg-[#ffcb0d]',
   Medium: 'bg-[#f9a009]',
@@ -498,96 +547,96 @@ const severityRatings = [
 
 export const CVSS31Weight: Cvss31WeightType = {
   AV: {
-    N: 0.85,
-    A: 0.62,
-    L: 0.55,
-    P: 0.2,
+    Network: 0.85,
+    Adjacent: 0.62,
+    Local: 0.55,
+    Physical: 0.2,
   },
   AC: {
-    H: 0.44,
-    L: 0.77,
+    High: 0.44,
+    Low: 0.77,
   },
   PR: {
-    U: {
-      N: 0.85,
-      L: 0.62,
-      H: 0.27,
+    Unchanged: {
+      None: 0.85,
+      Low: 0.62,
+      High: 0.27,
     },
-    C: {
-      N: 0.85,
-      L: 0.68,
-      H: 0.5,
+    Changed: {
+      None: 0.85,
+      Low: 0.68,
+      High: 0.5,
     },
   },
   UI: {
-    N: 0.85,
-    R: 0.62,
+    None: 0.85,
+    Required: 0.62,
   },
   S: {
-    U: 6.42,
-    C: 7.52,
+    Unchanged: 6.42,
+    Changed: 7.52,
   },
   C: {
-    N: 0,
-    L: 0.22,
-    H: 0.56,
+    None: 0,
+    Low: 0.22,
+    High: 0.56,
   },
   I: {
-    N: 0,
-    L: 0.22,
-    H: 0.56,
+    None: 0,
+    Low: 0.22,
+    High: 0.56,
   },
   A: {
-    N: 0,
-    L: 0.22,
-    H: 0.56,
+    None: 0,
+    Low: 0.22,
+    High: 0.56,
   },
 };
 
 type Cvss31WeightType = {
   AV: {
-    N: 0.85;
-    A: 0.62;
-    L: 0.55;
-    P: 0.2;
+    Network: 0.85;
+    Adjacent: 0.62;
+    Local: 0.55;
+    Physical: 0.2;
   };
   AC: {
-    H: 0.44;
-    L: 0.77;
+    High: 0.44;
+    Low: 0.77;
   };
   PR: {
-    U: {
-      N: 0.85;
-      L: 0.62;
-      H: 0.27;
+    Unchanged: {
+      None: 0.85;
+      Low: 0.62;
+      High: 0.27;
     };
-    C: {
-      N: 0.85;
-      L: 0.68;
-      H: 0.5;
+    Changed: {
+      None: 0.85;
+      Low: 0.68;
+      High: 0.5;
     };
   };
   UI: {
-    N: 0.85;
-    R: 0.62;
+    None: 0.85;
+    Required: 0.62;
   };
   S: {
-    U: 6.42;
-    C: 7.52;
+    Unchanged: 6.42;
+    Changed: 7.52;
   };
   C: {
-    N: 0;
-    L: 0.22;
-    H: 0.56;
+    None: 0;
+    Low: 0.22;
+    High: 0.56;
   };
   I: {
-    N: 0;
-    L: 0.22;
-    H: 0.56;
+    None: 0;
+    Low: 0.22;
+    High: 0.56;
   };
   A: {
-    N: 0;
-    L: 0.22;
-    H: 0.56;
+    None: 0;
+    Low: 0.22;
+    High: 0.56;
   };
 };

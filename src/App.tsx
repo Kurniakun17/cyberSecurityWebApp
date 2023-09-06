@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Templates from './pages/Templates';
 import ProjectDetail from './pages/ProjectDetail';
 import TemplateDetail from './pages/TemplateDetail';
+import Test from './pages/test';
 
 const App = () => {
   useEffect(() => {}, []);
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/templates" element={<Templates />} />
         <Route path="/templates/:id" element={<TemplateDetail />} />
+        <Route path="/test" element={<Test />} />
         <Route path="*" element={<Navigate to={'/projects'} />} />
       </Routes>
     </div>
