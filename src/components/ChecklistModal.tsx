@@ -31,6 +31,7 @@ type inputValuesT = {
   recommendation: string;
   status: string;
   image_caption: string;
+  category: string;
 };
 
 const ChecklistModal = ({
@@ -59,6 +60,7 @@ const ChecklistModal = ({
     });
 
     if (res.success) {
+      console.log(res.data);
       setPOCPreview((prev) => [...prev, res.data]);
     }
 
@@ -72,6 +74,7 @@ const ChecklistModal = ({
       asyncFetchChecklistDetail(data?.id as string, templateId);
     }
   };
+
   const openAddImageModal = () => {
     dialogAddImageRef.current?.showModal();
   };
@@ -113,7 +116,11 @@ const ChecklistModal = ({
     C: 'None',
     I: 'None',
     A: 'None',
+    severity_level: 'Informational',
   });
+  const [severityLevel, setSeverityLevel] = useState<
+    '' | 'Informational' | 'None' | 'Low' | 'Medium' | 'High' | 'Critical'
+  >('');
 
   useEffect(() => {
     if (data != null) {
@@ -130,6 +137,7 @@ const ChecklistModal = ({
         const C = data.confidentiality as 'None' | 'Low' | 'High';
         const I = data.integrity as 'None' | 'Low' | 'High';
         const A = data.availability as 'None' | 'Low' | 'High';
+
         setPOCPreview(data.images);
         setValue('affected_target', data.affected_target ?? ['']);
         setValue('reference', data.reference ?? ['']);
@@ -145,7 +153,7 @@ const ChecklistModal = ({
         );
         setValue('generate_to_word', data.generate_to_word);
         setValue('poc', data.poc ?? '');
-
+        setValue('category', data.category ?? '');
         setValue('impact', data.impact ?? '');
         setValue('recommendation', data.recommendation ?? '');
         setValue('type', data.type ?? 'none');
@@ -158,6 +166,14 @@ const ChecklistModal = ({
           C,
           I,
           A,
+          severity_level: data.severity_level as
+            | ''
+            | 'High'
+            | 'Low'
+            | 'None'
+            | 'Informational'
+            | 'Medium'
+            | 'Critical',
         });
       }
     }
@@ -170,7 +186,7 @@ const ChecklistModal = ({
     }
   };
 
-  const onSubmit: SubmitHandler<inputValuesT> = async (
+  const onSaveHandler: SubmitHandler<inputValuesT> = async (
     input: checklistItemInputT
   ) => {
     let body = {
@@ -181,6 +197,7 @@ const ChecklistModal = ({
       capec_owasp_cwe:
         input.capec_owasp_cwe === '' ? [] : input.capec_owasp_cwe,
       progress: input.progress ? 1 : 0,
+      severity_level: 'Informational',
     };
 
     if (input.type === 'vulnerability') {
@@ -194,6 +211,7 @@ const ChecklistModal = ({
         confidentiality: cvssValue.C ?? '',
         integrity: cvssValue.I ?? '',
         availability: cvssValue.A ?? '',
+        severity_level: cvssValue.severity_level ?? '',
       };
     }
 
@@ -208,7 +226,10 @@ const ChecklistModal = ({
 
   return (
     <>
-      <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="flex flex-col gap-6"
+        onSubmit={handleSubmit(onSaveHandler)}
+      >
         <h1 className="font-bold  text-2xl text-center mb-1">Add Check List</h1>
         <div className="flex justify-between">
           <div className="flex flex-col gap-1">
@@ -282,6 +303,8 @@ const ChecklistModal = ({
               setBaseScore={setBaseScore}
               cvssValue={cvssValue}
               setCvssValue={setCvssValue}
+              severityLevel={severityLevel}
+              setSeverityLevel={setSeverityLevel}
             />
 
             <div className="grid grid-cols-6 gap-6">
@@ -337,6 +360,15 @@ const ChecklistModal = ({
                 </button>
               </div>
 
+              <label htmlFor="category" className="col-span-2">
+                Category
+              </label>
+              <input
+                type="text"
+                id="category"
+                {...register('category')}
+                className="col-span-4"
+              />
               {/* References */}
               <label htmlFor="" className="col-span-2">
                 References

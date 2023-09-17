@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { fetchProjectDetail } from '../utils/helper';
 
-const useProjectDetail = <T,>(id: string): [T | null, () => void] => {
+const useProjectDetail = <T,>(
+  id: string
+): [T | null, Dispatch<SetStateAction<T | null>>, () => void] => {
   const [value, setValue] = useState<T | null>(null);
 
   const triggerFetchProjectDetail = async () => {
@@ -13,7 +15,7 @@ const useProjectDetail = <T,>(id: string): [T | null, () => void] => {
     triggerFetchProjectDetail();
   }, []);
 
-  return [value, triggerFetchProjectDetail];
+  return [value, setValue, triggerFetchProjectDetail];
 };
 
 export default useProjectDetail;

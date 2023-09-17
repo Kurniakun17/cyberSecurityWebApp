@@ -39,6 +39,7 @@ const fetchChecklistDetail = async (checklistId: string, templateId:string, ) =>
 
 const updateChecklistItem = async (templateId: string, checklistId: string, body: {title: string}) => {
   const res = await axios.put(`http://localhost:3000/template/${templateId}/checklist/${checklistId}`, body)
+  console.log(res.data);
   return res.data;
 }
 
@@ -58,9 +59,12 @@ const exportToDocx = async (projectId: string, body: {client: string, report_typ
   console.log(url);
   const res= await axios.post(url,body)
   if(res.data.success){
-    axios.get(`http://localhost:3000${res.data.response.path.replace('.', '')}`)
-  }
-  console.log(res.data);
+  const link = document.createElement('a');
+  link.download=`${body.client} report`
+
+  link.href = `http://localhost:3000${res.data.response.path.replace('.', '')}`;
+  link.click();  }
+
   return res.data;
 }
 
@@ -85,8 +89,16 @@ const deleteProject = async (id: string) => {
     await axios.delete(`http://localhost:3000/project/${id}`)
 }
 
+const moveChecklist = async ({templateId, body} :{templateId: string, body: unknown}) => {
+  const newBody = {checklisttag_id: body.id, checklists: body.checklist};
+  const res = await axios.post(`http://localhost:3000/template/${templateId}/checklist/move`, newBody)
+  console.log(res.data);
+}
 
+const moveChecklistToAnotherTag =async ({templateId, body} :{templateId: string, body: unknown}) => {
+  console.log(body);
+  const res = await axios.post(`http://localhost:3000/template/${templateId}/checklist/movetag`, body)
+  console.log(res);
+}
 
-
-
-export { fetchProjects, fetchProjectDetail, exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };
+export { moveChecklist, moveChecklistToAnotherTag, fetchProjects, fetchProjectDetail, exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };

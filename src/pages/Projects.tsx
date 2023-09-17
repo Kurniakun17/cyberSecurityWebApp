@@ -53,7 +53,7 @@ const Projects = () => {
       <div className="flex">
         <Sidebar />
         <div className="lg:ml-[300px] my-[72px] py-8 grow">
-          <div className="w-[85%] mx-auto flex flex-col gap-6 overflow-auto ">
+          <div className="w-[85%] mx-auto flex flex-col gap-6 overflow-visible ">
             <div className="flex flex-col gap-6">
               <div className="flex justify-between">
                 <h2 className="font-bold text-2xl">On-Going Projects</h2>

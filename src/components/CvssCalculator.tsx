@@ -7,11 +7,19 @@ const CvssCalculator = ({
   setBaseScore,
   cvssValue,
   setCvssValue,
+  severityLevel,
+  setSeverityLevel,
 }: {
   baseScore: number;
   setBaseScore: React.Dispatch<React.SetStateAction<number>>;
   cvssValue: cvss31ValueT;
   setCvssValue: setCvssValueType;
+  severityLevel: string;
+  setSeverityLevel: React.Dispatch<
+    React.SetStateAction<
+      '' | 'Informational' | 'None' | 'Low' | 'Medium' | 'High' | 'Critical'
+    >
+  >;
 }) => {
   let iss;
   let impact;
@@ -19,14 +27,15 @@ const CvssCalculator = ({
   const exploitabilityCoefficient = 8.22;
   const scopeCoefficient = 1.08;
 
-  const baseScoreStatus = () => {
+  const updateSeverityLevel = () => {
     if (baseScore) {
       const res = severityRatings.filter(
         (item) => baseScore >= item.bottom && baseScore <= item.top
       );
-      return res[0].name;
+      setSeverityLevel(
+        res[0].name as '' | 'None' | 'Low' | 'Medium' | 'High' | 'Critical'
+      );
     }
-    return 'Please Fill All of The Options';
   };
 
   const updateBaseScore = () => {
@@ -78,7 +87,13 @@ const CvssCalculator = ({
     ) {
       updateBaseScore();
     }
-  }, [cvssValue]);
+  }, [cvssValue, setCvssValue]);
+
+  useEffect(() => {
+    if (baseScore) {
+      updateSeverityLevel();
+    }
+  }, [baseScore]);
 
   const generateVectorString = () => {
     if (
@@ -104,17 +119,18 @@ const CvssCalculator = ({
         <div
           className={`${
             colorRatings[
-              baseScoreStatus() as
-                | 'None'
-                | 'Low'
-                | 'Medium'
-                | 'High'
-                | 'Critical'
+              severityLevel as 'None' | 'Low' | 'Medium' | 'High' | 'Critical'
             ]
           } flex flex-col items-center pb-1 px-6 rounded-xl min-w-[108px]`}
         >
           <h4 className="font-bold text-white text-xl">{baseScore}</h4>
-          <p className="text-white text-sm">({baseScoreStatus()})</p>
+          <p className="text-white text-sm">
+            (
+            {severityLevel === ''
+              ? 'Please fill all of the available options'
+              : severityLevel}
+            )
+          </p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-y-4">
@@ -509,7 +525,7 @@ function Roundup(input: number) {
 }
 
 const colorRatings = {
-  'Please Fill All of The Options': 'bg-[#000000]',
+  '': 'bg-[#000000]',
   None: 'bg-[#53aa33]',
   Low: 'bg-[#ffcb0d]',
   Medium: 'bg-[#f9a009]',

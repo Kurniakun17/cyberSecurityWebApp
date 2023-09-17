@@ -8,6 +8,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import {
   ChecklistDetailT,
   ChecklistItemType,
+  ChecklistTag,
   projectDetailType,
 } from '../utils/types';
 import {
@@ -17,12 +18,14 @@ import {
   deleteChecklistTag,
   exportToDocx,
   fetchChecklistDetail,
+  moveChecklist,
+  moveChecklistToAnotherTag,
   toggleChecklist,
 } from '../utils/helper';
 import { FileText, Trash } from 'lucide-react';
 import ChecklistModal from '../components/ChecklistModal';
-import useLoading from '../hooks/useLoading';
 import { Jelly } from '@uiball/loaders';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 type inputs = {
   tag_name: string;
@@ -33,7 +36,7 @@ type inputs = {
 
 const ProjectDetail = () => {
   const { id } = useParams();
-  const [projectDetail, triggerFetchProjectDetail] =
+  const [projectDetail, setProjectDetail, triggerFetchProjectDetail] =
     useProjectDetail<projectDetailType>(id as string);
   const { register, handleSubmit, reset, resetField } = useForm<inputs>();
   const [checklistTagId, setChecklistTagId] = useState('');
@@ -78,7 +81,6 @@ const ProjectDetail = () => {
         client: data.client_name,
         report_type: data.report_type,
       });
-      console.log(res);
     } catch (error) {
       setLoading(false);
     } finally {
@@ -131,6 +133,62 @@ const ProjectDetail = () => {
     }
   };
 
+  function dragEndHandler(result) {
+    if (!result.destination) return;
+    const { destination, source } = result;
+    const temp = Array.from(
+      projectDetail?.template.checklist_tag as ChecklistTag[]
+    );
+    const destTagIndex = temp.map((e) => e.id).indexOf(destination.droppableId);
+
+    if (destination.droppableId === source.droppableId) {
+      const [reorderedItem] = temp[destTagIndex].checklist.splice(
+        source.index,
+        1
+      );
+      temp[destTagIndex].checklist.splice(destination.index, 0, reorderedItem);
+
+      temp[destTagIndex].checklist.forEach((ele, index) => {
+        ele.priority = index;
+      });
+      setProjectDetail((prev) => ({
+        ...prev,
+        template: { ...prev.template, checklist_tag: temp },
+      }));
+
+      moveChecklist({
+        templateId: projectDetail?.template_id as string,
+        body: temp[destTagIndex],
+      });
+      return;
+    }
+    const sourceTagIndex = temp.map((e) => e.id).indexOf(source.droppableId);
+
+    const [reorderedItem] = temp[sourceTagIndex].checklist.splice(
+      source.index,
+      1
+    );
+
+    temp[sourceTagIndex].checklist.forEach((ele, index) => {
+      ele.priority = index;
+    });
+
+    reorderedItem.priority = temp[destTagIndex].checklist.length - 1;
+    temp[destTagIndex].checklist.push(reorderedItem);
+    setProjectDetail((prev) => ({
+      ...prev,
+      template: { ...prev.template, checklist_tag: temp },
+    }));
+
+    moveChecklistToAnotherTag({
+      templateId: projectDetail?.template_id,
+      body: {
+        target_tag_id: temp[destTagIndex].id,
+        checklist_id: reorderedItem.id,
+      },
+    });
+  }
+
   if (!projectDetail) {
     return <div>Loading</div>;
   }
@@ -155,7 +213,7 @@ const ProjectDetail = () => {
                 onClick={() => {
                   dialogExportToDocx.current?.showModal();
                 }}
-                className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] w-fit"
+                className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
               >
                 <div className="flex gap-2">
                   Export to docx
@@ -209,54 +267,92 @@ const ProjectDetail = () => {
               onClick={() => {
                 dialogTagRef.current?.showModal();
               }}
-              className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] w-fit"
+              className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
             >
               <span className="text-blue-500 text-lg font-bold">+</span> Add
               checklist tag
             </button>
-            {projectDetail.template.checklist_tag.map((item) => (
-              <div key={item.id} className="flex flex-col gap-2">
-                <div className="flex justify-between">
-                  <h4 className="text-2xl">{item.name}</h4>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      dialogDeleteTag.current?.showModal();
-                      setChecklistTagId(item.id);
+
+            <DragDropContext onDragEnd={dragEndHandler}>
+              {projectDetail.template.checklist_tag.map((item) => (
+                <div key={item.id} className="flex flex-col gap-2">
+                  <div className="flex justify-between">
+                    <h4 className="text-2xl">{item.name}</h4>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        dialogDeleteTag.current?.showModal();
+                        setChecklistTagId(item.id);
+                      }}
+                    >
+                      <Trash className="text-red-500 duration-300 hover:text-red-400" />
+                    </button>
+                  </div>
+                  <Droppable droppableId={item.id}>
+                    {(provided) => {
+                      return (
+                        <div
+                          className="flex flex-col pl-4 gap-3"
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                        >
+                          {item.checklist.map(
+                            (
+                              checklistItem: ChecklistItemType,
+                              index: number
+                            ) => (
+                              <Draggable
+                                key={checklistItem.id}
+                                draggableId={checklistItem.id}
+                                index={index}
+                              >
+                                {(provided) => {
+                                  return (
+                                    <ChecklistItem
+                                      provided={provided}
+                                      key={`checklistItem-${checklistItem.id}`}
+                                      id={checklistItem.id}
+                                      dialogRef={dialogDetailChecklist}
+                                      triggerFetchProjectDetail={
+                                        triggerFetchProjectDetail
+                                      }
+                                      dialogDeleteChecklist={
+                                        dialogDeleteChecklist
+                                      }
+                                      templateId={projectDetail.template.id}
+                                      title={checklistItem.title}
+                                      progress={checklistItem.progress}
+                                      onToggleProgress={onToggleProgress}
+                                      onDeleteCheckListItem={
+                                        onDeleteCheckListItem
+                                      }
+                                      onModalOpen={asyncFetchChecklistDetail}
+                                    />
+                                  );
+                                }}
+                              </Draggable>
+                            )
+                          )}
+                          <button
+                            onClick={() => {
+                              setChecklistTagId(item.id);
+                              dialogChecklistRef.current?.showModal();
+                            }}
+                            className="py-2 px-3 gap-4 duration-300 hover:border-blue-500 rounded-xl border border-[#D7D7D7] w-fit"
+                          >
+                            <span className="text-blue-500 text-lg font-bold">
+                              +
+                            </span>{' '}
+                            Add checklist item
+                          </button>
+                          {provided.placeholder}
+                        </div>
+                      );
                     }}
-                  >
-                    <Trash />
-                  </button>
+                  </Droppable>
                 </div>
-                <div className="flex flex-col pl-4 gap-3">
-                  {item.checklist.map((checklistItem: ChecklistItemType) => (
-                    <ChecklistItem
-                      key={`checklistItem-${checklistItem.id}`}
-                      id={checklistItem.id}
-                      dialogRef={dialogDetailChecklist}
-                      triggerFetchProjectDetail={triggerFetchProjectDetail}
-                      dialogDeleteChecklist={dialogDeleteChecklist}
-                      templateId={projectDetail.template.id}
-                      title={checklistItem.title}
-                      progress={checklistItem.progress}
-                      onToggleProgress={onToggleProgress}
-                      onDeleteCheckListItem={onDeleteCheckListItem}
-                      onModalOpen={asyncFetchChecklistDetail}
-                    />
-                  ))}
-                  <button
-                    onClick={() => {
-                      setChecklistTagId(item.id);
-                      dialogChecklistRef.current?.showModal();
-                    }}
-                    className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] w-fit"
-                  >
-                    <span className="text-blue-500 text-lg font-bold">+</span>{' '}
-                    Add checklist item
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </DragDropContext>
           </div>
         </div>
       </div>

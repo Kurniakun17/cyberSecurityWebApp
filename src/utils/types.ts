@@ -16,6 +16,7 @@ interface ChecklistItemType {
   progress: number;
   title: string;
   severity_level: string;
+  priority: number;
 }
 
 interface ChecklistTag {
@@ -61,6 +62,7 @@ type cvss31ValueT = {
     C: 'None' | 'Low' | 'High';
     I: 'None' | 'Low' | 'High';
     A: 'None' | 'Low' | 'High';
+  severity_level: '' | 'Informational'|'None' | 'Low' | 'Medium' | 'High' | 'Critical';
   }
 
 type ChecklistDetailT = {
@@ -73,6 +75,7 @@ type ChecklistDetailT = {
   vulnerability_name: string;
   vulnerability_description: string;
   generate_to_word: boolean;
+  category: string;
   cvss_Score: string;
   severity_level: string;
   attack_vector: string;
@@ -126,4 +129,4 @@ interface checklistItemInputT {
 
 
 
-export type { projectsType, projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }
+export type { projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }
