@@ -19,6 +19,7 @@ const App = () => {
         <Route path="/templates" element={<Templates />} />
         <Route path="/templates/:id" element={<TemplateDetail />} />
         <Route path="/test" element={<Test />} />
+         
         <Route path="*" element={<Navigate to={'/projects'} />} />
       </Routes>
     </div>

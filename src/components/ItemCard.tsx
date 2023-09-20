@@ -1,31 +1,34 @@
 import { useNavigate } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
 
-const ProjectCard = ({
+const ItemCard = ({
   id,
   name,
   createdAt,
   toolTipId,
+  type,
   onSetToolTip,
-  onDeleteProjects,
-  onToggleProjects,
+  onDeleteItem,
+  onToggleItem,
   isOpen = true,
 }: {
   id: string;
   name: string;
   createdAt: string;
   toolTipId: string;
+  type: string;
   onSetToolTip: (id: string) => void;
-  onDeleteProjects: (id: string) => void;
-  onToggleProjects: (id: string) => void;
+  onDeleteItem: (id: string) => void;
+  onToggleItem: (id: string) => void;
   isOpen?: boolean;
 }) => {
   const navigate = useNavigate();
 
   return (
     <div
+      id={id}
       onClick={() => {
-        navigate(`/projects/${id}`);
+        navigate(`/${type}/${id}`);
       }}
       className="overflow-visible relative cursor-pointer p-6 rounded-xl flex flex-col justify-between h-[132px] xl:h-[160px]  border border-[#D7D7D7]"
     >
@@ -51,7 +54,7 @@ const ProjectCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggleProjects(id);
+              onToggleItem(id);
             }}
             type="button"
             className="text-left"
@@ -62,7 +65,7 @@ const ProjectCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggleProjects(id);
+              onToggleItem(id);
             }}
             type="button"
             className="text-left"
@@ -73,7 +76,7 @@ const ProjectCard = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDeleteProjects(id);
+            onDeleteItem(id);
           }}
           type="button"
           className="text-left"
@@ -85,4 +88,4 @@ const ProjectCard = ({
   );
 };
 
-export default ProjectCard;
+export default ItemCard;

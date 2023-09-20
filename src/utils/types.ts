@@ -96,7 +96,19 @@ type ChecklistDetailT = {
   checklisttag_id: string;
   createdAt: string;
   updatedAt: string;
-  images: string[]; 
+  images: Image[]; 
+};
+
+type Image = {
+  id: string;
+  file_name: string;
+  file_caption: string;
+  file_type: string;
+  file_path: string;
+  checklist_id: string;
+  project_id: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 interface checklistItemInputT {
@@ -126,7 +138,16 @@ interface checklistItemInputT {
 }
 
 
+type templatesType = {
+    "id": "352fbb44-8bcc-47c6-9864-a915b86dbd7e",
+    "name": "API Pentest",
+    "description": "Basic web application penetration test checklist template.",
+    "type": "unfilled",
+    "createdAt": "2023-09-20T02:18:04.000Z",
+    "updatedAt": "2023-09-20T02:18:04.000Z"
+}[]
 
 
 
-export type { projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }
+
+export type {templatesType, Image,projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }

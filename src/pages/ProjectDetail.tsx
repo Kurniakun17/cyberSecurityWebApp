@@ -25,7 +25,12 @@ import {
 import { FileText, Trash } from 'lucide-react';
 import ChecklistModal from '../components/ChecklistModal';
 import { Jelly } from '@uiball/loaders';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from 'react-beautiful-dnd';
 
 type inputs = {
   tag_name: string;
@@ -77,7 +82,7 @@ const ProjectDetail = () => {
     try {
       dialogExportToDocx.current?.close();
       setLoading(true);
-      const res = await exportToDocx(projectDetail?.id as string, {
+      await exportToDocx(projectDetail?.id as string, {
         client: data.client_name,
         report_type: data.report_type,
       });
@@ -133,7 +138,7 @@ const ProjectDetail = () => {
     }
   };
 
-  function dragEndHandler(result) {
+  function dragEndHandler(result: DropResult) {
     if (!result.destination) return;
     const { destination, source } = result;
     const temp = Array.from(
@@ -181,7 +186,7 @@ const ProjectDetail = () => {
     }));
 
     moveChecklistToAnotherTag({
-      templateId: projectDetail?.template_id,
+      templateId: projectDetail?.template_id as string,
       body: {
         target_tag_id: temp[destTagIndex].id,
         checklist_id: reorderedItem.id,

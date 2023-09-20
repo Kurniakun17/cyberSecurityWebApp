@@ -4,6 +4,7 @@ import {
   ChecklistDetailT,
   checklistItemInputT,
   cvss31ValueT,
+  Image,
 } from '../utils/types';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import {
@@ -50,7 +51,7 @@ const ChecklistModal = ({
   const { control, register, handleSubmit, setValue, watch, resetField } =
     useForm<inputValuesT>();
   const dialogAddImageRef = useRef<HTMLDialogElement>(null);
-  const [pocPreview, setPOCPreview] = useState([]);
+  const [pocPreview, setPOCPreview] = useState<Image[]>([]);
   const [imagesFile, setImagesFile] = useState<FileList[]>([]);
 
   const onAddImageCaptionSubmit = async (image: { image_caption: string }) => {
@@ -61,7 +62,7 @@ const ChecklistModal = ({
 
     if (res.success) {
       console.log(res.data);
-      setPOCPreview((prev) => [...prev, res.data]);
+      setPOCPreview((prev) => [...prev, res.data] as never[]);
     }
 
     resetField('image_caption');
@@ -138,6 +139,7 @@ const ChecklistModal = ({
         const I = data.integrity as 'None' | 'Low' | 'High';
         const A = data.availability as 'None' | 'Low' | 'High';
 
+        console.log(data.images);
         setPOCPreview(data.images);
         setValue('affected_target', data.affected_target ?? ['']);
         setValue('reference', data.reference ?? ['']);
@@ -181,7 +183,7 @@ const ChecklistModal = ({
 
   const fileHandler = (e: ChangeEvent<HTMLInputElement>) => {
     if ((e.target.files?.length as number) > 0) {
-      setImagesFile((prev) => [...prev, e.target.files]);
+      setImagesFile((prev) => [...prev, e.target.files] as FileList[]);
       openAddImageModal();
     }
   };

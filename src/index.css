@@ -22,3 +22,7 @@ label {
 textarea {
   @apply w-full focus:outline-blue-500 px-2 py-1 border border-[#d7d7d7] h-[100px] rounded-xl resize-none;
 }
+
+.delete {
+  @apply scale-0 opacity-0 relative translate-x-11 duration-700;
+}
