@@ -61,7 +61,6 @@ const ChecklistModal = ({
     });
 
     if (res.success) {
-      console.log(res.data);
       setPOCPreview((prev) => [...prev, res.data] as never[]);
     }
 
@@ -139,7 +138,6 @@ const ChecklistModal = ({
         const I = data.integrity as 'None' | 'Low' | 'High';
         const A = data.availability as 'None' | 'Low' | 'High';
 
-        console.log(data.images);
         setPOCPreview(data.images);
         setValue('affected_target', data.affected_target ?? ['']);
         setValue('reference', data.reference ?? ['']);
@@ -232,7 +230,7 @@ const ChecklistModal = ({
         className="flex flex-col gap-6"
         onSubmit={handleSubmit(onSaveHandler)}
       >
-        <h1 className="font-bold  text-2xl text-center mb-1">Add Check List</h1>
+        <h1 className="font-bold text-2xl text-center mb-1">Add Check List</h1>
         <div className="flex justify-between">
           <div className="flex flex-col gap-1">
             <label htmlFor="title">Title</label>
@@ -242,7 +240,7 @@ const ChecklistModal = ({
             <div className="">
               <select
                 id="type"
-                className="px-2 py-1 pr-16 focus:outline-blue-500 border background rounded-md border-[#d7d7d7] hover:cursor-pointer"
+                className="px-2 py-1 pr-16 focus:outline-blue-500 border background rounded-xl border-[#d7d7d7] hover:cursor-pointer"
                 {...register('type')}
               >
                 <option className="w-[40%]" value="none">

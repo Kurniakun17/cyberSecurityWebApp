@@ -1,14 +1,15 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ChecklistItem from '../components/ChecklistItem';
 import Sidebar from '../components/Sidebar';
 import { useParams } from 'react-router-dom';
-import useProjectDetail from '../hooks/useProjectDetail';
+import useProjectDetail from '../hooks/useItemDetail';
 import Modal from '../components/Modal';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import {
   ChecklistDetailT,
   ChecklistItemType,
   ChecklistTag,
+  UserData,
   projectDetailType,
 } from '../utils/types';
 import {
@@ -18,11 +19,13 @@ import {
   deleteChecklistTag,
   exportToDocx,
   fetchChecklistDetail,
+  fetchProjectDetail,
   moveChecklist,
   moveChecklistToAnotherTag,
   toggleChecklist,
+  updateProject,
 } from '../utils/helper';
-import { FileText, Trash } from 'lucide-react';
+import { Edit, FileText, Trash } from 'lucide-react';
 import ChecklistModal from '../components/ChecklistModal';
 import { Jelly } from '@uiball/loaders';
 import {
@@ -37,15 +40,26 @@ type inputs = {
   checklist_name: string;
   client_name: string;
   report_type: string;
+  name: string;
+  description: string;
+  target_ip: string[];
+  target_url: string[];
+  progress: string;
 };
 
-const ProjectDetail = () => {
+const ProjectDetail = ({ userData }: { userData: UserData }) => {
   const { id } = useParams();
   const [projectDetail, setProjectDetail, triggerFetchProjectDetail] =
-    useProjectDetail<projectDetailType>(id as string);
-  const { register, handleSubmit, reset, resetField } = useForm<inputs>();
+    useProjectDetail<projectDetailType>(async () => {
+      return await fetchProjectDetail(id as string);
+    });
+  const { control, register, handleSubmit, reset, resetField, setValue } =
+    useForm<inputs>();
   const [checklistTagId, setChecklistTagId] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [checklistDetailData, setChecklistDetailData] =
+    useState<ChecklistDetailT | null>(null);
 
   const dialogTagRef = useRef<HTMLDialogElement>(null);
   const dialogChecklistRef = useRef<HTMLDialogElement>(null);
@@ -53,9 +67,42 @@ const ProjectDetail = () => {
   const dialogDeleteChecklist = useRef<HTMLDialogElement>(null);
   const dialogDetailChecklist = useRef<HTMLDialogElement>(null);
   const dialogExportToDocx = useRef<HTMLDialogElement>(null);
+  const dialogEditProject = useRef<HTMLDialogElement>(null);
 
-  const [checklistDetailData, setChecklistDetailData] =
-    useState<ChecklistDetailT | null>(null);
+  const {
+    fields: target_ip,
+    remove: removeTarget_ip,
+    append: appendTarget_ip,
+  } = useFieldArray({
+    control,
+    name: 'target_ip',
+  });
+
+  const {
+    fields: target_url,
+    remove: removeTarget_url,
+    append: appendTarget_url,
+  } = useFieldArray({
+    control,
+    name: 'target_url',
+  });
+
+  useEffect(() => {
+    if (projectDetail != null) {
+      setValue('name', projectDetail?.name);
+      setValue('description', projectDetail.description);
+      setValue('target_ip', projectDetail.target_ip);
+      setValue('target_url', projectDetail.target_url);
+    }
+  }, [projectDetail]);
+
+  const onEditProjectSubmit = async (res: inputs) => {
+    const fetchResult = await updateProject(projectDetail?.id as string, res);
+    if (fetchResult.success) {
+      triggerFetchProjectDetail();
+      reset();
+    }
+  };
 
   const asyncFetchChecklistDetail = async (
     checklistId: string,
@@ -93,7 +140,7 @@ const ProjectDetail = () => {
     }
   };
 
-  const onChecklistModalSubmit: SubmitHandler<inputs> = async (data) => {
+  const onChecklistTagModalSubmit: SubmitHandler<inputs> = async (data) => {
     resetField('checklist_name');
     const res = await addChecklistTagItem(
       projectDetail?.template.id as string,
@@ -156,10 +203,13 @@ const ProjectDetail = () => {
       temp[destTagIndex].checklist.forEach((ele, index) => {
         ele.priority = index;
       });
-      setProjectDetail((prev) => ({
-        ...prev,
-        template: { ...prev.template, checklist_tag: temp },
-      }));
+      setProjectDetail(
+        (prev) =>
+          ({
+            ...prev,
+            template: { ...prev?.template, checklist_tag: temp },
+          } as projectDetailType)
+      );
 
       moveChecklist({
         templateId: projectDetail?.template_id as string,
@@ -180,10 +230,13 @@ const ProjectDetail = () => {
 
     reorderedItem.priority = temp[destTagIndex].checklist.length - 1;
     temp[destTagIndex].checklist.push(reorderedItem);
-    setProjectDetail((prev) => ({
-      ...prev,
-      template: { ...prev.template, checklist_tag: temp },
-    }));
+    setProjectDetail(
+      (prev) =>
+        ({
+          ...prev,
+          template: { ...prev?.template, checklist_tag: temp },
+        } as projectDetailType)
+    );
 
     moveChecklistToAnotherTag({
       templateId: projectDetail?.template_id as string,
@@ -214,17 +267,26 @@ const ProjectDetail = () => {
           <div className="w-[85%]  mx-auto flex flex-col gap-6 ">
             <div className="flex justify-between">
               <h2 className="text-4xl font-bold">{projectDetail.name}</h2>
-              <button
-                onClick={() => {
-                  dialogExportToDocx.current?.showModal();
-                }}
-                className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
-              >
-                <div className="flex gap-2">
-                  Export to docx
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    dialogEditProject.current?.showModal();
+                  }}
+                  className="group flex gap-2 relative py-2 px-3  rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+                >
+                  <Edit color="#3b82f6" size={22} />
+                  <p className="group-hover:text-blue-500">Edit</p>
+                </button>
+                <button
+                  onClick={() => {
+                    dialogExportToDocx.current?.showModal();
+                  }}
+                  className="py-2 px-3 group flex gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+                >
                   <FileText color="#3b82f6" />
-                </div>
-              </button>
+                  <p className="group-hover:text-blue-500">Export to docx</p>
+                </button>
+              </div>
             </div>
             <div className="flex gap-6 w-fit items-center px-8 py-6 border mx-auto border-[#D7D7D7] rounded-2xl">
               <div className="flex flex-col gap-3">
@@ -263,9 +325,24 @@ const ProjectDetail = () => {
               </div>
             </div>
             <div className="flex flex-col gap-3">
-              <p className="font-semibold">
-                Target URL: {projectDetail.target_url}
-              </p>
+              <div className="flex gap-5">
+                <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
+                  <p className="font-semibold block flex-1 text-center">
+                    Target URL:{' '}
+                    {projectDetail.target_url.length > 0
+                      ? projectDetail.target_url.toString()
+                      : '-'}
+                  </p>
+                </div>
+                <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
+                  <p className="font-semibold block flex-1 text-center">
+                    Target IP:{' '}
+                    {projectDetail.target_ip.length > 0
+                      ? projectDetail.target_ip.toString()
+                      : '-'}
+                  </p>
+                </div>
+              </div>
               <p className="block w-fit">{projectDetail.description}</p>
             </div>
             <button
@@ -318,9 +395,6 @@ const ProjectDetail = () => {
                                       key={`checklistItem-${checklistItem.id}`}
                                       id={checklistItem.id}
                                       dialogRef={dialogDetailChecklist}
-                                      triggerFetchProjectDetail={
-                                        triggerFetchProjectDetail
-                                      }
                                       dialogDeleteChecklist={
                                         dialogDeleteChecklist
                                       }
@@ -338,6 +412,7 @@ const ProjectDetail = () => {
                               </Draggable>
                             )
                           )}
+                          {provided.placeholder}
                           <button
                             onClick={() => {
                               setChecklistTagId(item.id);
@@ -350,7 +425,6 @@ const ProjectDetail = () => {
                             </span>{' '}
                             Add checklist item
                           </button>
-                          {provided.placeholder}
                         </div>
                       );
                     }}
@@ -361,6 +435,117 @@ const ProjectDetail = () => {
           </div>
         </div>
       </div>
+
+      <Modal dialogRef={dialogEditProject}>
+        <form
+          onSubmit={handleSubmit(onEditProjectSubmit)}
+          className="flex flex-col gap-3 text-black"
+        >
+          <h1 className="font-bold  text-2xl text-center mb-1">Edit Project</h1>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="name" className="text-grayText">
+              Name
+            </label>
+            <input
+              {...register('name')}
+              id="name"
+              type="text"
+              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="description" className="text-grayText">
+              Description
+            </label>
+            <textarea
+              {...register('description')}
+              id="description"
+              className="border resize-none h-[72px] border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="target-ip" className="text-grayText">
+              Target IP
+            </label>
+            {target_ip.map((field, index) => {
+              return (
+                <div key={`target_ip-${field.id}`} className="flex gap-3">
+                  <input
+                    key={field.id}
+                    type="text"
+                    {...register(`target_ip.${index}` as const)}
+                    className=""
+                  />
+                  <button
+                    type="button"
+                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
+                    onClick={() => {
+                      removeTarget_ip(index);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => {
+                appendTarget_ip('');
+              }}
+              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
+            >
+              <span className="text-blue-500 text-sm font-bold">+</span> Add
+              Item
+            </button>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="target-url" className="text-grayText">
+              Target URL
+            </label>
+            {target_url.map((field, index) => {
+              return (
+                <div key={`target_url-${field.id}`} className="flex gap-3">
+                  <input
+                    key={field.id}
+                    type="text"
+                    {...register(`target_url.${index}` as const)}
+                    className=""
+                  />
+                  <button
+                    type="button"
+                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
+                    onClick={() => {
+                      removeTarget_url(index);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => {
+                appendTarget_url('');
+              }}
+              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
+            >
+              <span className="text-blue-500 text-sm font-bold">+</span> Add
+              Item
+            </button>
+          </div>
+
+          <button
+            onClick={() => {
+              dialogEditProject.current?.close();
+            }}
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
+          >
+            Create Project
+          </button>
+        </form>
+      </Modal>
 
       {/* Modal Add Tag */}
       <Modal dialogRef={dialogTagRef}>
@@ -386,11 +571,11 @@ const ProjectDetail = () => {
         </form>
       </Modal>
 
-      {/* Modal Add Checklist */}
+      {/* Modal Add Checklist Tag */}
       <Modal dialogRef={dialogChecklistRef}>
         <form
           className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onChecklistModalSubmit)}
+          onSubmit={handleSubmit(onChecklistTagModalSubmit)}
         >
           <h1 className="font-bold  text-2xl text-center mb-1">
             Add Checklist Item
@@ -441,7 +626,7 @@ const ProjectDetail = () => {
         </div>
       </Modal>
 
-      {/* Modal Delete Checklist */}
+      {/* Modal Checklist Detail */}
       <Modal dialogRef={dialogDetailChecklist} maxW="custom">
         <ChecklistModal
           dialogRef={dialogDetailChecklist}

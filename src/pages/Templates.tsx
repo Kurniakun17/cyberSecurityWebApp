@@ -4,19 +4,21 @@ import Sidebar from '../components/Sidebar';
 import useTemplates from '../hooks/useTemplate';
 import { useForm } from 'react-hook-form';
 import Modal from '../components/Modal';
-import { templatesType } from '../utils/types';
-import { addTemplate } from '../utils/helper';
+import { UserData, templateType } from '../utils/types';
+import { addTemplate, deleteTemplate } from '../utils/helper';
+import { useNavigate } from 'react-router-dom';
 
 type inputs = {
   name: string;
   description: string;
 };
 
-const Templates = () => {
-  const [templates, setTemplates] = useTemplates<templatesType>();
+const Templates = ({ userData }: { userData: UserData }) => {
+  const [templates, setTemplates] = useTemplates<templateType[]>();
   const [toolTipId, setToolTipId] = useState('');
   const { register, handleSubmit, reset } = useForm<inputs>();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const navigate = useNavigate();
 
   const onAddTemplateHandler = async () => {
     dialogRef.current?.showModal();
@@ -25,16 +27,27 @@ const Templates = () => {
     setToolTipId((prev: string) => (prev === id ? '' : id));
   };
 
-  const onDeleteTemplate = () => {};
+  const onDeleteTemplate = (id: string) => {
+    setToolTipId('');
+    document.getElementById(id)?.classList.add('delete');
+    deleteTemplate(id);
+    setTimeout(() => {
+      setTemplates((prev: templateType[]) =>
+        prev.filter((template: templateType) => template.id !== id)
+      );
+    }, 1000);
+  };
+
   const onSubmitAddTemplate = async (formResult: inputs) => {
     const res = await addTemplate(formResult);
-    setTemplates((prev: templatesType) => [...prev, res.data]);
+    setTemplates((prev: templateType[]) => [...prev, res.data]);
+    reset();
   };
 
   return (
     <>
       <div className="flex">
-        <Sidebar active="templates" />
+        <Sidebar active="templates" userData={userData} />
         <div className="lg:ml-[300px] my-[72px] py-8 grow">
           <div className="w-[85%] mx-auto flex flex-col gap-6 overflow-visible">
             <div className="flex flex-col gap-6">
@@ -57,7 +70,9 @@ const Templates = () => {
                       onToggleItem={() => {}}
                       key={template.id}
                       id={template.id}
-                      type="templates"
+                      onClickItem={() => {
+                        navigate(`/templates/${template.id}`);
+                      }}
                       name={template.name}
                       createdAt={template.createdAt}
                       toolTipId={toolTipId}

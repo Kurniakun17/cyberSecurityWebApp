@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
 
 const ItemCard = ({
@@ -6,34 +5,33 @@ const ItemCard = ({
   name,
   createdAt,
   toolTipId,
-  type,
   onSetToolTip,
   onDeleteItem,
   onToggleItem,
+  onClickItem,
   isOpen = true,
 }: {
   id: string;
   name: string;
   createdAt: string;
   toolTipId: string;
-  type: string;
+
   onSetToolTip: (id: string) => void;
   onDeleteItem: (id: string) => void;
   onToggleItem: (id: string) => void;
+  onClickItem: () => void;
   isOpen?: boolean;
 }) => {
-  const navigate = useNavigate();
-
   return (
     <div
       id={id}
-      onClick={() => {
-        navigate(`/${type}/${id}`);
-      }}
-      className="overflow-visible relative cursor-pointer p-6 rounded-xl flex flex-col justify-between h-[132px] xl:h-[160px]  border border-[#D7D7D7]"
+      onClick={onClickItem}
+      className="overflow-visible relative cursor-pointer p-6 rounded-xl flex flex-col justify-between h-[132px] xl:h-[160px]  border border-[#D7D7D7] hover:border-blue-500 group duration-300"
     >
       <div className="flex justify-between items-center">
-        <h3 className="font-bold">{name}</h3>
+        <h3 className="font-bold group-hover:text-blue-500 duration-300">
+          {name}
+        </h3>
         <button
           className="font-bold cursor-pointer relative z-10"
           onClick={(e) => {
@@ -41,10 +39,15 @@ const ItemCard = ({
             onSetToolTip(id);
           }}
         >
-          <MoreVertical size={'16px'} />
+          <MoreVertical
+            size={'16px'}
+            className="group-hover:text-blue-500 duration-300"
+          />
         </button>
       </div>
-      <p className="text-[#8B879B]">Created at {createdAt.substring(0, 10)}</p>
+      <p className="text-[#8B879B] group-hover:text-blue-500/80 duration-300">
+        Created at {createdAt.substring(0, 10)}
+      </p>
       <div
         className={`${
           toolTipId === id ? 'flex' : 'hidden'
@@ -79,7 +82,7 @@ const ItemCard = ({
             onDeleteItem(id);
           }}
           type="button"
-          className="text-left"
+          className="text-left hover:text-red-500 duration-300"
         >
           Delete
         </button>

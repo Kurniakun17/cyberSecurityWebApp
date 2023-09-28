@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext } from 'react';
 import Sidebar from '../components/Sidebar';
 import Modal from '../components/Modal';
 import useProjects from '../hooks/useProjects';
-import { projectsType } from '../utils/types';
+import { UserData, projectsType } from '../utils/types';
 import {
   addProject,
   deleteProject,
@@ -11,6 +11,8 @@ import {
 } from '../utils/helper';
 import { useForm, useFieldArray } from 'react-hook-form';
 import ItemCard from '../components/ItemCard';
+import { useNavigate } from 'react-router-dom';
+import { userContext } from '../context/userContext';
 
 type inputs = {
   name: string;
@@ -20,12 +22,13 @@ type inputs = {
   template_id: string;
 };
 
-const Projects = () => {
+const Projects = ({ userData }: { userData: UserData}) => {
+  const [projects, setProjects] = useProjects<projectsType[] | []>();
   const [toolTipId, setToolTipId] = useState('');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [template, setTemplate] = useState([]);
   const { control, register, handleSubmit, reset } = useForm<inputs>();
-
+  const navigate = useNavigate();
   const {
     fields: target_ip,
     remove: removeTarget_ip,
@@ -34,7 +37,6 @@ const Projects = () => {
     control,
     name: 'target_ip',
   });
-
   const {
     fields: target_url,
     remove: removeTarget_url,
@@ -44,15 +46,12 @@ const Projects = () => {
     name: 'target_url',
   });
 
-  const [projects, setProjects] = useProjects<projectsType[] | []>();
-
   const onSetToolTip = (id: string) => {
     setToolTipId((prev: string) => (prev === id ? '' : id));
   };
 
   const onToggleProjects = (id: string) => {
     let newProgress: string;
-    console.log('hai');
 
     setProjects((prev: projectsType[]) => {
       const newProjects = prev.map((project: projectsType) => {
@@ -105,7 +104,6 @@ const Projects = () => {
       target_url: res.target_url ?? [],
       progress: 'in-progress',
     };
-    console.log(body);
     const data = await addProject(body);
     if (data.success) {
       reset();
@@ -114,10 +112,11 @@ const Projects = () => {
       });
     }
   };
+
   return (
     <>
       <div className="flex">
-        <Sidebar />
+        <Sidebar active="projects" userData={userData} />
         <div className="lg:ml-[300px] my-[72px] py-8 grow">
           <div className="w-[85%] mx-auto flex flex-col gap-6 overflow-visible ">
             <div className="flex flex-col gap-6">
@@ -144,7 +143,9 @@ const Projects = () => {
                       onToggleItem={onToggleProjects}
                       key={project.id}
                       id={project.id}
-                      type="projects"
+                      onClickItem={() => {
+                        navigate(`/projects/${project.id}`);
+                      }}
                       name={project.name}
                       createdAt={project.createdAt}
                       toolTipId={toolTipId}
@@ -169,7 +170,9 @@ const Projects = () => {
                       createdAt={project.createdAt}
                       isOpen={false}
                       id={project.id}
-                      type="projects"
+                      onClickItem={() => {
+                        navigate(`/projects/${project.id}`);
+                      }}
                       toolTipId={toolTipId}
                       onSetToolTip={onSetToolTip}
                       onDeleteItem={onDeleteProjects}

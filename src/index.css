@@ -11,7 +11,8 @@ select {
   padding: 4px 20px;
 }
 
-input[type='text'] {
+input[type='text'],
+input[type='password'] {
   @apply border border-[#d7d7d7] w-full rounded-xl px-2 py-1 focus:outline-blue-500;
 }
 

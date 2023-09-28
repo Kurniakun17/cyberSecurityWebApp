@@ -53,6 +53,18 @@ type projectDetailType = {
   template: Template;
 }
 
+type templateDetailType = {
+  "id": string,
+  "name": string,
+  "description": string,
+  "type": string,
+  "createdAt": string,
+  "updatedAt": string,
+  "checklist_tag": ChecklistTag[],
+  "target_ip": string[],
+  "target_url": string[],
+}
+
 type cvss31ValueT = {
     AV: 'Network' | 'Adjacent' | 'Local' | 'Physical';
     AC: 'High' | 'Low';
@@ -76,7 +88,7 @@ type ChecklistDetailT = {
   vulnerability_description: string;
   generate_to_word: boolean;
   category: string;
-  cvss_Score: string;
+  cvss_score: number;
   severity_level: string;
   attack_vector: string;
   attack_complexity: string;
@@ -138,16 +150,29 @@ interface checklistItemInputT {
 }
 
 
-type templatesType = {
+type templateType = {
     "id": "352fbb44-8bcc-47c6-9864-a915b86dbd7e",
     "name": "API Pentest",
     "description": "Basic web application penetration test checklist template.",
     "type": "unfilled",
     "createdAt": "2023-09-20T02:18:04.000Z",
     "updatedAt": "2023-09-20T02:18:04.000Z"
-}[]
+}
+
+type UserData = {
+  id: string,
+  username: string,
+  admin: boolean,
+}
+
+type Reference = {
+  items: ChecklistDetailT[],
+  success: boolean,
+  totalItems: number,
+  currentPage: number,
+  totalPages: number,
+}
 
 
 
-
-export type {templatesType, Image,projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }
+export type {Reference, UserData, templateType, templateDetailType, Image, projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }

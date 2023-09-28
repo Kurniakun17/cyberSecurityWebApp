@@ -28,7 +28,7 @@ const ChecklistItem = ({
     progress: number
   ) => void;
   onModalOpen: (checklistId: string, templateId: string) => void;
-  triggerFetchProjectDetail: () => void;
+
   provided: DraggableProvided;
 }) => {
   return (
