@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { loginAuth } from '../utils/user';
+import toast from 'react-hot-toast';
 
 type inputs = {
   username: string;
@@ -11,6 +12,9 @@ const Login = ({ onSetAuth }: { onSetAuth: (token: string) => void }) => {
 
   const onLoginSubmit = async (res: inputs) => {
     const data = await loginAuth(res);
+    if (data.success) {
+      toast.success('Login successfully');
+    }
     onSetAuth(data.token);
   };
 

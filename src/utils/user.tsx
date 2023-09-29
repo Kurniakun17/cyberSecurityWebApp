@@ -12,4 +12,17 @@ const getUserData = async () => {
   return res.data;
 };
 
-export { loginAuth, getUserData };
+const registerUser = async (body: { username: string; password: string }) => {
+  const res = await api.post('http://localhost:3000/user/register', body);
+
+  return res.data;
+};
+
+const signOut = async () => {
+  const res = await api.post('http://localhost:3000/user/auth/logout');
+
+  return res.data;
+}
+
+
+export { signOut, loginAuth, getUserData, registerUser };

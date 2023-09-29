@@ -96,23 +96,6 @@ const CvssCalculator = ({
     }
   }, [baseScore]);
 
-  const generateVectorString = () => {
-    if (
-      cvssValue.AV &&
-      cvssValue.AC &&
-      cvssValue.PR &&
-      cvssValue.S &&
-      cvssValue.UI &&
-      cvssValue.C &&
-      cvssValue.I &&
-      cvssValue.A
-    )
-      return `CVSS:3.1/AV: ${cvssValue.AV[0]}/AC:${cvssValue.AC[0]}
-            /PR:${cvssValue.PR[0]}/UI:${cvssValue.UI[0]}/S:${cvssValue.S[0]}/C:
-            ${cvssValue.C[0]}/I:${cvssValue.I[0]}/A:${cvssValue.A[0]}`;
-    return `Please select all of the available options to generate vector string`;
-  };
-
   return (
     <div className="border border-[#d7d7d7] p-4 rounded-xl flex flex-col gap-2">
       <div className="flex justify-between items-center">
@@ -507,7 +490,18 @@ const CvssCalculator = ({
         </div>
         <div className="my-2 col-span-2 flex items-center bg-blue-500 p-2 px-4 gap-2 text-white rounded-lg">
           <h4 className="text-lg">Vector String - </h4>
-          <span className="font-bold text-sm">{generateVectorString()}</span>
+          <span className="font-bold text-sm">
+            {generateVectorString({
+              attack_vector: cvssValue.AV,
+              attack_complexity: cvssValue.C,
+              privilege_required: cvssValue.PR,
+              user_interaction: cvssValue.UI,
+              scope: cvssValue.S,
+              confidentiality: cvssValue.C,
+              integrity: cvssValue.I,
+              availability: cvssValue.A,
+            })}
+          </span>
         </div>
       </div>
     </div>
@@ -515,6 +509,39 @@ const CvssCalculator = ({
 };
 
 export default CvssCalculator;
+
+const generateVectorString = ({
+  attack_vector,
+  attack_complexity,
+  privilege_required,
+  user_interaction,
+  scope,
+  confidentiality,
+  integrity,
+  availability,
+}: {
+  attack_vector: string;
+  attack_complexity: string;
+  privilege_required: string;
+  user_interaction: string;
+  scope: string;
+  confidentiality: string;
+  integrity: string;
+  availability: string;
+}) => {
+  if (
+    attack_vector &&
+    attack_complexity &&
+    privilege_required &&
+    scope &&
+    user_interaction &&
+    confidentiality &&
+    integrity &&
+    availability
+  )
+    return `CVSS:3.1/AV:${attack_vector[0]}/AC:${attack_complexity[0]}/PR:${privilege_required[0]}/UI:${user_interaction[0]}/S:${scope[0]}/C:${confidentiality[0]}/I:${integrity[0]}/A:${availability[0]}`;
+  return `Please select all of the available options to generate vector string`;
+};
 
 function Roundup(input: number) {
   const int_input = Math.round(input * 100000);
@@ -620,3 +647,5 @@ type Cvss31WeightType = {
     High: 0.56;
   };
 };
+
+export { generateVectorString };

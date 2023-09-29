@@ -13,7 +13,7 @@ select {
 
 input[type='text'],
 input[type='password'] {
-  @apply border border-[#d7d7d7] w-full rounded-xl px-2 py-1 focus:outline-blue-500;
+  @apply border border-[#d7d7d7] w-full rounded-md px-2 py-1 outline-blue-500/0 focus:outline-blue-500 duration-150;
 }
 
 label {

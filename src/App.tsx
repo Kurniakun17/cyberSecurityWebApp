@@ -6,13 +6,17 @@ import Templates from './pages/Templates';
 import ProjectDetail from './pages/ProjectDetail';
 import TemplateDetail from './pages/TemplateDetail';
 import Login from './pages/Login';
-import { getUserData } from './utils/user';
+import { getUserData, signOut } from './utils/user';
 import { UserData } from './utils/types';
 import References from './pages/Reference';
 import Admin from './pages/Admin';
+import Sidebar from './components/Sidebar';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const App = () => {
   const [auth, setAuth] = useState<string>('');
+  const [active, setActive] = useState('projects');
   const [userData, setUserData] = useState<UserData>();
   const navigate = useNavigate();
 
@@ -37,6 +41,7 @@ const App = () => {
     try {
       const res = await getUserData();
       if (res.success) {
+        toast.success('Login successfully');
         const token = localStorage.getItem('token') as string;
         setAuth(token);
         setUserData(res.user);
@@ -47,10 +52,18 @@ const App = () => {
     }
   };
 
-  const onSignOutHandler = () => {
-    localStorage.removeItem('token');
-    setAuth('');
-    navigate('/login');
+  const onSignOutHandler = async () => {
+    const res = await signOut();
+    if (res.success) {
+      toast.success('Sign out successfully');
+      localStorage.removeItem('token');
+      setAuth('');
+      navigate('/login');
+    }
+  };
+
+  const onSetActive = (data: string) => {
+    setActive(data);
   };
 
   return (
@@ -61,34 +74,45 @@ const App = () => {
           username={userData?.username as string}
         />
       )}
-      <Routes>
-        <Route
-          path="/projects"
-          element={<Projects userData={userData as UserData} />}
-        />
-        <Route
-          path="/projects/:id"
-          element={<ProjectDetail userData={userData as UserData} />}
-        />
-        <Route
-          path="/templates"
-          element={<Templates userData={userData as UserData} />}
-        />
-        <Route
-          path="/templates/:id"
-          element={<TemplateDetail userData={userData as UserData} />}
-        />
-        <Route
-          path="/reference"
-          element={<References userData={userData as UserData} />}
-        />
-        <Route
-          path="/admin"
-          element={<Admin userData={userData as UserData} />}
-        />
-        <Route path="/login" element={<Login onSetAuth={onSetAuth} />} />
-        <Route path="*" element={<Navigate to={'/projects'} />} />
-      </Routes>
+      <div className="flex">
+        {window.location.pathname !== '/login' && (
+          <Sidebar
+            active={active}
+            userData={userData as UserData}
+            onSetActive={onSetActive}
+          />
+        )}
+        <div
+          className={`${
+            window.location.pathname !== '/login'
+              ? 'pt-8 grow lg:ml-[300px] my-[72px]'
+              : 'mx-auto'
+          }`}
+        >
+          <div
+            className={`${
+              window.location.pathname !== '/login'
+                ? 'w-[85%] mx-auto flex flex-col gap-6'
+                : ''
+            } `}
+          >
+            <Routes>
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/projects/:id" element={<ProjectDetail />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/templates/:id" element={<TemplateDetail />} />
+              <Route path="/reference" element={<References />} />
+              <Route
+                path="/admin"
+                element={<Admin userData={userData as UserData} />}
+              />
+              <Route path="/login" element={<Login onSetAuth={onSetAuth} />} />
+              <Route path="*" element={<Navigate to={'/projects'} />} />
+            </Routes>
+          </div>
+        </div>
+      </div>
+      <Toaster position="top-right" />
     </div>
   );
 };

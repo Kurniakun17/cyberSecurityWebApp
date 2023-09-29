@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
 import useItemDetail from '../hooks/useItemDetail';
 import {
   addChecklistTag,
@@ -18,7 +17,6 @@ import {
   ChecklistDetailT,
   ChecklistItemType,
   ChecklistTag,
-  UserData,
   templateDetailType,
 } from '../utils/types';
 import { useEffect, useRef } from 'react';
@@ -48,7 +46,7 @@ type inputs = {
   target_url: string[];
 };
 
-const TemplateDetail = ({ userData }: { userData: UserData }) => {
+const TemplateDetail = () => {
   const { id } = useParams();
   const [templateDetail, setTemplateDetail, triggerFetchTemplateDetail] =
     useItemDetail<templateDetailType>(async () => {
@@ -84,7 +82,7 @@ const TemplateDetail = ({ userData }: { userData: UserData }) => {
     }
   }, [templateDetail]);
 
-  const onEditProjectSubmit = async (result) => {
+  const onEditProjectSubmit = async (result: inputs) => {
     const res = {
       name: result.name,
       description: result.template_description,
@@ -262,108 +260,97 @@ const TemplateDetail = ({ userData }: { userData: UserData }) => {
   };
 
   return (
-    <div className="flex">
-      <Sidebar active="templates" userData={userData} />
-      <div className="pt-8 grow lg:ml-[300px] my-[72px]">
-        <div className="w-[85%]  mx-auto flex flex-col gap-6 ">
-          <div className="flex justify-between">
-            <h2 className="text-4xl font-bold">{templateDetail?.name}</h2>
-            <button
-              onClick={() => {
-                dialogEditProject.current?.showModal();
-              }}
-              className="group flex relative py-2 px-3 gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
-            >
-              <Edit color="#3b82f6" size={22} />
-              <p className="group-hover:text-blue-500">Edit</p>
-            </button>
-          </div>
-          <p>{templateDetail?.description}</p>
-          <button
-            onClick={() => {
-              dialogTagRef.current?.showModal();
-            }}
-            className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
-          >
-            <span className="text-blue-500 text-lg font-bold">+</span> Add
-            checklist tag
-          </button>
-          <DragDropContext onDragEnd={dragEndHandler}>
-            {templateDetail?.checklist_tag.map((item) => (
-              <div key={item.id} className="flex flex-col gap-2">
-                <div className="flex justify-between">
-                  <h4 className="text-2xl">{item.name}</h4>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      dialogDeleteTag.current?.showModal();
-                      setChecklistTagId(item.id);
-                    }}
-                  >
-                    <Trash className="text-red-500 duration-300 hover:text-red-400" />
-                  </button>
-                </div>
-                <Droppable droppableId={item.id}>
-                  {(provided) => {
-                    return (
-                      <div
-                        className="flex flex-col pl-4 gap-3"
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                      >
-                        {item.checklist.map(
-                          (checklistItem: ChecklistItemType, index: number) => (
-                            <Draggable
-                              key={checklistItem.id}
-                              draggableId={checklistItem.id}
-                              index={index}
-                            >
-                              {(provided) => {
-                                return (
-                                  <ChecklistItem
-                                    provided={provided}
-                                    key={`checklistItem-${checklistItem.id}`}
-                                    id={checklistItem.id}
-                                    dialogRef={dialogDetailChecklist}
-                                    dialogDeleteChecklist={
-                                      dialogDeleteChecklist
-                                    }
-                                    templateId={templateDetail.id}
-                                    title={checklistItem.title}
-                                    progress={checklistItem.progress}
-                                    onToggleProgress={onToggleProgress}
-                                    onDeleteCheckListItem={
-                                      onDeleteCheckListItem
-                                    }
-                                    onModalOpen={asyncFetchChecklistDetail}
-                                  />
-                                );
-                              }}
-                            </Draggable>
-                          )
-                        )}
-                        {provided.placeholder}
-                        <button
-                          onClick={() => {
-                            setChecklistTagId(item.id);
-                            dialogChecklistRef.current?.showModal();
-                          }}
-                          className="py-2 px-3 gap-4 duration-300 hover:border-blue-500 rounded-xl border border-[#D7D7D7] w-fit"
-                        >
-                          <span className="text-blue-500 text-lg font-bold">
-                            +
-                          </span>{' '}
-                          Add checklist item
-                        </button>
-                      </div>
-                    );
-                  }}
-                </Droppable>
-              </div>
-            ))}
-          </DragDropContext>
-        </div>
+    <>
+      <div className="flex justify-between">
+        <h2 className="text-4xl font-bold">{templateDetail?.name}</h2>
+        <button
+          onClick={() => {
+            dialogEditProject.current?.showModal();
+          }}
+          className="group flex relative py-2 px-3 gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+        >
+          <Edit color="#3b82f6" size={22} />
+          <p className="group-hover:text-blue-500">Edit</p>
+        </button>
       </div>
+      <p>{templateDetail?.description}</p>
+      <button
+        onClick={() => {
+          dialogTagRef.current?.showModal();
+        }}
+        className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+      >
+        <span className="text-blue-500 text-lg font-bold">+</span> Add checklist
+        tag
+      </button>
+      <DragDropContext onDragEnd={dragEndHandler}>
+        {templateDetail?.checklist_tag.map((item) => (
+          <div key={item.id} className="flex flex-col gap-2">
+            <div className="flex justify-between">
+              <h4 className="text-2xl">{item.name}</h4>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dialogDeleteTag.current?.showModal();
+                  setChecklistTagId(item.id);
+                }}
+              >
+                <Trash className="text-red-500 duration-300 hover:text-red-400" />
+              </button>
+            </div>
+            <Droppable droppableId={item.id}>
+              {(provided) => {
+                return (
+                  <div
+                    className="flex flex-col pl-4 gap-3"
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {item.checklist.map(
+                      (checklistItem: ChecklistItemType, index: number) => (
+                        <Draggable
+                          key={checklistItem.id}
+                          draggableId={checklistItem.id}
+                          index={index}
+                        >
+                          {(provided) => {
+                            return (
+                              <ChecklistItem
+                                provided={provided}
+                                key={`checklistItem-${checklistItem.id}`}
+                                id={checklistItem.id}
+                                dialogRef={dialogDetailChecklist}
+                                dialogDeleteChecklist={dialogDeleteChecklist}
+                                templateId={templateDetail.id}
+                                title={checklistItem.title}
+                                progress={checklistItem.progress}
+                                onToggleProgress={onToggleProgress}
+                                onDeleteCheckListItem={onDeleteCheckListItem}
+                                onModalOpen={asyncFetchChecklistDetail}
+                              />
+                            );
+                          }}
+                        </Draggable>
+                      )
+                    )}
+                    {provided.placeholder}
+                    <button
+                      onClick={() => {
+                        setChecklistTagId(item.id);
+                        dialogChecklistRef.current?.showModal();
+                      }}
+                      className="py-2 px-3 gap-4 duration-300 hover:border-blue-500 rounded-xl border border-[#D7D7D7] w-fit"
+                    >
+                      <span className="text-blue-500 text-lg font-bold">+</span>{' '}
+                      Add checklist item
+                    </button>
+                  </div>
+                );
+              }}
+            </Droppable>
+          </div>
+        ))}
+      </DragDropContext>
 
       <Modal dialogRef={dialogEditProject}>
         <form
@@ -601,7 +588,7 @@ const TemplateDetail = ({ userData }: { userData: UserData }) => {
           </button>
         </form>
       </Modal>
-    </div>
+    </>
   );
 };
 

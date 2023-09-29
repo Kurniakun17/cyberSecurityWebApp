@@ -47,7 +47,7 @@ type inputs = {
   progress: string;
 };
 
-const ProjectDetail = ({ userData }: { userData: UserData }) => {
+const ProjectDetail = () => {
   const { id } = useParams();
   const [projectDetail, setProjectDetail, triggerFetchProjectDetail] =
     useProjectDetail<projectDetailType>(async () => {
@@ -251,9 +251,11 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
     return <div>Loading</div>;
   }
 
+
+  console.log(projectDetail);
   return (
     <>
-      <div className={`flex ${loading && 'overflow-hidden'}`}>
+      <div className={`flex flex-col gap-6 ${loading && 'overflow-hidden'}`}>
         {loading && (
           <div className="fixed z-[9999] flex flex-col gap-24 justify-center items-center h-screen w-screen bg-[rgba(255,255,255,0.9)] ">
             <Jelly size={100} color="#3b82f6" />
@@ -262,178 +264,164 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
             </h1>
           </div>
         )}
-        <Sidebar />
-        <div className="pt-8 grow lg:ml-[300px] my-[72px]">
-          <div className="w-[85%]  mx-auto flex flex-col gap-6 ">
-            <div className="flex justify-between">
-              <h2 className="text-4xl font-bold">{projectDetail.name}</h2>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => {
-                    dialogEditProject.current?.showModal();
-                  }}
-                  className="group flex gap-2 relative py-2 px-3  rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
-                >
-                  <Edit color="#3b82f6" size={22} />
-                  <p className="group-hover:text-blue-500">Edit</p>
-                </button>
-                <button
-                  onClick={() => {
-                    dialogExportToDocx.current?.showModal();
-                  }}
-                  className="py-2 px-3 group flex gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
-                >
-                  <FileText color="#3b82f6" />
-                  <p className="group-hover:text-blue-500">Export to docx</p>
-                </button>
-              </div>
-            </div>
-            <div className="flex gap-6 w-fit items-center px-8 py-6 border mx-auto border-[#D7D7D7] rounded-2xl">
-              <div className="flex flex-col gap-3">
-                <span className="font-bold text-[32px]">
-                  {Number.isNaN(
-                    projectDetail.done_checklist / projectDetail.total_checklist
-                  )
-                    ? 0
-                    : Math.floor(
-                        (projectDetail.done_checklist /
-                          projectDetail.total_checklist) *
-                          100
-                      ).toString()}
-                  %
-                </span>
-                <p className="text-center">
-                  {projectDetail.done_checklist}/{projectDetail.total_checklist}
-                </p>
-              </div>
-              <div className="flex flex-col gap-3">
-                <h3 className="text-[24px]">Vulnerability Summary</h3>
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>High - {projectDetail.high_vuln}</td>
-                      <td>Low - {projectDetail.low_vuln}</td>
-                    </tr>
-                    <tr>
-                      <td>Medium - {projectDetail.medium_vuln}</td>
-                      <td>
-                        Informational - {projectDetail.informational_vuln}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-5">
-                <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
-                  <p className="font-semibold block flex-1 text-center">
-                    Target URL:{' '}
-                    {projectDetail.target_url.length > 0
-                      ? projectDetail.target_url.toString()
-                      : '-'}
-                  </p>
-                </div>
-                <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
-                  <p className="font-semibold block flex-1 text-center">
-                    Target IP:{' '}
-                    {projectDetail.target_ip.length > 0
-                      ? projectDetail.target_ip.toString()
-                      : '-'}
-                  </p>
-                </div>
-              </div>
-              <p className="block w-fit">{projectDetail.description}</p>
-            </div>
+        <div className="flex justify-between">
+          <h2 className="text-4xl font-bold">{projectDetail.name}</h2>
+          <div className="flex gap-4">
             <button
               onClick={() => {
-                dialogTagRef.current?.showModal();
+                dialogEditProject.current?.showModal();
               }}
-              className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+              className="group flex gap-2 relative py-2 px-3  rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
             >
-              <span className="text-blue-500 text-lg font-bold">+</span> Add
-              checklist tag
+              <Edit color="#3b82f6" size={22} />
+              <p className="group-hover:text-blue-500">Edit</p>
             </button>
-
-            <DragDropContext onDragEnd={dragEndHandler}>
-              {projectDetail.template.checklist_tag.map((item) => (
-                <div key={item.id} className="flex flex-col gap-2">
-                  <div className="flex justify-between">
-                    <h4 className="text-2xl">{item.name}</h4>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        dialogDeleteTag.current?.showModal();
-                        setChecklistTagId(item.id);
-                      }}
-                    >
-                      <Trash className="text-red-500 duration-300 hover:text-red-400" />
-                    </button>
-                  </div>
-                  <Droppable droppableId={item.id}>
-                    {(provided) => {
-                      return (
-                        <div
-                          className="flex flex-col pl-4 gap-3"
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                        >
-                          {item.checklist.map(
-                            (
-                              checklistItem: ChecklistItemType,
-                              index: number
-                            ) => (
-                              <Draggable
-                                key={checklistItem.id}
-                                draggableId={checklistItem.id}
-                                index={index}
-                              >
-                                {(provided) => {
-                                  return (
-                                    <ChecklistItem
-                                      provided={provided}
-                                      key={`checklistItem-${checklistItem.id}`}
-                                      id={checklistItem.id}
-                                      dialogRef={dialogDetailChecklist}
-                                      dialogDeleteChecklist={
-                                        dialogDeleteChecklist
-                                      }
-                                      templateId={projectDetail.template.id}
-                                      title={checklistItem.title}
-                                      progress={checklistItem.progress}
-                                      onToggleProgress={onToggleProgress}
-                                      onDeleteCheckListItem={
-                                        onDeleteCheckListItem
-                                      }
-                                      onModalOpen={asyncFetchChecklistDetail}
-                                    />
-                                  );
-                                }}
-                              </Draggable>
-                            )
-                          )}
-                          {provided.placeholder}
-                          <button
-                            onClick={() => {
-                              setChecklistTagId(item.id);
-                              dialogChecklistRef.current?.showModal();
-                            }}
-                            className="py-2 px-3 gap-4 duration-300 hover:border-blue-500 rounded-xl border border-[#D7D7D7] w-fit"
-                          >
-                            <span className="text-blue-500 text-lg font-bold">
-                              +
-                            </span>{' '}
-                            Add checklist item
-                          </button>
-                        </div>
-                      );
-                    }}
-                  </Droppable>
-                </div>
-              ))}
-            </DragDropContext>
+            <button
+              onClick={() => {
+                dialogExportToDocx.current?.showModal();
+              }}
+              className="py-2 px-3 group flex gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+            >
+              <FileText color="#3b82f6" />
+              <p className="group-hover:text-blue-500">Export to docx</p>
+            </button>
           </div>
         </div>
+        <div className="flex gap-6 w-fit items-center px-8 py-6 border mx-auto border-[#D7D7D7] rounded-2xl">
+          <div className="flex flex-col gap-3">
+            <span className="font-bold text-[32px]">
+              {Number.isNaN(
+                projectDetail.done_checklist / projectDetail.total_checklist
+              )
+                ? 0
+                : Math.floor(
+                    (projectDetail.done_checklist /
+                      projectDetail.total_checklist) *
+                      100
+                  ).toString()}
+              %
+            </span>
+            <p className="text-center">
+              {projectDetail.done_checklist}/{projectDetail.total_checklist}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <h3 className="text-[24px]">Vulnerability Summary</h3>
+            <table>
+              <tbody>
+                <tr>
+                  <td>High - {projectDetail.high_vuln}</td>
+                  <td>Low - {projectDetail.low_vuln}</td>
+                </tr>
+                <tr>
+                  <td>Medium - {projectDetail.medium_vuln}</td>
+                  <td>Informational - {projectDetail.informational_vuln}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-5">
+            <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
+              <p className="font-semibold block flex-1 text-center">
+                Target URL:{' '}
+                {projectDetail.target_url.length > 0
+                  ? projectDetail.target_url.toString()
+                  : '-'}
+              </p>
+            </div>
+            <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
+              <p className="font-semibold block flex-1 text-center">
+                Target IP:{' '}
+                {projectDetail.target_ip.length > 0
+                  ? projectDetail.target_ip.toString()
+                  : '-'}
+              </p>
+            </div>
+          </div>
+          <p className="block w-fit">{projectDetail.description}</p>
+        </div>
+        <button
+          onClick={() => {
+            dialogTagRef.current?.showModal();
+          }}
+          className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+        >
+          <span className="text-blue-500 text-lg font-bold">+</span> Add
+          checklist tag
+        </button>
+
+        <DragDropContext onDragEnd={dragEndHandler}>
+          {projectDetail.template.checklist_tag.map((item) => (
+            <div key={item.id} className="flex flex-col gap-2">
+              <div className="flex justify-between">
+                <h4 className="text-2xl">{item.name}</h4>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dialogDeleteTag.current?.showModal();
+                    setChecklistTagId(item.id);
+                  }}
+                >
+                  <Trash className="text-red-500 duration-300 hover:text-red-400" />
+                </button>
+              </div>
+              <Droppable droppableId={item.id}>
+                {(provided) => {
+                  return (
+                    <div
+                      className="flex flex-col pl-4 gap-3"
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                    >
+                      {item.checklist.map(
+                        (checklistItem: ChecklistItemType, index: number) => (
+                          <Draggable
+                            key={checklistItem.id}
+                            draggableId={checklistItem.id}
+                            index={index}
+                          >
+                            {(provided) => {
+                              return (
+                                <ChecklistItem
+                                  provided={provided}
+                                  key={`checklistItem-${checklistItem.id}`}
+                                  id={checklistItem.id}
+                                  dialogRef={dialogDetailChecklist}
+                                  dialogDeleteChecklist={dialogDeleteChecklist}
+                                  templateId={projectDetail.template.id}
+                                  title={checklistItem.title}
+                                  progress={checklistItem.progress}
+                                  onToggleProgress={onToggleProgress}
+                                  onDeleteCheckListItem={onDeleteCheckListItem}
+                                  onModalOpen={asyncFetchChecklistDetail}
+                                />
+                              );
+                            }}
+                          </Draggable>
+                        )
+                      )}
+                      {provided.placeholder}
+                      <button
+                        onClick={() => {
+                          setChecklistTagId(item.id);
+                          dialogChecklistRef.current?.showModal();
+                        }}
+                        className="py-2 px-3 gap-4 duration-300 hover:border-blue-500 rounded-xl border border-[#D7D7D7] w-fit"
+                      >
+                        <span className="text-blue-500 text-lg font-bold">
+                          +
+                        </span>{' '}
+                        Add checklist item
+                      </button>
+                    </div>
+                  );
+                }}
+              </Droppable>
+            </div>
+          ))}
+        </DragDropContext>
       </div>
 
       <Modal dialogRef={dialogEditProject}>

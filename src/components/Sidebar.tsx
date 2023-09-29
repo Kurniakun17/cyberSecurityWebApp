@@ -1,85 +1,91 @@
 import { useNavigate } from 'react-router-dom';
 import { UserData } from '../utils/types';
+import { useEffect, useState } from 'react';
+import { GoRepoTemplate } from 'react-icons/go';
+import { GrUserAdmin } from 'react-icons/gr';
+import { BsBook, BsBookmark } from 'react-icons/bs';
+import { BiUserCircle } from 'react-icons/bi';
+
 const Sidebar = ({
-  active = 'projects',
+  active,
   userData,
+  onSetActive,
 }: {
   active?: string;
   userData: UserData;
+  onSetActive: (data: string) => void;
 }) => {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  if (!userData) {
-    return <h1>Chihuahua</h1>;
-  }
+  useEffect(() => {
+    if (userData) {
+      setIsAdmin(userData.admin);
+    }
+  }, [userData]);
 
   return (
-    <div className="hidden lg:block w-[300px] mt-[72px] pt-8 fixed h-screen border border-l-2 border-l-black">
+    <div
+      key={active}
+      className="hidden lg:block w-[300px] mt-[72px] pt-8 fixed h-screen border border-l-2 border-l-black"
+    >
       <ul>
         <li
           onClick={() => {
             navigate('/projects');
+            onSetActive('projects');
           }}
-          className={`px-6 group py-4 hover:bg-gray-50 cursor-pointer text-xl overflow-hidden relative ${
-            active === 'projects' &&
-            'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
+          className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl overflow-hidden relative ${
+            active === 'projects'
+              ? 'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
+              : 'hover:bg-gray-50'
           }`}
         >
-          Projects
-          <div
-            className={`${
-              active === 'projects' && 'h-10 w-4'
-            } h-4 w-4 group-hover:h-10 duration-300 bg-blue-500 rounded-xl absolute top-1/2 -translate-y-1/2 left-[-11px]`}
-          ></div>
+          <BsBook size="24" />
+          <p>Projects</p>
         </li>
         <li
-          className={`px-6 group py-4 hover:bg-gray-50 cursor-pointer text-xl relative  ${
-            active === 'templates' &&
-            ' text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200'
+          className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl relative  ${
+            active === 'templates'
+              ? 'text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200'
+              : 'hover:bg-gray-50'
           }`}
           onClick={() => {
             navigate('/templates');
+            onSetActive('templates');
           }}
         >
-          Templates
-          <div
-            className={`${
-              active === 'templates' && 'h-10 w-4'
-            } h-4 w-4 group-hover:h-10 duration-300  bg-blue-500 rounded-xl absolute top-1/2 -translate-y-1/2 left-[-11px]`}
-          ></div>
+          <GoRepoTemplate size="28" />
+          <p>Templates</p>
         </li>
         <li
-          className={`px-6 group py-4 hover:bg-gray-50 cursor-pointer text-xl relative  ${
-            active === 'reference' &&
-            ' text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200'
+          className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl relative  ${
+            active === 'reference'
+              ? ' text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200'
+              : 'hover:bg-gray-50'
           }`}
           onClick={() => {
             navigate('/reference');
+            onSetActive('reference');
           }}
         >
-          Reference
-          <div
-            className={`${
-              active === 'reference' && 'h-10 w-4'
-            } h-4 w-4 group-hover:h-10 duration-300  bg-blue-500 rounded-xl absolute top-1/2 -translate-y-1/2 left-[-11px]`}
-          ></div>
+          <BsBookmark size="26" />
+          <p>Reference</p>
         </li>
-        {userData.admin && (
+        {isAdmin && (
           <li
             onClick={() => {
               navigate('/admin');
+              onSetActive('admin');
             }}
-            className={`px-6 group hover:bg-gray-50 py-4 cursor-pointer text-xl overflow-hidden relative ${
-              active === 'admin' &&
-              'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
+            className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl overflow-hidden relative ${
+              active === 'admin'
+                ? 'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
+                : 'hover:bg-gray-50'
             }`}
           >
-            Admin
-            <div
-              className={`${
-                active === 'admin' && 'h-10 w-4'
-              } h-4 w-4 group-hover:h-10 duration-300 bg-blue-500 rounded-xl absolute top-1/2 -translate-y-1/2 left-[-11px]`}
-            ></div>
+            <BiUserCircle size="28" className="shrink-0" />
+            <p>Admin</p>
           </li>
         )}
       </ul>
