@@ -19,7 +19,7 @@ type inputs = {
   description: string;
   target_ip: string[];
   target_url: string[];
-  template_id: string;
+  template_id?: string;
 };
 
 const Projects = () => {
@@ -111,6 +111,11 @@ const Projects = () => {
       target_url: res.target_url ?? [],
       progress: 'in-progress',
     };
+
+    if (res.template_id === '') {
+      delete body.template_id;
+    }
+
     const data = await addProject(body);
     if (data.success) {
       toast.success('Project created!');
@@ -309,6 +314,7 @@ const Projects = () => {
               id="template"
               className="px-2 py-1 focus:outline-blue-500 border background rounded-md border-[#d7d7d7]"
             >
+              <option value={''}>No Template</option>
               {template.map((item: { name: string; id: string }) => {
                 return (
                   <option key={item.id} value={item.id}>

@@ -132,7 +132,7 @@ const moveChecklistToAnotherTag =async ({templateId, body} :{templateId: string,
   return res.data
 }
 
-const addProject = async (body: {target_ip: string[], progress:string, name:string,description:string, template_id:string,}) => {
+const addProject = async (body: {target_ip: string[], progress:string, name:string,description:string, template_id?:string,}) => {
   const res = await api.post(`http://localhost:3000/project`, body);
   return res.data;
 }

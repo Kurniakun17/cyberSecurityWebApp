@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import ChecklistItem from '../components/ChecklistItem';
-import Sidebar from '../components/Sidebar';
 import { useParams } from 'react-router-dom';
 import useProjectDetail from '../hooks/useItemDetail';
 import Modal from '../components/Modal';
@@ -9,7 +8,6 @@ import {
   ChecklistDetailT,
   ChecklistItemType,
   ChecklistTag,
-  UserData,
   projectDetailType,
 } from '../utils/types';
 import {
@@ -251,8 +249,6 @@ const ProjectDetail = () => {
     return <div>Loading</div>;
   }
 
-
-  console.log(projectDetail);
   return (
     <>
       <div className={`flex flex-col gap-6 ${loading && 'overflow-hidden'}`}>

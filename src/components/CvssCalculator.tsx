@@ -33,9 +33,17 @@ const CvssCalculator = ({
       const res = severityRatings.filter(
         (item) => baseScore >= item.bottom && baseScore <= item.top
       );
-      setSeverityLevel(
-        res[0].name as '' | 'None' | 'Low' | 'Medium' | 'High' | 'Critical'
-      );
+
+      const severityName = res[0].name as
+        | ''
+        | 'None'
+        | 'Low'
+        | 'Medium'
+        | 'High'
+        | 'Critical';
+
+      setCvssValue((prev) => ({ ...prev, severity_level: severityName }));
+      setSeverityLevel(severityName);
     }
   };
 

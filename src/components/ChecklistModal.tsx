@@ -53,7 +53,7 @@ const ChecklistModal = ({
   const dialogAddImageRef = useRef<HTMLDialogElement>(null);
   const [pocPreview, setPOCPreview] = useState<Image[]>([]);
   const [imagesFile, setImagesFile] = useState<FileList[]>([]);
-
+  console.log(pocPreview);
   const onAddImageCaptionSubmit = async (image: { image_caption: string }) => {
     const res = await uploadPocImage(templateId, data?.id as string, {
       file: imagesFile[imagesFile.length - 1][0],
@@ -116,7 +116,7 @@ const ChecklistModal = ({
     C: 'None',
     I: 'None',
     A: 'None',
-    severity_level: 'Informational',
+    severity_level: '',
   });
   const [severityLevel, setSeverityLevel] = useState<
     '' | 'Informational' | 'None' | 'Low' | 'Medium' | 'High' | 'Critical'
@@ -510,7 +510,7 @@ const ChecklistModal = ({
           </label>
         </div>
 
-        {data != undefined && data.images.length > 0 ? (
+        {data != undefined && pocPreview.length > 0 ? (
           <div key={'screenshot container'} className="flex gap-4 flex-wrap">
             {pocPreview.map(
               (item: {
