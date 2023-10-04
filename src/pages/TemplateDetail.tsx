@@ -11,6 +11,7 @@ import {
   moveChecklistToAnotherTag,
   toggleChecklist,
   updateChecklistItem,
+  updateChecklistTag,
   updateTemplate,
 } from '../utils/helper';
 import {
@@ -26,13 +27,14 @@ import {
   DropResult,
   Droppable,
 } from 'react-beautiful-dnd';
-import { Edit, Trash } from 'lucide-react';
+import { Edit, Pencil, Trash } from 'lucide-react';
 import ChecklistItem from '../components/ChecklistItem';
 import { useState } from 'react';
 import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
 import Modal from '../components/Modal';
 
 type inputs = {
+  update_tag_name: string;
   tag_name: string;
   checklist_name: string;
   client_name: string;
@@ -63,6 +65,7 @@ const TemplateDetail = () => {
   const [checklistDetailData, setChecklistDetailData] =
     useState<ChecklistDetailT | null>(null);
   const dialogEditProject = useRef<HTMLDialogElement>(null);
+  const dialogEditTag = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     if (checklistDetailData) {
@@ -75,7 +78,6 @@ const TemplateDetail = () => {
   useEffect(() => {
     if (templateDetail != null) {
       setValue('name', templateDetail?.name as string);
-
       setValue('template_description', templateDetail?.description as string);
       setValue('target_ip', templateDetail?.target_ip as string[]);
       setValue('target_url', templateDetail?.target_url as string[]);
@@ -123,6 +125,20 @@ const TemplateDetail = () => {
     progress = progress ? 0 : 1;
     const res = await toggleChecklist(templateId, checklistId, progress);
     if (res.success) {
+      triggerFetchTemplateDetail();
+    }
+  };
+
+  const onSubmitEditTag = async (res: inputs) => {
+    const data = await updateChecklistTag(
+      templateDetail?.id as string,
+      checklistTagId,
+      {
+        name: res.update_tag_name,
+      }
+    );
+
+    if (data.success) {
       triggerFetchTemplateDetail();
     }
   };
@@ -288,15 +304,28 @@ const TemplateDetail = () => {
           <div key={item.id} className="flex flex-col gap-2">
             <div className="flex justify-between">
               <h4 className="text-2xl">{item.name}</h4>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  dialogDeleteTag.current?.showModal();
-                  setChecklistTagId(item.id);
-                }}
-              >
-                <Trash className="text-red-500 duration-300 hover:text-red-400" />
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dialogEditTag.current?.showModal();
+                    setValue('update_tag_name', item.name);
+                    setChecklistTagId(item.id);
+                  }}
+                >
+                  <Pencil className="text-blue-500 duration-300" />
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dialogDeleteTag.current?.showModal();
+                    setChecklistTagId(item.id);
+                  }}
+                >
+                  <Trash className="text-red-500 duration-300 hover:text-red-400" />
+                </button>
+              </div>
             </div>
             <Droppable droppableId={item.id}>
               {(provided) => {
@@ -351,6 +380,36 @@ const TemplateDetail = () => {
           </div>
         ))}
       </DragDropContext>
+
+      <Modal dialogRef={dialogEditTag}>
+        <form
+          onSubmit={handleSubmit(onSubmitEditTag)}
+          className="flex flex-col gap-3 text-black"
+        >
+          <h1 className="font-bold  text-2xl text-center mb-1">
+            Edit Checklist Tag
+          </h1>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="checklistTag" className="text-grayText">
+              Tag name
+            </label>
+            <input
+              {...register('update_tag_name')}
+              id="checklistTag"
+              type="text"
+              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+          </div>
+          <button
+            onClick={() => {
+              dialogEditTag.current?.close();
+            }}
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
+          >
+            Save Changes
+          </button>
+        </form>
+      </Modal>
 
       <Modal dialogRef={dialogEditProject}>
         <form

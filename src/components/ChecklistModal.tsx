@@ -53,7 +53,6 @@ const ChecklistModal = ({
   const dialogAddImageRef = useRef<HTMLDialogElement>(null);
   const [pocPreview, setPOCPreview] = useState<Image[]>([]);
   const [imagesFile, setImagesFile] = useState<FileList[]>([]);
-  console.log(pocPreview);
   const onAddImageCaptionSubmit = async (image: { image_caption: string }) => {
     const res = await uploadPocImage(templateId, data?.id as string, {
       file: imagesFile[imagesFile.length - 1][0],

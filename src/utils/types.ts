@@ -21,6 +21,7 @@ interface ChecklistItemType {
 
 interface ChecklistTag {
   id: string;
+  priority: number;
   name: string;
   checklist: ChecklistItemType[];
 }

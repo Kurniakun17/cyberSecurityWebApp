@@ -1,9 +1,14 @@
 import { api } from './helper';
 
 const loginAuth = async (body: { username: string; password: string }) => {
-  const res = await api.post('http://localhost:3000/user/auth/login', body);
-  localStorage.setItem('token', res.data.token);
-  return res.data;
+  try {
+    console.log(body);
+    const res = await api.post('http://localhost:3000/user/auth/login', body);
+    localStorage.setItem('token', res.data.token);
+    return res.data;
+  } catch (error) {
+    return { success: false };
+  }
 };
 
 const getUserData = async () => {
@@ -22,7 +27,6 @@ const signOut = async () => {
   const res = await api.post('http://localhost:3000/user/auth/logout');
 
   return res.data;
-}
-
+};
 
 export { signOut, loginAuth, getUserData, registerUser };

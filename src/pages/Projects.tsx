@@ -81,12 +81,19 @@ const Projects = () => {
   const onDeleteProjects = async (id: string) => {
     setToolTipId('');
     document.getElementById(id)?.classList.add('delete');
-    deleteProject(id);
-    setTimeout(() => {
-      setProjects((prev: projectsType[]) =>
-        prev.filter((project: projectsType) => project.id !== id)
-      );
-    }, 1000);
+    const res = await deleteProject(id);
+
+    if (res.success) {
+      setTimeout(() => {
+        toast.success('Project successfully deleted');
+        setProjects((prev: projectsType[]) =>
+          prev.filter((project: projectsType) => project.id !== id)
+        );
+      }, 1000);
+      return;
+    }
+
+    toast.error('Failed deleting the project')
   };
 
   if (projects === null) {
@@ -117,6 +124,7 @@ const Projects = () => {
     }
 
     const data = await addProject(body);
+
     if (data.success) {
       toast.success('Project created!');
       reset();
@@ -125,6 +133,7 @@ const Projects = () => {
       });
       return;
     }
+
     toast.error('Add project failed');
   };
 

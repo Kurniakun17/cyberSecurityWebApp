@@ -20,10 +20,12 @@ import {
   fetchProjectDetail,
   moveChecklist,
   moveChecklistToAnotherTag,
+  moveTag,
   toggleChecklist,
+  updateChecklistTag,
   updateProject,
 } from '../utils/helper';
-import { Edit, FileText, Trash } from 'lucide-react';
+import { ArrowDownUp, Edit, FileText, Pencil, Trash } from 'lucide-react';
 import ChecklistModal from '../components/ChecklistModal';
 import { Jelly } from '@uiball/loaders';
 import {
@@ -34,6 +36,7 @@ import {
 } from 'react-beautiful-dnd';
 
 type inputs = {
+  update_tag_name: string;
   tag_name: string;
   checklist_name: string;
   client_name: string;
@@ -51,8 +54,15 @@ const ProjectDetail = () => {
     useProjectDetail<projectDetailType>(async () => {
       return await fetchProjectDetail(id as string);
     });
-  const { control, register, handleSubmit, reset, resetField, setValue } =
-    useForm<inputs>();
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    resetField,
+    setValue,
+    watch,
+  } = useForm<inputs>();
   const [checklistTagId, setChecklistTagId] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -66,6 +76,8 @@ const ProjectDetail = () => {
   const dialogDetailChecklist = useRef<HTMLDialogElement>(null);
   const dialogExportToDocx = useRef<HTMLDialogElement>(null);
   const dialogEditProject = useRef<HTMLDialogElement>(null);
+  const dialogEditTag = useRef<HTMLDialogElement>(null);
+  const dialogMoveTag = useRef<HTMLDialogElement>(null);
 
   const {
     fields: target_ip,
@@ -107,7 +119,6 @@ const ProjectDetail = () => {
     templateId: string
   ) => {
     const res = await fetchChecklistDetail(checklistId, templateId);
-
     setChecklistDetailData(res.data);
   };
 
@@ -148,6 +159,20 @@ const ProjectDetail = () => {
     if (res.success) {
       triggerFetchProjectDetail();
       reset();
+    }
+  };
+
+  const onSubmitEditTag = async (res: inputs) => {
+    const data = await updateChecklistTag(
+      projectDetail?.template_id as string,
+      checklistTagId,
+      {
+        name: res.update_tag_name,
+      }
+    );
+
+    if (data.success) {
+      triggerFetchProjectDetail();
     }
   };
 
@@ -245,6 +270,38 @@ const ProjectDetail = () => {
     });
   }
 
+  async function dragEndTagHandler(result: DropResult) {
+    const { destination, source } = result;
+    const temp = Array.from(
+      projectDetail?.template.checklist_tag as ChecklistTag[]
+    );
+
+    const [reorderedItem] = temp.splice(source.index, 1);
+
+    temp.splice(destination?.index as number, 0, reorderedItem);
+
+    temp.forEach((item: ChecklistTag, index: number) => {
+      item.priority = index;
+    });
+
+    setProjectDetail(
+      (prev) =>
+        ({
+          ...prev,
+          template: { ...prev?.template, checklist_tag: temp },
+        } as projectDetailType)
+    );
+
+    const body = {
+      checklist_tag: temp,
+    };
+
+    moveTag({
+      templateId: projectDetail?.template_id as string,
+      body: body,
+    });
+  }
+
   if (!projectDetail) {
     return <div>Loading</div>;
   }
@@ -338,30 +395,53 @@ const ProjectDetail = () => {
           </div>
           <p className="block w-fit">{projectDetail.description}</p>
         </div>
-        <button
-          onClick={() => {
-            dialogTagRef.current?.showModal();
-          }}
-          className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
-        >
-          <span className="text-blue-500 text-lg font-bold">+</span> Add
-          checklist tag
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => {
+              dialogMoveTag.current?.showModal();
+            }}
+            className="flex items-center py-2 px-3 gap-1 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+          >
+            <ArrowDownUp className="text-blue-500" size={20} /> Move tag
+          </button>
+
+          <button
+            onClick={() => {
+              dialogTagRef.current?.showModal();
+            }}
+            className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+          >
+            <span className="text-blue-500 text-lg font-bold">+</span> Add
+            checklist tag
+          </button>
+        </div>
 
         <DragDropContext onDragEnd={dragEndHandler}>
           {projectDetail.template.checklist_tag.map((item) => (
             <div key={item.id} className="flex flex-col gap-2">
               <div className="flex justify-between">
                 <h4 className="text-2xl">{item.name}</h4>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    dialogDeleteTag.current?.showModal();
-                    setChecklistTagId(item.id);
-                  }}
-                >
-                  <Trash className="text-red-500 duration-300 hover:text-red-400" />
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dialogEditTag.current?.showModal();
+                      setValue('update_tag_name', item.name);
+                      setChecklistTagId(item.id);
+                    }}
+                  >
+                    <Pencil className="text-blue-500 duration-300" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dialogDeleteTag.current?.showModal();
+                      setChecklistTagId(item.id);
+                    }}
+                  >
+                    <Trash className="text-red-500 duration-300 hover:text-red-400" />
+                  </button>
+                </div>
               </div>
               <Droppable droppableId={item.id}>
                 {(provided) => {
@@ -419,6 +499,97 @@ const ProjectDetail = () => {
           ))}
         </DragDropContext>
       </div>
+
+      <Modal dialogRef={dialogMoveTag}>
+        <form
+          onSubmit={handleSubmit(onSubmitEditTag)}
+          className="flex flex-col gap-3 text-black"
+        >
+          <h1 className="font-bold  text-2xl text-center mb-1">
+            Move Checklist Tag
+          </h1>
+
+          <DragDropContext onDragEnd={dragEndTagHandler}>
+            <Droppable droppableId="checklistTag">
+              {(provided) => {
+                return (
+                  <div
+                    className="flex flex-col gap-3"
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {projectDetail.template.checklist_tag.map(
+                      (item, index: number) => {
+                        return (
+                          <Draggable
+                            key={item.id}
+                            draggableId={item.id}
+                            index={index}
+                          >
+                            {(providedDraggable) => {
+                              return (
+                                <div
+                                  {...providedDraggable.draggableProps}
+                                  {...providedDraggable.dragHandleProps}
+                                  ref={providedDraggable.innerRef}
+                                  className="p-4 px-8 flex items-center justify-between border border-[#D7D7D7] hover:border-blue-500 duration-300 rounded-2xl cursor-pointer"
+                                >
+                                  <h1>{item.name}</h1>
+                                </div>
+                              );
+                            }}
+                          </Draggable>
+                        );
+                      }
+                    )}
+                    {provided.placeholder}
+                  </div>
+                );
+              }}
+            </Droppable>
+          </DragDropContext>
+
+          <button
+            onClick={() => {
+              dialogMoveTag.current?.close();
+            }}
+            type="button"
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
+          >
+            Close
+          </button>
+        </form>
+      </Modal>
+
+      <Modal dialogRef={dialogEditTag}>
+        <form
+          onSubmit={handleSubmit(onSubmitEditTag)}
+          className="flex flex-col gap-3 text-black"
+        >
+          <h1 className="font-bold  text-2xl text-center mb-1">
+            Edit Checklist Tag
+          </h1>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="checklistTag" className="text-grayText">
+              Tag name
+            </label>
+            <input
+              {...register('update_tag_name')}
+              id="checklistTag"
+              type="text"
+              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+          </div>
+          <button
+            onClick={() => {
+              dialogEditTag.current?.close();
+            }}
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
+          >
+            Save Changes
+          </button>
+        </form>
+      </Modal>
 
       <Modal dialogRef={dialogEditProject}>
         <form

@@ -114,12 +114,14 @@ const toggleProject = async (id: string, progress: string) => {
 }
 
 const deleteProject = async (id: string) => {
-    await api.delete(`${mainUrl}/project/${id}`)
+  const res = await api.delete(`${mainUrl}/project/${id}`)
+  return res.data;
 }
 
 const deleteTemplate = async (id: string) => {
-    await api.delete(`${mainUrl}/template/${id}`)
-}
+   const res= await api.delete(`${mainUrl}/template/${id}`)
+  return res.data;
+  }
 
 const moveChecklist = async ({templateId, body} :{templateId: string, body: ChecklistTag}) => {
   const newBody = {checklisttag_id: body.id, checklists: body.checklist};
@@ -130,6 +132,20 @@ const moveChecklist = async ({templateId, body} :{templateId: string, body: Chec
 const moveChecklistToAnotherTag =async ({templateId, body} :{templateId: string, body: unknown}) => {
   const res = await api.post(`http://localhost:3000/template/${templateId}/checklist/movetag`, body)
   return res.data
+}
+
+const moveTag = async ({templateId, body}: {templateId: string, body: unknown}) => {
+  try {
+    const res = await api.post(`http://localhost:3000/template/${templateId}/tag/move`, body);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const updateChecklistTag = async (templateId: string, tagId: string, body: {name: string})=>{
+  const res = await api.put(`http://localhost:3000/template/${templateId}/tag/${tagId}`, body);
+  return res.data;
 }
 
 const addProject = async (body: {target_ip: string[], progress:string, name:string,description:string, template_id?:string,}) => {
@@ -174,4 +190,4 @@ const getReference = async () => {
 }
 
 
-export { getReference, api, updateTemplate, updateProject, addTemplate, deleteTemplate, fetchTemplates, addProject,getTemplateList, moveChecklist, moveChecklistToAnotherTag, fetchProjects, fetchProjectDetail, fetchTemplateDetail,exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };
+export { moveTag, updateChecklistTag, getReference, api, updateTemplate, updateProject, addTemplate, deleteTemplate, fetchTemplates, addProject,getTemplateList, moveChecklist, moveChecklistToAnotherTag, fetchProjects, fetchProjectDetail, fetchTemplateDetail,exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };
