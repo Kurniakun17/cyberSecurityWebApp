@@ -54,15 +54,8 @@ const ProjectDetail = () => {
     useProjectDetail<projectDetailType>(async () => {
       return await fetchProjectDetail(id as string);
     });
-  const {
-    control,
-    register,
-    handleSubmit,
-    reset,
-    resetField,
-    setValue,
-    watch,
-  } = useForm<inputs>();
+  const { control, register, handleSubmit, reset, resetField, setValue } =
+    useForm<inputs>();
   const [checklistTagId, setChecklistTagId] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -305,6 +298,7 @@ const ProjectDetail = () => {
   if (!projectDetail) {
     return <div>Loading</div>;
   }
+
 
   return (
     <>
@@ -788,7 +782,6 @@ const ProjectDetail = () => {
           data={checklistDetailData}
           templateId={projectDetail.template_id}
           triggerFetchProjectDetail={triggerFetchProjectDetail}
-          asyncFetchChecklistDetail={asyncFetchChecklistDetail}
         />
       </Modal>
 

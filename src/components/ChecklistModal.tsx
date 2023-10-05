@@ -1,4 +1,11 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import CvssCalculator from './CvssCalculator';
 import {
   ChecklistDetailT,
@@ -41,13 +48,11 @@ const ChecklistModal = ({
   dialogRef,
   templateId,
   triggerFetchProjectDetail,
-  asyncFetchChecklistDetail,
 }: {
   data?: ChecklistDetailT | null;
   dialogRef: React.RefObject<HTMLDialogElement>;
   templateId: string;
   triggerFetchProjectDetail: () => void;
-  asyncFetchChecklistDetail: (checklistId: string, templateId: string) => void;
 }) => {
   const { control, register, handleSubmit, setValue, watch, resetField } =
     useForm<inputValuesT>();
@@ -112,7 +117,7 @@ const ChecklistModal = ({
     name: 'capec_owasp_cwe',
   });
 
-  const [baseScore, setBaseScore] = useState(0.0);
+  const [baseScore, setBaseScore] = useState<number>();
   const [cvssValue, setCvssValue] = useState<cvss31ValueT>({
     AV: 'Network',
     S: 'Unchanged',
@@ -201,6 +206,8 @@ const ChecklistModal = ({
     }
   };
 
+  console.log(severityLevel);
+
   const onSaveHandler: SubmitHandler<inputValuesT> = async (
     input: checklistItemInputT
   ) => {
@@ -226,8 +233,9 @@ const ChecklistModal = ({
         confidentiality: cvssValue.C ?? '',
         integrity: cvssValue.I ?? '',
         availability: cvssValue.A ?? '',
-        severity_level: cvssValue.severity_level ?? '',
-        cvss_score: baseScore,
+        severity_level:
+          severityLevel == 'None' ? 'Informational' : severityLevel,
+        cvss_score: baseScore as number,
       };
     }
 
@@ -315,8 +323,8 @@ const ChecklistModal = ({
             </div>
 
             <CvssCalculator
-              baseScore={baseScore}
-              setBaseScore={setBaseScore}
+              baseScore={baseScore as number}
+              setBaseScore={setBaseScore as Dispatch<SetStateAction<number>>}
               cvssValue={cvssValue}
               setCvssValue={setCvssValue}
               severityLevel={severityLevel}

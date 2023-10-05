@@ -1,6 +1,7 @@
 const colorRatings = {
   '': 'bg-[#000000]',
   None: 'bg-[#53aa33]',
+  Informational: 'bg-[#53aa33]',
   Low: 'bg-[#ffcb0d]',
   Medium: 'bg-[#f9a009]',
   High: 'bg-[#df3d03]',
@@ -8,6 +9,11 @@ const colorRatings = {
 };
 
 const severityRatings = [
+    {
+    name: 'Informational',
+    bottom: 0.0,
+    top: 0.0,
+  },
   {
     name: 'None',
     bottom: 0.0,

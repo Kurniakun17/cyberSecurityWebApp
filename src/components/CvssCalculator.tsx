@@ -29,18 +29,33 @@ const CvssCalculator = ({
   const scopeCoefficient = 1.08;
 
   const updateSeverityLevel = () => {
-    if (baseScore) {
+    if (baseScore != null) {
       const res = severityRatings.filter(
         (item) => baseScore >= item.bottom && baseScore <= item.top
       );
 
-      const severityName = res[0].name as
+      let severityName = res[0].name as
         | ''
         | 'None'
         | 'Low'
         | 'Medium'
         | 'High'
         | 'Critical';
+
+      if (
+        !(
+          cvssValue.AV &&
+          cvssValue.AC &&
+          cvssValue.PR &&
+          cvssValue.S &&
+          cvssValue.UI &&
+          cvssValue.C &&
+          cvssValue.I &&
+          cvssValue.A
+        )
+      ) {
+        severityName = '';
+      }
 
       setCvssValue((prev) => ({ ...prev, severity_level: severityName }));
       setSeverityLevel(severityName);
@@ -99,7 +114,7 @@ const CvssCalculator = ({
   }, [cvssValue, setCvssValue]);
 
   useEffect(() => {
-    if (baseScore) {
+    if (baseScore != null) {
       updateSeverityLevel();
     }
   }, [baseScore]);
