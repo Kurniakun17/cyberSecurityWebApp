@@ -27,3 +27,12 @@ textarea {
 .delete {
   @apply scale-0 opacity-0 relative translate-x-11 duration-700;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

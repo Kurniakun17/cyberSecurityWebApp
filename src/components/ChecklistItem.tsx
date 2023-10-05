@@ -1,11 +1,13 @@
 import React from 'react';
 import Modal from './Modal';
 import { DraggableProvided } from 'react-beautiful-dnd';
+import { typeBgColor } from '../utils/helper';
 // import Modal from './Modal';
 // import ChecklistModal from './ChecklistModal';
 const ChecklistItem = ({
   id,
   templateId,
+  type,
   title,
   progress,
   dialogRef,
@@ -16,6 +18,7 @@ const ChecklistItem = ({
   provided,
 }: {
   id: string;
+  type: 'none' | 'narrative' | 'vulnerability';
   templateId: string;
   title: string;
   progress: number;
@@ -35,7 +38,7 @@ const ChecklistItem = ({
     <>
       <label
         htmlFor={id}
-        className="p-4 px-8 flex items-center justify-between border border-[#D7D7D7] hover:border-blue-500 duration-300 rounded-2xl cursor-pointer"
+        className={`p-4 px-8 flex items-center justify-between border ${typeBgColor[type]} duration-300 rounded-2xl cursor-pointer`}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         ref={provided.innerRef}

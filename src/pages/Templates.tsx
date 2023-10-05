@@ -4,7 +4,7 @@ import useTemplates from '../hooks/useTemplate';
 import { useForm } from 'react-hook-form';
 import Modal from '../components/Modal';
 import { templateType } from '../utils/types';
-import { addTemplate, deleteTemplate } from '../utils/helper';
+import { addTemplate, deleteTemplate } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -49,6 +49,7 @@ const Templates = () => {
     }
     toast.error('Add template failed');
   };
+
 
   return (
     <>

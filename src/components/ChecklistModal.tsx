@@ -18,7 +18,7 @@ import {
   deletePOCImage,
   updateChecklistItem,
   uploadPocImage,
-} from '../utils/helper';
+} from '../utils/api';
 import Modal from './Modal';
 import { X } from 'lucide-react';
 
@@ -205,8 +205,6 @@ const ChecklistModal = ({
       openAddImageModal();
     }
   };
-
-  console.log(severityLevel);
 
   const onSaveHandler: SubmitHandler<inputValuesT> = async (
     input: checklistItemInputT
@@ -586,7 +584,7 @@ const ChecklistModal = ({
           }}
           type="submit"
           value="Save"
-          className="border border-[#d7d7d7] bg-blue-500 hover:bg-blue-400 cursor-pointer font-bold rounded-lg text-white py-2"
+          className="border border-[#d7d7d7] bg-blue-500 hover:bg-blue-400 duration-300 cursor-pointer font-bold rounded-lg text-white py-2"
         />
       </form>
 

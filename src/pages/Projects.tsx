@@ -8,7 +8,7 @@ import {
   deleteProject,
   getTemplateList,
   toggleProject,
-} from '../utils/helper';
+} from '../utils/api';
 import { useForm, useFieldArray } from 'react-hook-form';
 import ItemCard from '../components/ItemCard';
 import { useNavigate } from 'react-router-dom';
@@ -93,7 +93,7 @@ const Projects = () => {
       return;
     }
 
-    toast.error('Failed deleting the project (only ownership can delete)');
+    toast.error('Failed deleting the project \n(only owners of the project can delete it)');
   };
 
   if (projects === null) {

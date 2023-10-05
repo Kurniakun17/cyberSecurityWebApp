@@ -24,8 +24,16 @@ import {
   toggleChecklist,
   updateChecklistTag,
   updateProject,
-} from '../utils/helper';
-import { ArrowDownUp, Edit, FileText, Pencil, Trash } from 'lucide-react';
+} from '../utils/api';
+import {
+  ArrowDownUp,
+  Crown,
+  Edit,
+  FileText,
+  Pencil,
+  Trash,
+  Users2,
+} from 'lucide-react';
 import ChecklistModal from '../components/ChecklistModal';
 import { Jelly } from '@uiball/loaders';
 import {
@@ -71,6 +79,7 @@ const ProjectDetail = () => {
   const dialogEditProject = useRef<HTMLDialogElement>(null);
   const dialogEditTag = useRef<HTMLDialogElement>(null);
   const dialogMoveTag = useRef<HTMLDialogElement>(null);
+  const dialogCollaborator = useRef<HTMLDialogElement>(null);
 
   const {
     fields: target_ip,
@@ -299,7 +308,6 @@ const ProjectDetail = () => {
     return <div>Loading</div>;
   }
 
-
   return (
     <>
       <div className={`flex flex-col gap-6 ${loading && 'overflow-hidden'}`}>
@@ -321,16 +329,38 @@ const ProjectDetail = () => {
               className="group flex gap-2 relative py-2 px-3  rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
             >
               <Edit color="#3b82f6" size={22} />
-              <p className="group-hover:text-blue-500">Edit</p>
+              <p className="group-hover:text-blue-500 hidden md:block">Edit</p>
+              <div className="px-4 py-1 border border-blue-400 bg-white rounded-md scale-0 duration-300 group-hover:scale-100 absolute left-1/2 -translate-x-1/2 bottom-[-40px] md:hidden">
+                <p>Edit</p>
+              </div>
             </button>
             <button
               onClick={() => {
                 dialogExportToDocx.current?.showModal();
               }}
-              className="py-2 px-3 group flex gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+              className="py-2 px-3 group relative flex gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
             >
               <FileText color="#3b82f6" />
-              <p className="group-hover:text-blue-500">Export to docx</p>
+              <p className="group-hover:text-blue-500 hidden md:block">
+                Export to docx
+              </p>
+              <div className="px-4 py-1 w-[140px] border border-blue-400 bg-white rounded-md scale-0 duration-300 group-hover:scale-100 absolute left-1/2 -translate-x-1/2 bottom-[-40px] md:hidden">
+                <p className="block">Export to docx</p>
+              </div>
+            </button>
+            <button
+              onClick={() => {
+                dialogCollaborator.current?.showModal();
+              }}
+              className="group flex gap-2 relative py-2 px-3 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+            >
+              <Users2 color="#3b82f6" size={22} />
+              <p className="group-hover:text-blue-500 hidden md:block">
+                Collaborator
+              </p>
+              <div className="px-4 py-1 border border-blue-400 bg-white rounded-md scale-0 duration-300 group-hover:scale-100 absolute left-1/2 -translate-x-1/2 bottom-[-40px] md:hidden">
+                <p>Collaborator</p>
+              </div>
             </button>
           </div>
         </div>
@@ -403,7 +433,7 @@ const ProjectDetail = () => {
             onClick={() => {
               dialogTagRef.current?.showModal();
             }}
-            className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+            className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] group hover:border-blue-500 duration-300 w-fit"
           >
             <span className="text-blue-500 text-lg font-bold">+</span> Add
             checklist tag
@@ -456,6 +486,12 @@ const ProjectDetail = () => {
                               return (
                                 <ChecklistItem
                                   provided={provided}
+                                  type={
+                                    checklistItem.type as
+                                      | 'none'
+                                      | 'narrative'
+                                      | 'vulnerability'
+                                  }
                                   key={`checklistItem-${checklistItem.id}`}
                                   id={checklistItem.id}
                                   dialogRef={dialogDetailChecklist}
@@ -493,6 +529,38 @@ const ProjectDetail = () => {
           ))}
         </DragDropContext>
       </div>
+      {/* checkpoint */}
+      <Modal dialogRef={dialogCollaborator}>
+        <div className="flex flex-col gap-3">
+          <h1 className="font-bold  text-2xl text-center mb-1">Collaborator</h1>
+          {projectDetail.project_user.map((item) => {
+            return (
+              <div
+                key={item.id}
+                className={`p-4 px-8 flex items-center  gap-2 border border-[#d7d7d7] duration-300 rounded-2xl cursor-pointer`}
+              >
+                {item.role === 'owner' ? (
+                  <Crown color="#3b82f6" size={20} />
+                ) : null}
+                <p
+                  className={`${item.role === 'owner' ? 'text-blue-500' : ''}`}
+                >
+                  {item.user.username}
+                </p>
+              </div>
+            );
+          })}
+          <button
+            onClick={() => {
+              dialogCollaborator.current?.close();
+            }}
+            type="button"
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 hover:bg-blue-400 duration-300 font-bold  text-white py-2"
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
 
       <Modal dialogRef={dialogMoveTag}>
         <form
@@ -548,7 +616,7 @@ const ProjectDetail = () => {
               dialogMoveTag.current?.close();
             }}
             type="button"
-            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 hover:bg-blue-400 duration-300 font-bold  text-white py-2"
           >
             Close
           </button>
@@ -713,7 +781,7 @@ const ProjectDetail = () => {
             onClick={() => {
               dialogTagRef.current?.close();
             }}
-            className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 font-bold  text-white py-2"
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 hover:bg-blue-400 duration-300 font-bold  text-white py-2"
           >
             Create Checklist Tag
           </button>
@@ -737,7 +805,7 @@ const ProjectDetail = () => {
             onClick={() => {
               dialogChecklistRef.current?.close();
             }}
-            className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 font-bold  text-white py-2"
+            className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 hover:bg-blue-400 duration-300 font-bold  text-white py-2"
           >
             Create Checklist Item
           </button>
@@ -821,12 +889,6 @@ const ProjectDetail = () => {
       </Modal>
     </>
   );
-};
-
-const typeBgColor = {
-  none: 'bg-white',
-  narrative: 'bg-blue-500',
-  vulnerability: 'bg-red-500',
 };
 
 export default ProjectDetail;

@@ -1,4 +1,4 @@
-import { api } from './helper';
+import { api } from './api';
 
 const loginAuth = async (body: { username: string; password: string }) => {
   try {

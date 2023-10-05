@@ -52,7 +52,17 @@ type projectDetailType = {
   createdAt: string;
   updatedAt: string;
   template: Template;
+  project_user: userCollaborator[]
 }
+
+type userCollaborator = {
+  id: string;
+  role: string;
+  user_id: string;
+  user: {
+    username: string
+  }
+};
 
 type templateDetailType = {
   "id": string,

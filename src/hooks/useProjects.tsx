@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { fetchProjects } from '../utils/helper.ts';
+import { fetchProjects } from '../utils/api.ts';
 
 const useProjects = <T,>(): [T | [], Dispatch<SetStateAction<T | []>>] => {
   const [value, setValue] = useState<T | []>([]);

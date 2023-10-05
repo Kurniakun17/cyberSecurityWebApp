@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { fetchTemplates } from '../utils/helper.ts';
+import { fetchTemplates } from '../utils/api.ts';
 
 const useTemplates = <T,>(): [T | [], Dispatch<SetStateAction<T | []>>] => {
   const [value, setValue] = useState<T | []>([]);
