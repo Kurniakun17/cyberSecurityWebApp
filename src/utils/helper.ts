@@ -114,12 +114,17 @@ const toggleProject = async (id: string, progress: string) => {
 }
 
 const deleteProject = async (id: string) => {
-  const res = await api.delete(`${mainUrl}/project/${id}`)
-  return res.data;
+  try {
+    
+    const res = await api.delete(`${mainUrl}/project/${id}`)
+    return res.data;
+  } catch (error) {
+    return {success: false}
+  }
 }
 
 const deleteTemplate = async (id: string) => {
-   const res= await api.delete(`${mainUrl}/template/${id}`)
+  const res= await api.delete(`${mainUrl}/template/${id}`)
   return res.data;
   }
 

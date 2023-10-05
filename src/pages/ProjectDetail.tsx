@@ -830,4 +830,10 @@ const ProjectDetail = () => {
   );
 };
 
+const typeBgColor = {
+  none: 'bg-white',
+  narrative: 'bg-blue-500',
+  vulnerability: 'bg-red-500',
+};
+
 export default ProjectDetail;

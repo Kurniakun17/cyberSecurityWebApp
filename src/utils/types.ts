@@ -137,6 +137,7 @@ interface checklistItemInputT {
     capec_owasp_cwe: string|string[];
     vulnerability_name: string;
     vulnerability_description: string;
+    cvss_score: number;
     impact: string;
     recommendation: string;
     status: string;

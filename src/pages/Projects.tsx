@@ -80,20 +80,20 @@ const Projects = () => {
 
   const onDeleteProjects = async (id: string) => {
     setToolTipId('');
-    document.getElementById(id)?.classList.add('delete');
     const res = await deleteProject(id);
-
+    console.log(res);
     if (res.success) {
+      document.getElementById(id)?.classList.add('delete');
       setTimeout(() => {
         toast.success('Project successfully deleted');
         setProjects((prev: projectsType[]) =>
           prev.filter((project: projectsType) => project.id !== id)
         );
-      }, 1000);
+      }, 750);
       return;
     }
 
-    toast.error('Failed deleting the project')
+    toast.error('Failed deleting the project (only ownership can delete)');
   };
 
   if (projects === null) {

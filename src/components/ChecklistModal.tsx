@@ -33,6 +33,7 @@ type inputValuesT = {
   status: string;
   image_caption: string;
   category: string;
+  cvss_score: number;
 };
 
 const ChecklistModal = ({
@@ -70,7 +71,13 @@ const ChecklistModal = ({
     const res = await deletePOCImage(templateId, data?.id as string, imageId);
 
     if (res.success) {
-      asyncFetchChecklistDetail(data?.id as string, templateId);
+      const imageIndex = pocPreview
+        .map((image: Image) => image.id)
+        .indexOf(imageId);
+
+      const clonePoc = pocPreview.slice();
+      clonePoc.splice(imageIndex, 1);
+      setPOCPreview(() => clonePoc);
     }
   };
 
@@ -117,9 +124,16 @@ const ChecklistModal = ({
     A: 'None',
     severity_level: '',
   });
-  const [severityLevel, setSeverityLevel] = useState<
-    '' | 'Informational' | 'None' | 'Low' | 'Medium' | 'High' | 'Critical'
-  >('');
+  const [severityLevel, setSeverityLevel] = useState<severityType>('');
+
+  type severityType =
+    | ''
+    | 'Informational'
+    | 'None'
+    | 'Low'
+    | 'Medium'
+    | 'High'
+    | 'Critical';
 
   useEffect(() => {
     if (data != null) {
@@ -150,6 +164,8 @@ const ChecklistModal = ({
           'vulnerability_description',
           data.vulnerability_description ?? ''
         );
+        setSeverityLevel((data.severity_level as severityType) ?? '');
+        setBaseScore(data.cvss_score);
         setValue('generate_to_word', data.generate_to_word);
         setValue('poc', data.poc ?? '');
         setValue('category', data.category ?? '');
@@ -211,6 +227,7 @@ const ChecklistModal = ({
         integrity: cvssValue.I ?? '',
         availability: cvssValue.A ?? '',
         severity_level: cvssValue.severity_level ?? '',
+        cvss_score: baseScore,
       };
     }
 
@@ -561,7 +578,7 @@ const ChecklistModal = ({
           }}
           type="submit"
           value="Save"
-          className="border border-[#d7d7d7] bg-blue-500 font-bold rounded-lg text-white py-2"
+          className="border border-[#d7d7d7] bg-blue-500 hover:bg-blue-400 cursor-pointer font-bold rounded-lg text-white py-2"
         />
       </form>
 
