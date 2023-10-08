@@ -7,6 +7,7 @@ import { templateType } from '../utils/types';
 import { addTemplate, deleteTemplate } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import ReactPaginate from 'react-paginate';
 
 type inputs = {
   name: string;
@@ -14,10 +15,14 @@ type inputs = {
 };
 
 const Templates = () => {
-  const [templates, setTemplates] = useTemplates<templateType[]>();
+  const [templates, setTemplates, totalPage, triggerFetchTemplate] =
+    useTemplates<templateType[]>();
   const [toolTipId, setToolTipId] = useState('');
   const { register, handleSubmit, reset } = useForm<inputs>();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const limit = 6;
+  const [currentPage, setCurrentPage] = useState(0);
+
   const navigate = useNavigate();
 
   const onAddTemplateHandler = async () => {
@@ -28,28 +33,33 @@ const Templates = () => {
     setToolTipId((prev: string) => (prev === id ? '' : id));
   };
 
-  const onDeleteTemplate = (id: string) => {
+  const onDeleteTemplate = async (id: string) => {
     setToolTipId('');
-    document.getElementById(id)?.classList.add('delete');
-    deleteTemplate(id);
-    setTimeout(() => {
-      setTemplates((prev: templateType[]) =>
-        prev.filter((template: templateType) => template.id !== id)
-      );
-    }, 1000);
+    const res = await deleteTemplate(id);
+    if (res.success) {
+      document.getElementById(id)?.classList.add('delete');
+      setTimeout(() => {
+        triggerFetchTemplate(0, limit);
+      }, 1000);
+    }
   };
 
   const onSubmitAddTemplate = async (formResult: inputs) => {
     const res = await addTemplate(formResult);
     if (res.success) {
       toast.success('Template Created');
-      setTemplates((prev: templateType[]) => [...prev, res.data]);
+      triggerFetchTemplate(0, limit);
+      setCurrentPage(0);
       reset();
       return;
     }
     toast.error('Add template failed');
   };
 
+  const onPageHandleClick = async (data: { selected: number }) => {
+    setCurrentPage(data.selected);
+    triggerFetchTemplate(data.selected, limit);
+  };
 
   return (
     <>
@@ -70,6 +80,7 @@ const Templates = () => {
           {templates.map((template) => {
             return (
               <ItemCard
+                isTemplate={true}
                 onToggleItem={() => {}}
                 key={template.id}
                 id={template.id}
@@ -85,6 +96,19 @@ const Templates = () => {
             );
           })}
         </div>
+        <ReactPaginate
+          previousLabel="<"
+          nextLabel=">"
+          pageCount={totalPage}
+          forcePage={currentPage}
+          breakLabel="..."
+          onPageChange={onPageHandleClick}
+          containerClassName="absolute bottom-24 left-1/2  -translate-x-1/2 flex gap-3 w-fit mx-auto"
+          pageClassName="p-2 px-4 rounded-md border font-bold"
+          nextClassName="p-2 px-4 border rounded-md font-bold"
+          previousClassName="p-2 px-4 border rounded-md font-bold "
+          activeClassName="border text-blue-500 border-blue-500"
+        ></ReactPaginate>
       </div>
 
       <Modal dialogRef={dialogRef}>

@@ -11,20 +11,12 @@ const Navbar = ({
     <div className="h-[72px] w-full z-50 fixed top-0 text-white flex items-center justify-between px-8 bg-blue-500">
       <div className="flex gap-5">
         <button
-          className="font-bold text-2xl"
+          className="cursor-pointer"
           onClick={() => {
             navigate('/projects');
           }}
         >
-          Logo
-        </button>
-        <button
-          className="font-bold text-2xl"
-          onClick={() => {
-            navigate('/templates');
-          }}
-        >
-          Templates
+          <img src="/logo.png" className="h-12 rounded-xl bg-white border " />
         </button>
       </div>
       <div className="flex items-center gap-5">
@@ -33,6 +25,7 @@ const Navbar = ({
           type="button"
           className="px-4 cursor-pointer py-1 border hover:text-blue-500 hover:bg-white duration-300 rounded-lg"
           onClick={onSignOutHandler}
+          
         >
           Sign Out
         </button>

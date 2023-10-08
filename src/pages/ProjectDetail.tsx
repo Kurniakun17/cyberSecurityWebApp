@@ -13,6 +13,7 @@ import {
 import {
   addChecklistTag,
   addChecklistTagItem,
+  addCollaborator,
   deleteChecklistItem,
   deleteChecklistTag,
   exportToDocx,
@@ -31,6 +32,7 @@ import {
   Edit,
   FileText,
   Pencil,
+  Plus,
   Trash,
   Users2,
 } from 'lucide-react';
@@ -42,6 +44,9 @@ import {
   Draggable,
   DropResult,
 } from 'react-beautiful-dnd';
+import { searchUser } from '../utils/user';
+import { useDebouncedCallback } from 'use-debounce';
+import toast from 'react-hot-toast';
 
 type inputs = {
   update_tag_name: string;
@@ -54,6 +59,8 @@ type inputs = {
   target_ip: string[];
   target_url: string[];
   progress: string;
+  username: string;
+  publish: boolean;
 };
 
 const ProjectDetail = () => {
@@ -66,14 +73,20 @@ const ProjectDetail = () => {
     useForm<inputs>();
   const [checklistTagId, setChecklistTagId] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [userSearchData, setUserSearchData] = useState<
+    { id: string; username: string }[]
+  >([]);
+  const [searchValue, setSearchValue] = useState('');
+  const [userSearchId, setUserSearchId] = useState('');
+  const debounced = useDebouncedCallback((username) => {
+    fetchSearchUser(username);
+  }, 1000);
   const [checklistDetailData, setChecklistDetailData] =
     useState<ChecklistDetailT | null>(null);
 
   const dialogTagRef = useRef<HTMLDialogElement>(null);
   const dialogChecklistRef = useRef<HTMLDialogElement>(null);
   const dialogDeleteTag = useRef<HTMLDialogElement>(null);
-  const dialogDeleteChecklist = useRef<HTMLDialogElement>(null);
   const dialogDetailChecklist = useRef<HTMLDialogElement>(null);
   const dialogExportToDocx = useRef<HTMLDialogElement>(null);
   const dialogEditProject = useRef<HTMLDialogElement>(null);
@@ -105,8 +118,16 @@ const ProjectDetail = () => {
       setValue('description', projectDetail.description);
       setValue('target_ip', projectDetail.target_ip);
       setValue('target_url', projectDetail.target_url);
+      setValue('publish', projectDetail.publish);
     }
   }, [projectDetail]);
+
+  const fetchSearchUser = async (username: string) => {
+    const res = await searchUser(username);
+    if (res.data.success) {
+      setUserSearchData(res.data.items);
+    }
+  };
 
   const onEditProjectSubmit = async (res: inputs) => {
     const fetchResult = await updateProject(projectDetail?.id as string, res);
@@ -131,9 +152,23 @@ const ProjectDetail = () => {
     );
 
     if (result.success) {
+      resetField('tag_name');
       triggerFetchProjectDetail();
-      reset();
     }
+  };
+
+  const onAddCollaborator = async () => {
+    const res = await addCollaborator(projectDetail?.id as string, {
+      collaborator_id: userSearchId,
+    });
+    if (res.success) {
+      toast.success('Success');
+      triggerFetchProjectDetail();
+      setSearchValue('');
+      setUserSearchId('');
+      return;
+    }
+    toast.error('User is already a collaborator in this project');
   };
 
   const onExportModalSubmit: SubmitHandler<inputs> = async (data) => {
@@ -310,7 +345,9 @@ const ProjectDetail = () => {
 
   return (
     <>
-      <div className={`flex flex-col gap-6 ${loading && 'overflow-hidden'}`}>
+      <div
+        className={`flex flex-col gap-6 pb-12 ${loading && 'overflow-hidden'}`}
+      >
         {loading && (
           <div className="fixed z-[9999] flex flex-col gap-24 justify-center items-center h-screen w-screen bg-[rgba(255,255,255,0.9)] ">
             <Jelly size={100} color="#3b82f6" />
@@ -326,7 +363,7 @@ const ProjectDetail = () => {
               onClick={() => {
                 dialogEditProject.current?.showModal();
               }}
-              className="group flex gap-2 relative py-2 px-3  rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+              className="group flex gap-2 relative py-2 px-3  rounded-lg border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
             >
               <Edit color="#3b82f6" size={22} />
               <p className="group-hover:text-blue-500 hidden md:block">Edit</p>
@@ -338,7 +375,7 @@ const ProjectDetail = () => {
               onClick={() => {
                 dialogExportToDocx.current?.showModal();
               }}
-              className="py-2 px-3 group relative flex gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+              className="py-2 px-3 group relative flex gap-2 rounded-lg border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
             >
               <FileText color="#3b82f6" />
               <p className="group-hover:text-blue-500 hidden md:block">
@@ -352,7 +389,7 @@ const ProjectDetail = () => {
               onClick={() => {
                 dialogCollaborator.current?.showModal();
               }}
-              className="group flex gap-2 relative py-2 px-3 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+              className="group flex gap-2 relative py-2 px-3 rounded-lg border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
             >
               <Users2 color="#3b82f6" size={22} />
               <p className="group-hover:text-blue-500 hidden md:block">
@@ -400,21 +437,33 @@ const ProjectDetail = () => {
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex gap-5">
-            <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
-              <p className="font-semibold block flex-1 text-center">
-                Target URL:{' '}
-                {projectDetail.target_url.length > 0
-                  ? projectDetail.target_url.toString()
-                  : '-'}
-              </p>
+            <div className="border border-[#d7d7d7] py-2 px-4 rounded-lg">
+              <div className="flex">
+                <h3 className="font-semibold">Target URL:</h3>
+                <div className="flex flex-col">
+                  {projectDetail.target_url.length > 0
+                    ? projectDetail.target_url.map((url: string) => (
+                        <p key={url} className="ml-2">
+                          - {url}
+                        </p>
+                      ))
+                    : null}
+                </div>
+              </div>
             </div>
-            <div className="border border-[#d7d7d7] py-2 px-4 rounded-xl">
-              <p className="font-semibold block flex-1 text-center">
-                Target IP:{' '}
-                {projectDetail.target_ip.length > 0
-                  ? projectDetail.target_ip.toString()
-                  : '-'}
-              </p>
+            <div className="border border-[#d7d7d7] py-2 px-4 rounded-lg">
+              <div className="flex">
+                <h3 className="font-semibold">Target IP:</h3>
+                <div className="flex flex-col">
+                  {projectDetail.target_ip.length > 0
+                    ? projectDetail.target_ip.map((ip: string) => (
+                        <p key={ip} className="ml-2">
+                          - {ip}
+                        </p>
+                      ))
+                    : null}
+                </div>
+              </div>
             </div>
           </div>
           <p className="block w-fit">{projectDetail.description}</p>
@@ -424,7 +473,7 @@ const ProjectDetail = () => {
             onClick={() => {
               dialogMoveTag.current?.showModal();
             }}
-            className="flex items-center py-2 px-3 gap-1 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+            className="flex items-center py-2 px-3 gap-1 rounded-lg border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
           >
             <ArrowDownUp className="text-blue-500" size={20} /> Move tag
           </button>
@@ -433,7 +482,7 @@ const ProjectDetail = () => {
             onClick={() => {
               dialogTagRef.current?.showModal();
             }}
-            className="py-2 px-3 gap-4 rounded-xl border border-[#D7D7D7] group hover:border-blue-500 duration-300 w-fit"
+            className="py-2 px-3 gap-4 rounded-lg border border-[#D7D7D7] group hover:border-blue-500 duration-300 w-fit"
           >
             <span className="text-blue-500 text-lg font-bold">+</span> Add
             checklist tag
@@ -454,7 +503,7 @@ const ProjectDetail = () => {
                       setChecklistTagId(item.id);
                     }}
                   >
-                    <Pencil className="text-blue-500 duration-300" />
+                    <Pencil className="text-blue-500 hover:text-blue-400 duration-300" />
                   </button>
                   <button
                     onClick={(e) => {
@@ -495,7 +544,6 @@ const ProjectDetail = () => {
                                   key={`checklistItem-${checklistItem.id}`}
                                   id={checklistItem.id}
                                   dialogRef={dialogDetailChecklist}
-                                  dialogDeleteChecklist={dialogDeleteChecklist}
                                   templateId={projectDetail.template.id}
                                   title={checklistItem.title}
                                   progress={checklistItem.progress}
@@ -514,7 +562,7 @@ const ProjectDetail = () => {
                           setChecklistTagId(item.id);
                           dialogChecklistRef.current?.showModal();
                         }}
-                        className="py-2 px-3 gap-4 duration-300 hover:border-blue-500 rounded-xl border border-[#D7D7D7] w-fit"
+                        className="py-2 px-3 gap-4 duration-300 hover:border-blue-500 rounded-lg border border-[#D7D7D7] w-fit"
                       >
                         <span className="text-blue-500 text-lg font-bold">
                           +
@@ -537,19 +585,69 @@ const ProjectDetail = () => {
             return (
               <div
                 key={item.id}
-                className={`p-4 px-8 flex items-center  gap-2 border border-[#d7d7d7] duration-300 rounded-2xl cursor-pointer`}
+                className={`p-4 px-6 flex items-center  gap-2 border border-[#d7d7d7] duration-300 rounded-2xl`}
               >
                 {item.role === 'owner' ? (
                   <Crown color="#3b82f6" size={20} />
                 ) : null}
                 <p
-                  className={`${item.role === 'owner' ? 'text-blue-500' : ''}`}
+                  className={`${
+                    item.role === 'owner' ? 'text-blue-500 font-semibold' : ''
+                  }`}
                 >
                   {item.user.username}
                 </p>
               </div>
             );
           })}
+          <div className="flex flex-col gap-1">
+            <h2 className="font-semibold text-lg">Add collaborator</h2>
+            <div className="flex gap-3">
+              <div className="flex flex-col flex-1">
+                <input
+                  type="text"
+                  className="rounded-2xl h-full"
+                  value={searchValue}
+                  onChange={(e) => {
+                    setSearchValue(e.target.value);
+                    setUserSearchId('');
+                    debounced(e.target.value);
+                  }}
+                />
+                {userSearchData.map((data, index) => (
+                  <button
+                    onClick={() => {
+                      setUserSearchId(data.id);
+                      setSearchValue(data.username);
+                      setUserSearchData([]);
+                    }}
+                    key={data.id}
+                    className={`p-2  hover:border-blue-500 ${
+                      userSearchId === data.id ? 'border-blue-500' : ''
+                    } duration-300 text-start border-x ${
+                      index == userSearchData.length - 1
+                        ? 'border-b rounded-b-lg'
+                        : ''
+                    } border-gray-300 cursor-pointer `}
+                    type="button"
+                  >
+                    <h3>{data.username}</h3>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={onAddCollaborator}
+                disabled={userSearchId === '' ? true : false}
+                className="h-fit py-2 px-3 gap-1 items-center disabled:bg-slate-300 disabled:opacity-40 flex  text-sm group rounded-lg border border-[#D7D7D7] hover:border-transparent hover:bg-blue-500 hover:text-white duration-300 w-fit"
+              >
+                <Plus
+                  size={16}
+                  className="text-blue-500 group-hover:text-white duration-300"
+                />
+                Add
+              </button>
+            </div>
+          </div>
           <button
             onClick={() => {
               dialogCollaborator.current?.close();
@@ -695,7 +793,7 @@ const ProjectDetail = () => {
                   />
                   <button
                     type="button"
-                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
+                    className="px-4 py-2 border border-[#d7d7d7] rounded-md"
                     onClick={() => {
                       removeTarget_ip(index);
                     }}
@@ -710,7 +808,7 @@ const ProjectDetail = () => {
               onClick={() => {
                 appendTarget_ip('');
               }}
-              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
+              className="py-2 px-3 gap-4  text-sm rounded-lg border border-[#D7D7D7] w-fit"
             >
               <span className="text-blue-500 text-sm font-bold">+</span> Add
               Item
@@ -731,7 +829,7 @@ const ProjectDetail = () => {
                   />
                   <button
                     type="button"
-                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
+                    className="px-4 py-2 border border-[#d7d7d7] rounded-lg"
                     onClick={() => {
                       removeTarget_url(index);
                     }}
@@ -746,11 +844,20 @@ const ProjectDetail = () => {
               onClick={() => {
                 appendTarget_url('');
               }}
-              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
+              className="py-2 px-3 gap-4  text-sm rounded-lg border border-[#D7D7D7] w-fit"
             >
               <span className="text-blue-500 text-sm font-bold">+</span> Add
               Item
             </button>
+          </div>
+
+          <div className="flex gap-4 ">
+            <label htmlFor="">Publish to reference</label>
+            <input
+              {...register('publish')}
+              type="checkbox"
+              className="w-6 border border-[#d7d7d7] text-blue-500 bg-blue-500"
+            />
           </div>
 
           <button
@@ -759,7 +866,7 @@ const ProjectDetail = () => {
             }}
             className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
           >
-            Create Project
+            Save
           </button>
         </form>
       </Modal>

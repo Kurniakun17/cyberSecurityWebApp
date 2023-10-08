@@ -13,6 +13,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import ItemCard from '../components/ItemCard';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import ReactPaginate from 'react-paginate';
 
 type inputs = {
   name: string;
@@ -23,7 +24,19 @@ type inputs = {
 };
 
 const Projects = () => {
-  const [projects, setProjects] = useProjects<projectsType[] | []>();
+  const [
+    projects,
+    setProjects,
+    totalOnProgressPage,
+    triggerFetchOnProgressProjects,
+  ] = useProjects<projectsType[] | []>({
+    type: 'in-progress',
+  });
+  const [closedProjects, _, totalClosedPage, triggerFetchClosedProjects] =
+    useProjects<projectsType[] | []>({ type: 'done' });
+
+  const limit = 2;
+
   const [toolTipId, setToolTipId] = useState('');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [template, setTemplate] = useState([]);
@@ -56,32 +69,29 @@ const Projects = () => {
     setToolTipId((prev: string) => (prev === id ? '' : id));
   };
 
-  const onToggleProjects = (id: string) => {
-    let newProgress: string;
+  const onPageProgressHandleClick = (data: { selected: number }) => {
+    triggerFetchOnProgressProjects(data.selected, limit, 'in-progress');
+  };
+  const onPageClosedHandleClick = (data: { selected: number }) => {
+    triggerFetchClosedProjects(data.selected, limit, 'done');
+  };
 
-    setProjects((prev: projectsType[]) => {
-      const newProjects = prev.map((project: projectsType) => {
-        if (project.id === id) {
-          newProgress =
-            project.progress === 'in-progress' ? 'done' : 'in-progress';
-          toggleProject(id, newProgress);
-          return {
-            ...project,
-            progress: newProgress,
-          };
-        }
-        return project;
-      });
+  const triggerFetchProjects = () => {
+    triggerFetchOnProgressProjects(0, limit, 'in-progress');
+    triggerFetchClosedProjects(0, limit, 'done');
+  };
 
-      return [...newProjects];
-    });
-    setToolTipId('');
+  const onToggleProjects = async (id: string, newProgress: string) => {
+    const res = await toggleProject(id, newProgress);
+    if (res.success) {
+      triggerFetchProjects();
+      setToolTipId('');
+    }
   };
 
   const onDeleteProjects = async (id: string) => {
     setToolTipId('');
     const res = await deleteProject(id);
-    console.log(res);
     if (res.success) {
       document.getElementById(id)?.classList.add('delete');
       setTimeout(() => {
@@ -89,11 +99,14 @@ const Projects = () => {
         setProjects((prev: projectsType[]) =>
           prev.filter((project: projectsType) => project.id !== id)
         );
+        triggerFetchProjects();
       }, 750);
       return;
     }
 
-    toast.error('Failed deleting the project \n(only owners of the project can delete it)');
+    toast.error(
+      'Failed deleting the project \n(only owners of the project can delete it)'
+    );
   };
 
   if (projects === null) {
@@ -106,6 +119,7 @@ const Projects = () => {
     if (res.success) {
       const data = res.data;
       setTemplate(data.items);
+      triggerFetchOnProgressProjects(0, limit, 'in-progress');
       dialogRef.current?.showModal();
     }
   };
@@ -127,10 +141,8 @@ const Projects = () => {
 
     if (data.success) {
       toast.success('Project created!');
+      triggerFetchOnProgressProjects(0, limit, 'in-progress');
       reset();
-      setProjects((prev) => {
-        return [...prev, data.data];
-      });
       return;
     }
 
@@ -139,7 +151,7 @@ const Projects = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6">
+      <div className="relative pb-24 flex flex-col gap-6">
         <div className="flex justify-between">
           <h2 className="font-bold text-2xl">On-Going Projects</h2>
           <div className="flex gap-2">
@@ -155,49 +167,69 @@ const Projects = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-5 gap-y-4">
-          {projects
-            .filter(
-              (project: projectsType) => project.progress === 'in-progress'
-            )
-            .map((project: projectsType) => (
-              <ItemCard
-                onToggleItem={onToggleProjects}
-                key={project.id}
-                id={project.id}
-                onClickItem={() => {
-                  navigate(`/projects/${project.id}`);
-                }}
-                name={project.name}
-                createdAt={project.createdAt}
-                toolTipId={toolTipId}
-                onSetToolTip={onSetToolTip}
-                onDeleteItem={onDeleteProjects}
-              />
-            ))}
+          {projects.map((project: projectsType) => (
+            <ItemCard
+              onToggleItem={onToggleProjects}
+              key={project.id}
+              id={project.id}
+              onClickItem={() => {
+                navigate(`/projects/${project.id}`);
+              }}
+              name={project.name}
+              createdAt={project.createdAt}
+              toolTipId={toolTipId}
+              onSetToolTip={onSetToolTip}
+              onDeleteItem={onDeleteProjects}
+            />
+          ))}
         </div>
+        <ReactPaginate
+          previousLabel="<"
+          nextLabel=">"
+          pageCount={totalOnProgressPage}
+          breakLabel="..."
+          onPageChange={onPageProgressHandleClick}
+          containerClassName="absolute bottom-0 left-1/2  -translate-x-1/2 flex gap-3 w-fit mx-auto"
+          pageClassName="p-2 px-4 rounded-md border font-bold"
+          nextClassName="p-2 px-4 border rounded-md font-bold"
+          previousClassName="p-2 px-4 border rounded-md font-bold "
+          activeClassName="border text-blue-500 border-blue-500"
+        ></ReactPaginate>
       </div>
-      <div className="flex flex-col gap-6">
+
+      {/* Closed */}
+      <div className="flex relative pb-24 mb-12 flex-col gap-6">
         <h2 className="font-bold text-2xl">Closed Projects</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-5 gap-y-4">
-          {projects
-            .filter((project: projectsType) => project.progress === 'done')
-            .map((project: projectsType) => (
-              <ItemCard
-                onToggleItem={onToggleProjects}
-                key={project.id}
-                name={project.name}
-                createdAt={project.createdAt}
-                isOpen={false}
-                id={project.id}
-                onClickItem={() => {
-                  navigate(`/projects/${project.id}`);
-                }}
-                toolTipId={toolTipId}
-                onSetToolTip={onSetToolTip}
-                onDeleteItem={onDeleteProjects}
-              />
-            ))}
+          {closedProjects.map((project: projectsType) => (
+            <ItemCard
+              onToggleItem={onToggleProjects}
+              key={project.id}
+              name={project.name}
+              createdAt={project.createdAt}
+              isOpen={false}
+              id={project.id}
+              onClickItem={() => {
+                navigate(`/projects/${project.id}`);
+              }}
+              toolTipId={toolTipId}
+              onSetToolTip={onSetToolTip}
+              onDeleteItem={onDeleteProjects}
+            />
+          ))}
         </div>
+        <ReactPaginate
+          previousLabel="<"
+          nextLabel=">"
+          pageCount={totalClosedPage}
+          breakLabel="..."
+          onPageChange={onPageClosedHandleClick}
+          containerClassName="absolute bottom-0 left-1/2  -translate-x-1/2 flex gap-3 w-fit mx-auto"
+          pageClassName="p-2 px-4 rounded-md border font-bold"
+          nextClassName="p-2 px-4 border rounded-md font-bold"
+          previousClassName="p-2 px-4 border rounded-md font-bold "
+          activeClassName="border text-blue-500 border-blue-500"
+        ></ReactPaginate>
       </div>
 
       <Modal dialogRef={dialogRef}>
@@ -270,7 +302,7 @@ const Projects = () => {
               onClick={() => {
                 appendTarget_ip('');
               }}
-              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
+              className="py-2 px-3 gap-4  text-sm rounded-lg border border-[#D7D7D7] w-fit"
             >
               <span className="text-blue-500 text-sm font-bold">+</span> Add
               Item

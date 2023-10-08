@@ -10,15 +10,16 @@ const ItemCard = ({
   onToggleItem,
   onClickItem,
   isOpen = true,
+  isTemplate = false,
 }: {
   id: string;
   name: string;
   createdAt: string;
   toolTipId: string;
-
+  isTemplate?: boolean;
   onSetToolTip: (id: string) => void;
   onDeleteItem: (id: string) => void;
-  onToggleItem: (id: string) => void;
+  onToggleItem: (id: string, newProgress: string) => void;
   onClickItem: () => void;
   isOpen?: boolean;
 }) => {
@@ -51,24 +52,28 @@ const ItemCard = ({
       <div
         className={`${
           toolTipId === id ? 'flex' : 'hidden'
-        }  px-5 py-3 absolute z-10 top-[-60px] right-[-100px] flex flex-col gap-3 bg-white rounded-lg border border-[#D7D7D7]`}
+        }  px-5 py-3 absolute z-10 ${
+          !isTemplate
+            ? ' top-[-60px] right-[-100px] '
+            : ' top-[-30px] right-[-60px] '
+        }flex flex-col gap-3 bg-white rounded-lg border border-[#D7D7D7]`}
       >
-        {isOpen ? (
+        {isTemplate ? null : isOpen ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggleItem(id);
+              onToggleItem(id, 'done');
             }}
             type="button"
             className="text-left"
           >
-            Closed Project
+            Close Project
           </button>
         ) : (
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggleItem(id);
+              onToggleItem(id, 'in-progress');
             }}
             type="button"
             className="text-left"

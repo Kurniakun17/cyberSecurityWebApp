@@ -18,14 +18,23 @@ api.interceptors.request.use(function (config) {
   return config;
 });
 
-const fetchProjects = async () => {
-  const res = await api.get(`${mainUrl}/project`);
+const addCollaborator = async (projectId: string, body: {collaborator_id: string}) => {
+  try {
+    
+    const res = await api.post(`http://localhost:3000/project/${projectId}/add-collaborator`, body);
+    return res.data
+  } catch (error) {
+    return error;
+  }
+}
 
+const fetchProjects = async (pageCount: number,sizeCount: number, type: string)=> {
+  const res = await api.get(`${mainUrl}/project?page=${pageCount}&size=${sizeCount}&progress=${type}`);
   return res.data;
 };
 
-const fetchTemplates = async () => {
-  const res = await api.get(`${mainUrl}/template`);
+const fetchTemplates = async (pageCount: number,sizeCount: number) => {
+  const res = await api.get(`${mainUrl}/template?page=${pageCount}&size=${sizeCount}`);
   return res.data;
 };
 
@@ -110,7 +119,8 @@ const toggleChecklist = async (templateId:string, checklistId: string, progress:
 }
 
 const toggleProject = async (id: string, progress: string) => {
-  await api.put(`${mainUrl}/project/${id}`, {progress}) 
+  const res = await api.put(`${mainUrl}/project/${id}`, {progress}) 
+  return res.data;
 }
 
 const deleteProject = async (id: string) => {
@@ -144,7 +154,7 @@ const moveTag = async ({templateId, body}: {templateId: string, body: unknown}) 
     const res = await api.post(`http://localhost:3000/template/${templateId}/tag/move`, body);
     return res.data;
   } catch (error) {
-    console.log(error);
+    return error;
   }
 }
 
@@ -189,9 +199,11 @@ const addTemplate = async(body: {name: string, description: string}) => {
   const res = await api.post(`${mainUrl}/template?type=unfilled`, body);
   return res.data;
 }
-const getReference = async () => {
-  const res = await api.get(`${mainUrl}/reference/checklist?page=0&size=10`);
+const getReference = async (pageCount: number, sizeCount: number, title: string, vulnerability_name: string) => {
+  const url = `${mainUrl}/reference/checklist?page=${pageCount}&size=${sizeCount}&vulnerability_name=${vulnerability_name}&title=${title}`;
+  console.log(url);
+  const res = await api.get(url);
   return res.data;
 }
 
-export { moveTag, updateChecklistTag, getReference, api, updateTemplate, updateProject, addTemplate, deleteTemplate, fetchTemplates, addProject,getTemplateList, moveChecklist, moveChecklistToAnotherTag, fetchProjects, fetchProjectDetail, fetchTemplateDetail,exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };
+export { moveTag, updateChecklistTag, getReference, api, updateTemplate, updateProject, addTemplate, deleteTemplate, fetchTemplates, addProject,getTemplateList, moveChecklist, moveChecklistToAnotherTag, fetchProjects, fetchProjectDetail, fetchTemplateDetail, addCollaborator, exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };

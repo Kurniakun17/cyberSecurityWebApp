@@ -59,6 +59,7 @@ const ChecklistModal = ({
   const dialogAddImageRef = useRef<HTMLDialogElement>(null);
   const [pocPreview, setPOCPreview] = useState<Image[]>([]);
   const [imagesFile, setImagesFile] = useState<FileList[]>([]);
+
   const onAddImageCaptionSubmit = async (image: { image_caption: string }) => {
     const res = await uploadPocImage(templateId, data?.id as string, {
       file: imagesFile[imagesFile.length - 1][0],
@@ -236,6 +237,8 @@ const ChecklistModal = ({
         cvss_score: baseScore as number,
       };
     }
+
+    console.log(body);
 
     const res = await updateChecklistItem(
       templateId as string,

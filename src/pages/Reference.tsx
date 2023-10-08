@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import { getReference } from '../utils/api';
-import { ChecklistDetailT, Reference, UserData } from '../utils/types';
+import { fetchChecklistDetail, getReference } from '../utils/api';
+import { ChecklistDetailT, Reference } from '../utils/types';
 import { Jelly } from '@uiball/loaders';
 import { useForm } from 'react-hook-form';
 import Modal from '../components/Modal';
 import { colorRatings, severityRatings } from '../utils/cvss';
 import { generateVectorString } from '../components/CvssCalculator';
+import ReactPaginate from 'react-paginate';
+import { ClipboardSignature } from 'lucide-react';
 
 type inputs = {
   vulnerability: string;
@@ -16,71 +17,66 @@ type inputs = {
 const References = () => {
   const [reference, setReference] = useState<Reference>();
   const [referenceIndex, setReferenceIndex] = useState<number>(0);
-  const [filteredReference, setFilteredReference] =
-    useState<ChecklistDetailT[]>();
-  const dialogChecklistDetail = useRef<HTMLDialogElement>(null);
 
+  const dialogChecklistDetail = useRef<HTMLDialogElement>(null);
+  const limit = 5;
   const { register, watch } = useForm<inputs>();
 
-  useEffect(() => {
-    filterItem();
-  }, [watch('vulnerability'), watch('title')]);
+  useEffect(() => {}, [watch('vulnerability'), watch('title')]);
 
   useEffect(() => {
-    fetchReference();
+    fetchReference(0, limit, '', '');
   }, []);
 
-  const filterItem = () => {
-    const vulnerability = watch('vulnerability');
-    const title = watch('title');
-
-    if (!vulnerability && !title) {
-      setFilteredReference(reference?.items);
-      return;
-    }
-    const newItems = reference?.items.filter(
-      (item) =>
-        item.title.toLowerCase().includes(title.toLowerCase()) &&
-        item.vulnerability_name
-          .toLowerCase()
-          .includes(vulnerability.toLowerCase())
+  const fetchReference = async (
+    pageCount: number,
+    sizeCount: number,
+    vulnerability_name: string,
+    title: string
+  ) => {
+    const res = await getReference(
+      pageCount,
+      sizeCount,
+      vulnerability_name,
+      title
     );
-
-    setFilteredReference(newItems);
-  };
-
-  const fetchReference = async () => {
-    const res = await getReference();
     if (res.success) {
       setReference(res.data);
-      setFilteredReference(res.data.items);
     }
   };
 
-  if (!filteredReference) {
-    return (
-      <div className="my-[72px] lg:ml-[300px] grow">
-        <div className="mx-auto my-[100px] w-fit flex flex-col text-center">
-          <Jelly size={72} color="#3b82f6" />
-          <p className="my-8 font-bold text-xl text-blue-500">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   const getSeverityLevel = () => {
-    return severityRatings.filter(
-      (item) =>
-        filteredReference![referenceIndex].cvss_score >= item.bottom &&
-        filteredReference![referenceIndex].cvss_score <= item.top
-    )[0].name as '' | 'None' | 'Low' | 'High' | 'Critical';
+    if (reference)
+      return severityRatings.filter(
+        (item) =>
+          reference.items![referenceIndex].cvss_score >= item.bottom &&
+          reference.items![referenceIndex].cvss_score <= item.top
+      )[0].name;
   };
 
   const getBaseScoreColor = () => {
-    return colorRatings[getSeverityLevel()];
+    return colorRatings[
+      getSeverityLevel() as '' | 'None' | 'Low' | 'High' | 'Critical'
+    ];
   };
 
-  console.log(reference);
+  const checklistType = {
+    narrative: 'Attack Narrative',
+    vulnerability: 'Vulnerability',
+  };
+
+  const searchReference = () => {
+    fetchReference(0, limit, watch('title'), watch('vulnerability'));
+  };
+
+  const onPageHandleClick = (data: { selected: number }) => {
+    fetchReference(
+      data.selected,
+      limit,
+      watch('title'),
+      watch('vulnerability')
+    );
+  };
 
   return (
     <>
@@ -88,16 +84,22 @@ const References = () => {
         <h2 className="font-bold text-2xl">Reference</h2>
       </div>
       <div className="flex flex-col gap-2">
+        <input type="text" {...register('title')} placeholder="Title" />
         <input
           type="text"
           {...register('vulnerability')}
           placeholder="Vulnerability Name"
         />
-        <input type="text" {...register('title')} placeholder="Title" />
+        <button
+          onClick={searchReference}
+          className="w-fit px-4 py-1 bg-blue-500 text-white font-semibold rounded-lg text-lg"
+        >
+          Search
+        </button>
       </div>
       <div className=" border border-slate-300"></div>
       <div className="flex flex-col gap-4">
-        {filteredReference?.map((item, index: number) => (
+        {reference?.items?.map((item, index: number) => (
           <button
             key={item.id}
             onClick={() => {
@@ -107,15 +109,29 @@ const References = () => {
             className="p-4 px-8 flex items-center justify-between border border-[#D7D7D7] hover:border-blue-500 duration-300 rounded-2xl cursor-pointer"
           >
             <h2>{item.title}</h2>
+            <p>{item.vulnerability_name}</p>
           </button>
         ))}
       </div>
 
+      <ReactPaginate
+        previousLabel="<"
+        nextLabel=">"
+        pageCount={reference?.totalPages as number}
+        breakLabel="..."
+        onPageChange={onPageHandleClick}
+        containerClassName="absolute bottom-24 left-1/2  -translate-x-1/2 flex gap-3 w-fit mx-auto"
+        pageClassName="p-2 px-4 rounded-md border font-bold"
+        nextClassName="p-2 px-4 border rounded-md font-bold"
+        previousClassName="p-2 px-4 border rounded-md font-bold "
+        activeClassName="border text-blue-500 border-blue-500"
+      ></ReactPaginate>
+
       <Modal dialogRef={dialogChecklistDetail}>
-        {filteredReference![referenceIndex] != null && (
+        {reference?.items![referenceIndex] != null && (
           <form className="flex flex-col gap-6">
             <h1 className="font-bold text-2xl text-center mb-1">
-              Add Check List
+              Checklist Detail
             </h1>
             <div className="flex justify-between">
               <div className="flex flex-col gap-1">
@@ -123,7 +139,7 @@ const References = () => {
 
                 <input
                   type="text"
-                  value={filteredReference![referenceIndex].title}
+                  value={reference?.items![referenceIndex].title}
                   disabled
                 />
               </div>
@@ -133,28 +149,26 @@ const References = () => {
                     disabled
                     id="type"
                     className="px-2 py-1 pr-16 focus:outline-blue-500 border background rounded-xl border-[#d7d7d7] "
-                    value={filteredReference![referenceIndex].type}
+                    value={
+                      checklistType[
+                        reference?.items![referenceIndex].type as
+                          | 'narrative'
+                          | 'vulnerability'
+                      ]
+                    }
                   />
                 </div>
               </div>
             </div>
-            <div className="flex gap-4 ">
-              <label htmlFor="">Complete</label>
-              <input
-                disabled
-                value={filteredReference![referenceIndex].progress}
-                type="checkbox"
-                className="w-6 border border-[#d7d7d7] text-blue-500 bg-blue-500"
-              />
-            </div>
+
             <div className="flex flex-col gap-1">
               <label htmlFor="description">Description</label>
               <textarea
                 disabled
-                value={filteredReference![referenceIndex].description}
+                value={reference?.items![referenceIndex].description}
               />
             </div>
-            {filteredReference![referenceIndex].type === 'vulnerability' ? (
+            {reference?.items![referenceIndex].type === 'vulnerability' ? (
               <>
                 <div className="grid grid-cols-6 gap-6">
                   <label htmlFor="" className="col-span-2">
@@ -164,9 +178,7 @@ const References = () => {
                     type="text"
                     className="col-span-4"
                     disabled
-                    value={
-                      filteredReference![referenceIndex].vulnerability_name
-                    }
+                    value={reference?.items![referenceIndex].vulnerability_name}
                   />
                   <label htmlFor="" className="col-span-2">
                     Vulnerability Description
@@ -176,7 +188,7 @@ const References = () => {
                     className="col-span-4 "
                     disabled
                     value={
-                      filteredReference![referenceIndex]
+                      reference?.items![referenceIndex]
                         .vulnerability_description
                     }
                   />
@@ -189,7 +201,7 @@ const References = () => {
                       className={`${getBaseScoreColor()} flex flex-col items-center pb-1 px-6 rounded-xl min-w-[108px]`}
                     >
                       <h4 className="font-bold text-white text-xl">
-                        {filteredReference![referenceIndex].cvss_score}
+                        {reference?.items![referenceIndex].cvss_score}
                       </h4>
                       <p className="text-white text-sm">
                         (
@@ -210,7 +222,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].attack_vector ===
+                            reference?.items![referenceIndex].attack_vector ===
                             'Network'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -222,7 +234,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].attack_vector ===
+                            reference?.items![referenceIndex].attack_vector ===
                             'Adjacent'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -234,7 +246,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].attack_vector ===
+                            reference?.items![referenceIndex].attack_vector ===
                             'Local'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -246,7 +258,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].attack_vector ===
+                            reference?.items![referenceIndex].attack_vector ===
                             'Physical'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -263,7 +275,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].scope ===
+                            reference?.items![referenceIndex].scope ===
                             'Unchanged'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -274,7 +286,7 @@ const References = () => {
                         <button
                           type="button"
                           className={`${
-                            filteredReference![referenceIndex].scope ===
+                            reference?.items![referenceIndex].scope ===
                             'Changed'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -293,7 +305,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex]
+                            reference.items![referenceIndex]
                               .attack_complexity === 'Low'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -305,7 +317,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex]
+                            reference.items![referenceIndex]
                               .attack_complexity === 'High'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -324,8 +336,8 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex]
-                              .confidentiality === 'None'
+                            reference.items![referenceIndex].confidentiality ===
+                            'None'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
                           } border p-1 px-2 rounded-md`}
@@ -336,8 +348,8 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex]
-                              .confidentiality === 'Low'
+                            reference.items![referenceIndex].confidentiality ===
+                            'Low'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
                           } border p-1 px-2 rounded-md`}
@@ -348,8 +360,8 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex]
-                              .confidentiality === 'High'
+                            reference.items![referenceIndex].confidentiality ===
+                            'High'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
                           } border p-1 px-2 rounded-md`}
@@ -367,7 +379,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex]
+                            reference.items![referenceIndex]
                               .privilege_required === 'None'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -378,7 +390,7 @@ const References = () => {
                         <button
                           type="button"
                           className={`${
-                            filteredReference![referenceIndex]
+                            reference.items![referenceIndex]
                               .privilege_required === 'Low'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -389,7 +401,7 @@ const References = () => {
                         <button
                           type="button"
                           className={`${
-                            filteredReference![referenceIndex]
+                            reference.items![referenceIndex]
                               .privilege_required === 'High'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -406,7 +418,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].integrity ===
+                            reference.items![referenceIndex].integrity ===
                             'None'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -418,8 +430,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].integrity ===
-                            'Low'
+                            reference.items![referenceIndex].integrity === 'Low'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
                           } border p-1 px-2 rounded-md`}
@@ -430,7 +441,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].integrity ===
+                            reference.items![referenceIndex].integrity ===
                             'High'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -448,7 +459,7 @@ const References = () => {
                         <button
                           type="button"
                           className={`${
-                            filteredReference![referenceIndex]
+                            reference.items![referenceIndex]
                               .user_interaction === 'None'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -460,7 +471,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex]
+                            reference.items![referenceIndex]
                               .user_interaction === 'Required'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -479,7 +490,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].availability ===
+                            reference.items![referenceIndex].availability ===
                             'None'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -491,7 +502,7 @@ const References = () => {
                           type="button"
                           disabled
                           className={`${
-                            filteredReference![referenceIndex].availability ===
+                            reference.items![referenceIndex].availability ===
                             'Low'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -502,7 +513,7 @@ const References = () => {
                         <button
                           type="button"
                           className={`${
-                            filteredReference![referenceIndex].availability ===
+                            reference.items![referenceIndex].availability ===
                             'High'
                               ? 'bg-blue-500 text-white border-blue-500'
                               : 'border-[#d7d7d7] text-black'
@@ -517,22 +528,19 @@ const References = () => {
                       <span className="font-bold text-sm">
                         {generateVectorString({
                           attack_vector:
-                            filteredReference![referenceIndex].attack_vector,
+                            reference.items![referenceIndex].attack_vector,
                           attack_complexity:
-                            filteredReference![referenceIndex]
-                              .attack_complexity,
+                            reference.items![referenceIndex].attack_complexity,
                           privilege_required:
-                            filteredReference![referenceIndex]
-                              .privilege_required,
+                            reference.items![referenceIndex].privilege_required,
                           user_interaction:
-                            filteredReference![referenceIndex].user_interaction,
-                          scope: filteredReference![referenceIndex].scope,
+                            reference.items![referenceIndex].user_interaction,
+                          scope: reference.items![referenceIndex].scope,
                           confidentiality:
-                            filteredReference![referenceIndex].confidentiality,
-                          integrity:
-                            filteredReference![referenceIndex].integrity,
+                            reference.items![referenceIndex].confidentiality,
+                          integrity: reference.items![referenceIndex].integrity,
                           availability:
-                            filteredReference![referenceIndex].availability,
+                            reference.items![referenceIndex].availability,
                         })}
                       </span>
                     </div>
@@ -545,7 +553,7 @@ const References = () => {
                   </label>
                   <input
                     disabled
-                    value={filteredReference![referenceIndex].status}
+                    value={reference.items![referenceIndex].status}
                     className="px-2 py-1 pr-16 focus:outline-blue-500 border background rounded-md border-[#d7d7d7] col-span-4"
                   />
 
@@ -554,8 +562,8 @@ const References = () => {
                     Affected Target
                   </label>
                   <div className="flex flex-col gap-2 col-span-4">
-                    {filteredReference![referenceIndex].affected_target
-                      .split(',')
+                    {reference
+                      .items![referenceIndex].affected_target.split(',')
                       .map((item) => {
                         return (
                           <div
@@ -580,7 +588,7 @@ const References = () => {
                     type="text"
                     id="category"
                     disabled
-                    value={filteredReference[referenceIndex].category}
+                    value={reference.items[referenceIndex].category}
                     className="col-span-4"
                   />
                   {/* References */}
@@ -588,7 +596,7 @@ const References = () => {
                     References
                   </label>
                   <div className="flex flex-col gap-2 col-span-4">
-                    {filteredReference[referenceIndex].reference
+                    {reference.items[referenceIndex].reference
                       .split(',')
                       .map((item) => {
                         return (
@@ -609,7 +617,7 @@ const References = () => {
                     CAPEC / CWE-ID /OWASP
                   </label>
                   <div className="flex flex-col gap-2 col-span-4">
-                    {filteredReference[referenceIndex].capec_owasp_cwe
+                    {reference.items[referenceIndex].capec_owasp_cwe
                       .split(',')
                       .map((item) => {
                         return (
@@ -633,7 +641,7 @@ const References = () => {
                   </label>
                   <textarea
                     disabled
-                    value={filteredReference[referenceIndex].impact}
+                    value={reference.items[referenceIndex].impact}
                     id=""
                     className="col-span-4"
                   />
@@ -643,7 +651,7 @@ const References = () => {
                   </label>
                   <textarea
                     disabled
-                    value={filteredReference[referenceIndex].recommendation}
+                    value={reference.items[referenceIndex].recommendation}
                     id=""
                     className="col-span-4"
                   />
@@ -654,10 +662,60 @@ const References = () => {
                 <label htmlFor="description">Best Practice</label>
                 <textarea
                   disabled
-                  value={filteredReference![referenceIndex].best_practice}
+                  value={reference.items![referenceIndex].best_practice}
                 />
               </div>
             )}
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="description">Proof Of Concept</label>
+              <textarea disabled value={reference.items![referenceIndex].poc} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="" className="">
+                Screenshot
+              </label>
+              {reference.items![referenceIndex].images.length > 0 ? (
+                <div
+                  key={'screenshot container'}
+                  className="flex gap-4 flex-wrap"
+                >
+                  {reference.items![referenceIndex].images.map(
+                    (item: {
+                      file_path: string;
+                      file_caption: string;
+                      id: string;
+                    }) => {
+                      if (
+                        item.file_path.includes(
+                          'C:\\Mengoding\\Back-End\\pentest-report'
+                        )
+                      ) {
+                        item.file_path = item.file_path.replace(
+                          'C:\\Mengoding\\Back-End\\pentest-report',
+                          ''
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={item.file_path}
+                          className="flex flex-col items-center justify-center relative"
+                        >
+                          <img
+                            src={`http://localhost:3000${item.file_path}`}
+                            alt=""
+                            className="aspect-video h-16 object-cover rounded-sm"
+                          />
+                          <p>{item.file_caption}</p>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              ) : null}
+            </div>
+
             <button
               onClick={() => {
                 dialogChecklistDetail.current?.close();

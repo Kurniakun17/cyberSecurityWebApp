@@ -24,26 +24,16 @@ const Login = ({ onSetAuth }: { onSetAuth: (token: string) => void }) => {
     <div className="h-screen grid place-items-center">
       <form
         onSubmit={handleSubmit(onLoginSubmit)}
-        className="flex flex-col gap-2 items-center justify-center max-w-[400px] p-8 shadow-xl border border-blue-500 rounded-md"
+        className="flex flex-col gap-2 relative items-center justify-center max-w-[400px] p-8 shadow-xl border border-blue-500 rounded-md"
       >
         <h1 className="text-xl font-bold">Login</h1>
         <div className="w-full">
           <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            {...register('username')}
-            placeholder="Chihuahua"
-          />
+          <input id="username" type="text" {...register('username')} />
         </div>
         <div className="w-full">
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            {...register('password')}
-            placeholder="Projects"
-          />
+          <input id="password" type="password" {...register('password')} />
         </div>
         <button
           type="submit"
@@ -51,6 +41,7 @@ const Login = ({ onSetAuth }: { onSetAuth: (token: string) => void }) => {
         >
           Submit
         </button>
+        <img src="./logo.png" className="absolute h-64 top-[-240px]" alt="" />
       </form>
     </div>
   );

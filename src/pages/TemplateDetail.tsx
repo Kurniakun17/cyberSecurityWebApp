@@ -31,7 +31,7 @@ import {
 import { Edit, Pencil, Trash, ArrowDownUp } from 'lucide-react';
 import ChecklistItem from '../components/ChecklistItem';
 import { useState } from 'react';
-import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import Modal from '../components/Modal';
 
 type inputs = {
@@ -47,6 +47,7 @@ type inputs = {
   name: string;
   target_ip: string[];
   target_url: string[];
+  best_practice: string;
 };
 
 const TemplateDetail = () => {
@@ -56,7 +57,7 @@ const TemplateDetail = () => {
       return await fetchTemplateDetail(id as string);
     });
   const [checklistTagId, setChecklistTagId] = useState('');
-  const { control, register, reset, resetField, handleSubmit, setValue } =
+  const { register, reset, resetField, handleSubmit, setValue } =
     useForm<inputs>();
 
   const dialogTagRef = useRef<HTMLDialogElement>(null);
@@ -66,15 +67,16 @@ const TemplateDetail = () => {
   const dialogDetailChecklist = useRef<HTMLDialogElement>(null);
   const [checklistDetailData, setChecklistDetailData] =
     useState<ChecklistDetailT | null>(null);
-  const dialogEditProject = useRef<HTMLDialogElement>(null);
+  const dialogEditTemplate = useRef<HTMLDialogElement>(null);
   const dialogEditTag = useRef<HTMLDialogElement>(null);
   const dialogMoveTag = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     if (checklistDetailData) {
       setValue('title', checklistDetailData.title);
-      setValue('description', checklistDetailData.title);
-      setValue('type', checklistDetailData.title);
+      setValue('description', checklistDetailData.description);
+      setValue('type', checklistDetailData.type ?? 'None');
+      setValue('best_practice', checklistDetailData.best_practice);
     }
   }, [checklistDetailData, setValue]);
 
@@ -101,24 +103,6 @@ const TemplateDetail = () => {
       reset();
     }
   };
-
-  const {
-    fields: target_ip,
-    remove: removeTarget_ip,
-    append: appendTarget_ip,
-  } = useFieldArray({
-    control,
-    name: 'target_ip',
-  });
-
-  const {
-    fields: target_url,
-    remove: removeTarget_url,
-    append: appendTarget_url,
-  } = useFieldArray({
-    control,
-    name: 'target_url',
-  });
 
   const onToggleProgress = async (
     templateId: string,
@@ -153,16 +137,18 @@ const TemplateDetail = () => {
     );
 
     if (result.success) {
+      resetField('tag_name');
       triggerFetchTemplateDetail();
-      reset();
     }
   };
 
   const onDeleteTag = async (templateId: string, tagId: string) => {
     const res = await deleteChecklistTag(templateId, tagId);
+
     dialogDeleteTag.current?.close();
     if (res.success) {
       triggerFetchTemplateDetail();
+
       reset();
     }
   };
@@ -244,6 +230,7 @@ const TemplateDetail = () => {
     );
     if (res.success) {
       triggerFetchTemplateDetail();
+      console.log('success');
       reset();
     }
   };
@@ -263,7 +250,7 @@ const TemplateDetail = () => {
     const body = {
       title: result.title,
       description: result.description,
-      type: result.type,
+      best_practice: result.best_practice,
     };
     const res = await updateChecklistItem(
       templateDetail?.id as string,
@@ -308,12 +295,12 @@ const TemplateDetail = () => {
   }
 
   return (
-    <>
-      <div className="flex justify-between">
+    <div className="flex flex-col gap-6 pb-12">
+      <div className="flex justify-between ">
         <h2 className="text-4xl font-bold">{templateDetail?.name}</h2>
         <button
           onClick={() => {
-            dialogEditProject.current?.showModal();
+            dialogEditTemplate.current?.showModal();
           }}
           className="group flex relative py-2 px-3 gap-2 rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
         >
@@ -355,7 +342,7 @@ const TemplateDetail = () => {
                     setChecklistTagId(item.id);
                   }}
                 >
-                  <Pencil className="text-blue-500 duration-300" />
+                  <Pencil className="text-blue-500 hover:text-blue-400 duration-300" />
                 </button>
 
                 <button
@@ -397,7 +384,6 @@ const TemplateDetail = () => {
                                 key={`checklistItem-${checklistItem.id}`}
                                 id={checklistItem.id}
                                 dialogRef={dialogDetailChecklist}
-                                dialogDeleteChecklist={dialogDeleteChecklist}
                                 templateId={templateDetail.id}
                                 title={checklistItem.title}
                                 progress={checklistItem.progress}
@@ -520,7 +506,7 @@ const TemplateDetail = () => {
         </form>
       </Modal>
 
-      <Modal dialogRef={dialogEditProject}>
+      <Modal dialogRef={dialogEditTemplate}>
         <form
           onSubmit={handleSubmit(onEditProjectSubmit)}
           className="flex flex-col gap-3 text-black"
@@ -549,82 +535,10 @@ const TemplateDetail = () => {
               className="border resize-none h-[72px] border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="target-ip" className="text-grayText">
-              Target IP
-            </label>
-            {target_ip.map((field, index) => {
-              return (
-                <div key={`target_ip-${field.id}`} className="flex gap-3">
-                  <input
-                    key={field.id}
-                    type="text"
-                    {...register(`target_ip.${index}` as const)}
-                    className=""
-                  />
-                  <button
-                    type="button"
-                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
-                    onClick={() => {
-                      removeTarget_ip(index);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() => {
-                appendTarget_ip('');
-              }}
-              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
-            >
-              <span className="text-blue-500 text-sm font-bold">+</span> Add
-              Item
-            </button>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="target-url" className="text-grayText">
-              Target URL
-            </label>
-            {target_url.map((field, index) => {
-              return (
-                <div key={`target_url-${field.id}`} className="flex gap-3">
-                  <input
-                    key={field.id}
-                    type="text"
-                    {...register(`target_url.${index}` as const)}
-                    className=""
-                  />
-                  <button
-                    type="button"
-                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
-                    onClick={() => {
-                      removeTarget_url(index);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() => {
-                appendTarget_url('');
-              }}
-              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
-            >
-              <span className="text-blue-500 text-sm font-bold">+</span> Add
-              Item
-            </button>
-          </div>
 
           <button
             onClick={() => {
-              dialogEditProject.current?.close();
+              dialogEditTemplate.current?.close();
             }}
             className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
           >
@@ -670,27 +584,14 @@ const TemplateDetail = () => {
               <label htmlFor="title">Title</label>
               <input type="text" {...register('title')} />
             </div>
-            <div className="flex items-end">
-              <select
-                id="type"
-                className="px-2 py-1 pr-16 focus:outline-blue-500 border background rounded-xl border-[#d7d7d7] hover:cursor-pointer"
-                {...register('type')}
-              >
-                <option className="w-[40%]" value="none">
-                  None
-                </option>
-                <option className="" value="narrative">
-                  Attack Narrative
-                </option>
-                <option className="w-[40%]" value="vulnerability">
-                  Vulnerability
-                </option>
-              </select>
-            </div>
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="description">Description</label>
             <textarea {...register('description')} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="best_practice">Best Practice</label>
+            <textarea id="best_practice" {...register('best_practice')} />
           </div>
           <button
             onClick={() => {
@@ -715,7 +616,7 @@ const TemplateDetail = () => {
           </p>
           <div className="flex gap-6">
             <button
-              className="w-full py-2 bg-gray-500 text-white rounded-md"
+              className="w-full py-2 bg-gray-500 hover:bg-gray-400 duration-300 text-white rounded-md"
               onClick={() => {
                 dialogDeleteTag.current?.close();
               }}
@@ -723,7 +624,7 @@ const TemplateDetail = () => {
               Cancel
             </button>
             <button
-              className="w-full py-2 bg-red-500 rounded-md text-white"
+              className="w-full py-2 bg-red-500 hover:bg-red-400 duration-300 rounded-md text-white"
               onClick={() => {
                 onDeleteTag(templateDetail?.id as string, checklistTagId);
               }}
@@ -756,7 +657,7 @@ const TemplateDetail = () => {
           </button>
         </form>
       </Modal>
-    </>
+    </div>
   );
 };
 

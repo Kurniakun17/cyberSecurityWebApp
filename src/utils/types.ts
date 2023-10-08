@@ -53,6 +53,7 @@ type projectDetailType = {
   updatedAt: string;
   template: Template;
   project_user: userCollaborator[]
+  publish: boolean;
 }
 
 type userCollaborator = {
@@ -134,6 +135,16 @@ type Image = {
   updatedAt: string;
 };
 
+type userDataT = {
+  username: string;
+  password: string;
+  id:string;
+  email: string;
+  phone: string;
+  name:  string;
+  admin: boolean;
+}
+
 interface checklistItemInputT {
     title: string;
     type: string;
@@ -161,14 +172,20 @@ interface checklistItemInputT {
     availability?: 'None' | 'Low' | 'High';
 }
 
+type templatesT= {
+      totalPages: number,
+    currentPage: number,
+    items: templateType[],
+}
 
 type templateType = {
-    "id": "352fbb44-8bcc-47c6-9864-a915b86dbd7e",
-    "name": "API Pentest",
-    "description": "Basic web application penetration test checklist template.",
-    "type": "unfilled",
-    "createdAt": "2023-09-20T02:18:04.000Z",
-    "updatedAt": "2023-09-20T02:18:04.000Z"
+    id: string,
+    name: string,
+    description: string,
+    type: string,
+    createdAt: string,
+    updatedAt: string,
+
 }
 
 type UserData = {
@@ -187,4 +204,4 @@ type Reference = {
 
 
 
-export type {Reference, UserData, templateType, templateDetailType, Image, projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }
+export type {templatesT, userDataT, Reference, UserData, templateType, templateDetailType, Image, projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }

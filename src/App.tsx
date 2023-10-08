@@ -87,7 +87,7 @@ const App = () => {
             window.location.pathname !== '/login'
               ? 'pt-8 grow lg:ml-[300px] my-[72px]'
               : 'mx-auto'
-          }`}
+          } relative h-fit min-h-[calc(100vh-72px)] `}
         >
           <div
             className={`${

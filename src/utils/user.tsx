@@ -2,7 +2,6 @@ import { api } from './api';
 
 const loginAuth = async (body: { username: string; password: string }) => {
   try {
-    console.log(body);
     const res = await api.post('http://localhost:3000/user/auth/login', body);
     localStorage.setItem('token', res.data.token);
     return res.data;
@@ -17,10 +16,21 @@ const getUserData = async () => {
   return res.data;
 };
 
-const registerUser = async (body: { username: string; password: string }) => {
-  const res = await api.post('http://localhost:3000/user/register', body);
-
+const getAllUserData = async (pageCount: number, sizeCount: number) => {
+  const res = await api.get(
+    `http://localhost:3000/user?size=${sizeCount}&page=${pageCount}`
+  );
   return res.data;
+};
+
+const registerUser = async (body: { username: string; password: string }) => {
+  try {
+    const res = await api.post('http://localhost:3000/user/register', body);
+
+    return res.data;
+  } catch (error) {
+    return error;
+  }
 };
 
 const signOut = async () => {
@@ -29,4 +39,19 @@ const signOut = async () => {
   return res.data;
 };
 
-export { signOut, loginAuth, getUserData, registerUser };
+const searchUser = async (username: string) => {
+  const res = await api.get(
+    `http://localhost:3000/user/search?username=${username}`
+  );
+
+  return res.data;
+};
+
+export {
+  searchUser,
+  signOut,
+  loginAuth,
+  getUserData,
+  getAllUserData,
+  registerUser,
+};

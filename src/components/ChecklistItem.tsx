@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import Modal from './Modal';
 import { DraggableProvided } from 'react-beautiful-dnd';
 import { typeBgColor } from '../utils/helper';
-// import Modal from './Modal';
-// import ChecklistModal from './ChecklistModal';
+
 const ChecklistItem = ({
   id,
   templateId,
@@ -11,7 +10,7 @@ const ChecklistItem = ({
   title,
   progress,
   dialogRef,
-  dialogDeleteChecklist,
+
   onDeleteCheckListItem,
   onToggleProgress,
   onModalOpen,
@@ -23,7 +22,6 @@ const ChecklistItem = ({
   title: string;
   progress: number;
   dialogRef: React.RefObject<HTMLDialogElement>;
-  dialogDeleteChecklist: React.RefObject<HTMLDialogElement>;
   onDeleteCheckListItem: (templateId: string, checklistId: string) => void;
   onToggleProgress: (
     templateId: string,
@@ -34,6 +32,11 @@ const ChecklistItem = ({
 
   provided: DraggableProvided;
 }) => {
+  const dialogDeleteChecklist = useRef<HTMLDialogElement>(null);
+  const onOpenDialog = () => {
+    dialogDeleteChecklist.current?.showModal();
+  };
+
   return (
     <>
       <label
@@ -69,7 +72,7 @@ const ChecklistItem = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              dialogDeleteChecklist.current?.showModal();
+              onOpenDialog();
             }}
             className="py-1 px-4 gap-3 rounded-lg border hover:border-red-500 hover:text-red-500 duration-300 border-[#D7D7D7]"
           >
@@ -77,6 +80,7 @@ const ChecklistItem = ({
           </button>
         </div>
       </label>
+
       <Modal dialogRef={dialogDeleteChecklist}>
         <div className="flex flex-col gap-8">
           <h1 className="font-bold text-red-500 text-2xl text-center ">
@@ -88,7 +92,7 @@ const ChecklistItem = ({
           </p>
           <div className="flex gap-6">
             <button
-              className="w-full py-2 bg-gray-500 text-white rounded-md"
+              className="w-full py-2 bg-gray-500 hover:bg-gray-400 duration-300 text-white rounded-md"
               onClick={() => {
                 dialogDeleteChecklist.current?.close();
               }}
@@ -96,7 +100,7 @@ const ChecklistItem = ({
               Cancel
             </button>
             <button
-              className="w-full py-2 bg-red-500 rounded-md text-white"
+              className="w-full py-2 bg-red-500 hover:bg-red-400 duration-300 rounded-md text-white"
               onClick={() => {
                 onDeleteCheckListItem(templateId, id);
               }}
