@@ -1,13 +1,13 @@
-type projectsType={
-  "id": string,
-  "name": string,
-  "description": string,
-  "target_url": string,
-  "target_ip": string,
-  "progress": string,
-  "template_id": string,
-  "createdAt": string,
-  "updatedAt": string
+type projectsType = {
+  id: string;
+  name: string;
+  description: string;
+  target_url: string;
+  target_ip: string;
+  progress: string;
+  template_id: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 interface ChecklistItemType {
@@ -52,42 +52,49 @@ type projectDetailType = {
   createdAt: string;
   updatedAt: string;
   template: Template;
-  project_user: userCollaborator[]
+  project_user: userCollaborator[];
   publish: boolean;
-}
+};
 
 type userCollaborator = {
   id: string;
   role: string;
   user_id: string;
   user: {
-    username: string
-  }
+    username: string;
+  };
 };
 
 type templateDetailType = {
-  "id": string,
-  "name": string,
-  "description": string,
-  "type": string,
-  "createdAt": string,
-  "updatedAt": string,
-  "checklist_tag": ChecklistTag[],
-  "target_ip": string[],
-  "target_url": string[],
-}
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+  checklist_tag: ChecklistTag[];
+  target_ip: string[];
+  target_url: string[];
+};
 
 type cvss31ValueT = {
-    AV: 'Network' | 'Adjacent' | 'Local' | 'Physical';
-    AC: 'High' | 'Low';
-    UI: 'None' | 'Required';
-    S: 'Unchanged' | 'Changed';
-    PR: 'None' | 'Low' | 'High';
-    C: 'None' | 'Low' | 'High';
-    I: 'None' | 'Low' | 'High';
-    A: 'None' | 'Low' | 'High';
-  severity_level: '' | 'Informational'|'None' | 'Low' | 'Medium' | 'High' | 'Critical';
-  }
+  AV: "Network" | "Adjacent" | "Local" | "Physical";
+  AC: "High" | "Low";
+  UI: "None" | "Required";
+  S: "Unchanged" | "Changed";
+  PR: "None" | "Low" | "High";
+  C: "None" | "Low" | "High";
+  I: "None" | "Low" | "High";
+  A: "None" | "Low" | "High";
+  severity_level:
+    | ""
+    | "Informational"
+    | "None"
+    | "Low"
+    | "Medium"
+    | "High"
+    | "Critical";
+};
 
 type ChecklistDetailT = {
   id: string;
@@ -120,7 +127,7 @@ type ChecklistDetailT = {
   checklisttag_id: string;
   createdAt: string;
   updatedAt: string;
-  images: Image[]; 
+  images: Image[];
 };
 
 type Image = {
@@ -138,73 +145,86 @@ type Image = {
 type userDataT = {
   username: string;
   password: string;
-  id:string;
+  id: string;
   email: string;
   phone: string;
-  name:  string;
+  name: string;
   admin: boolean;
-}
+  status: string;
+};
 
 interface checklistItemInputT {
-    title: string;
-    type: string;
-    progress: number;
-    description: string;
-    generate_to_word: boolean;
-    best_practice: string;
-    poc: string;
-    affected_target: string| string[];
-    reference: string|string[];
-    capec_owasp_cwe: string|string[];
-    vulnerability_name: string;
-    vulnerability_description: string;
-    cvss_score: number;
-    impact: string;
-    recommendation: string;
-    status: string;
-    attack_vector? : 'Network' | 'Adjacent' | 'Local' | 'Physical';
-    attack_complexity? : 'High' | 'Low';
-    user_interaction?: 'None' | 'Required';
-    scope?: 'Unchanged' | 'Changed';
-    privilege_required?: 'None' | 'Low' | 'High';
-    confidentiality?: 'None' | 'Low' | 'High';
-    integrity?: 'None' | 'Low' | 'High';
-    availability?: 'None' | 'Low' | 'High';
+  title: string;
+  type: string;
+  progress: number;
+  description: string;
+  generate_to_word: boolean;
+  best_practice: string;
+  poc: string;
+  affected_target: string | string[];
+  reference: string | string[];
+  capec_owasp_cwe: string | string[];
+  vulnerability_name: string;
+  vulnerability_description: string;
+  cvss_score: number;
+  impact: string;
+  recommendation: string;
+  status: string;
+  attack_vector?: "Network" | "Adjacent" | "Local" | "Physical";
+  attack_complexity?: "High" | "Low";
+  user_interaction?: "None" | "Required";
+  scope?: "Unchanged" | "Changed";
+  privilege_required?: "None" | "Low" | "High";
+  confidentiality?: "None" | "Low" | "High";
+  integrity?: "None" | "Low" | "High";
+  availability?: "None" | "Low" | "High";
 }
 
-type templatesT= {
-      totalPages: number,
-    currentPage: number,
-    items: templateType[],
-}
+type templatesT = {
+  totalPages: number;
+  currentPage: number;
+  items: templateType[];
+};
 
 type templateType = {
-    id: string,
-    name: string,
-    description: string,
-    type: string,
-    createdAt: string,
-    updatedAt: string,
-
-}
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 type UserData = {
-  id: string,
-  username: string,
-  admin: boolean,
-  email: string,
-  phone: string,
-  name: string,
-}
+  id: string;
+  username: string;
+  admin: boolean;
+  email: string;
+  phone: string;
+  name: string;
+};
 
 type Reference = {
-  items: ChecklistDetailT[],
-  success: boolean,
-  totalItems: number,
-  currentPage: number,
-  totalPages: number,
-}
+  items: ChecklistDetailT[];
+  success: boolean;
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+};
 
-
-
-export type {templatesT, userDataT, Reference, UserData, templateType, templateDetailType, Image, projectsType, ChecklistTag,projectDetailType, ChecklistItemType, checklistItemInputT,cvss31ValueT, ChecklistDetailT }
+export type {
+  templatesT,
+  userDataT,
+  Reference,
+  UserData,
+  templateType,
+  templateDetailType,
+  Image,
+  projectsType,
+  ChecklistTag,
+  projectDetailType,
+  ChecklistItemType,
+  checklistItemInputT,
+  cvss31ValueT,
+  ChecklistDetailT,
+};

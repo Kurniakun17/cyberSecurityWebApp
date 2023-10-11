@@ -1,11 +1,13 @@
-import { useNavigate } from 'react-router-dom';
-import { UserData, userDataT } from '../utils/types';
-import { useForm } from 'react-hook-form';
-import { getAllUserData, registerUser } from '../utils/user';
-import toast from 'react-hot-toast';
-import Modal from '../components/Modal';
-import { useEffect, useRef, useState } from 'react';
-import ReactPaginate from 'react-paginate';
+import { useNavigate } from "react-router-dom";
+import { UserData, userDataT } from "../utils/types";
+import { useForm } from "react-hook-form";
+import { getAllUserData, registerUser } from "../utils/user";
+import toast from "react-hot-toast";
+import Modal from "../components/Modal";
+import { useEffect, useRef, useState } from "react";
+import ReactPaginate from "react-paginate";
+
+import ModalEditUser from "../components/modalEditUser";
 
 type inputs = {
   name: string;
@@ -13,6 +15,12 @@ type inputs = {
   password: string;
   email: string;
   phone: string;
+  edit_id: string;
+  edit_name: string;
+  edit_username: string;
+  edit_isAdmin: boolean;
+  edit_email: string;
+  edit_phone: string;
 };
 
 const Admin = ({ userData }: { userData: UserData }) => {
@@ -25,6 +33,7 @@ const Admin = ({ userData }: { userData: UserData }) => {
   const [allUserData, setAllUserData] = useState<userDataT[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPage, setTotalPage] = useState(0);
+
   const navigate = useNavigate();
   const dialogAddUser = useRef<HTMLDialogElement>(null);
   const limit = 2;
@@ -39,13 +48,17 @@ const Admin = ({ userData }: { userData: UserData }) => {
     fetchAllUserData(0, limit);
   }, []);
 
+  const refetchUserData = () => {
+    fetchAllUserData(0, limit);
+  };
+
   const submitHandler = async (res: inputs) => {
     const data = await registerUser(res);
 
     if (data.success) {
       fetchAllUserData(0, limit);
-      toast.success('Account has been successfully created', {
-        position: 'top-right',
+      toast.success("Account has been successfully created", {
+        position: "top-right",
       });
       dialogAddUser.current?.close();
       reset();
@@ -53,7 +66,7 @@ const Admin = ({ userData }: { userData: UserData }) => {
     }
 
     toast.error(data.response.data.error, {
-      position: 'top-right',
+      position: "top-right",
     });
   };
 
@@ -67,7 +80,7 @@ const Admin = ({ userData }: { userData: UserData }) => {
   }
 
   if (!userData.admin) {
-    navigate('/projects');
+    navigate("/projects");
   }
 
   return (
@@ -93,17 +106,28 @@ const Admin = ({ userData }: { userData: UserData }) => {
               <th className="font-semibold text-start p-1 px-4">Email</th>
               <th className="font-semibold text-start p-1 px-4">Phone</th>
               <th className="font-semibold text-start p-1 px-4">Role</th>
+              <th className="font-semibold text-start p-1 px-4">Status</th>
+              <th className="font-semibold text-center p-1 px-4">Edit</th>
             </tr>
           </thead>
           <tbody>
-            {allUserData.map((user: userDataT) => {
+            {allUserData.map((user: userDataT, index: number) => {
               return (
                 <tr key={user.id} className=" border-b-[1px] border-slate-200">
                   <td className="p-4">{user.username}</td>
                   <td className="p-4">{user.name}</td>
                   <td className="p-4">{user.email}</td>
                   <td className="p-4">{user.phone}</td>
-                  <td className="p-4">{user.admin ? 'Admin' : 'Employee'}</td>
+                  <td className="p-4">{user.admin ? "Admin" : "Employee"}</td>
+                  <td className="p-4">
+                    {user.status == "active" ? "Active" : "Disabled"}
+                  </td>
+                  <td>
+                    <ModalEditUser
+                      userData={allUserData[index]}
+                      refetchUserData={refetchUserData}
+                    />
+                  </td>
                 </tr>
               );
             })}
@@ -123,10 +147,12 @@ const Admin = ({ userData }: { userData: UserData }) => {
           activeClassName="border text-blue-500 border-blue-500"
         ></ReactPaginate>
       </div>
+
       <Modal dialogRef={dialogAddUser}>
         <form
           onSubmit={handleSubmit(submitHandler)}
           className="flex flex-col items-center gap-3 p-4 w-[500px]"
+          id="add_user"
         >
           <h2 className="font-bold  text-2xl text-center mb-1">
             Create Account
@@ -136,9 +162,9 @@ const Admin = ({ userData }: { userData: UserData }) => {
             <input
               id="name"
               type="text"
-              {...register('name', { required: true })}
+              {...register("name", { required: true })}
             />
-            {errors.name?.type === 'required' && (
+            {errors.name?.type === "required" && (
               <p className="text-red-500">Please fill out this field</p>
             )}
           </div>
@@ -147,9 +173,9 @@ const Admin = ({ userData }: { userData: UserData }) => {
             <input
               id="username"
               type="text"
-              {...register('username', { required: true })}
+              {...register("username", { required: true })}
             />
-            {errors.username?.type === 'required' && (
+            {errors.username?.type === "required" && (
               <p className="text-red-500">Please fill out this field</p>
             )}
           </div>
@@ -158,22 +184,22 @@ const Admin = ({ userData }: { userData: UserData }) => {
             <input
               id="password"
               type="password"
-              {...register('password', {
+              {...register("password", {
                 required: true,
                 minLength: 12,
                 pattern:
                   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@!#])[A-Za-z\d@!#]+$/i,
               })}
             />
-            {errors.password?.type === 'required' && (
+            {errors.password?.type === "required" && (
               <p className="text-red-500">Please fill out this field</p>
             )}
-            {errors.password?.type === 'minLength' && (
+            {errors.password?.type === "minLength" && (
               <p className="text-red-500">
                 Password must be at least 12 characters
               </p>
             )}
-            {errors.password?.type === 'pattern' && (
+            {errors.password?.type === "pattern" && (
               <p className="text-red-500">
                 Password must be at least contain 1 uppercase, 1 lowercase, 1
                 number, and 1 special character
@@ -185,9 +211,9 @@ const Admin = ({ userData }: { userData: UserData }) => {
             <input
               id="email"
               type="email"
-              {...register('email', { required: true })}
+              {...register("email", { required: true })}
             />
-            {errors.email?.type === 'required' && (
+            {errors.email?.type === "required" && (
               <p className="text-red-500">Please fill out this field</p>
             )}
           </div>
@@ -197,14 +223,18 @@ const Admin = ({ userData }: { userData: UserData }) => {
             <input
               id="phone"
               type="text"
-              {...register('phone', { required: true })}
+              {...register("phone", { required: true })}
             />
-            {errors.phone?.type === 'required' && (
+            {errors.phone?.type === "required" && (
               <p className="text-red-500">Please fill out this field</p>
             )}
           </div>
 
-          <button className="w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2">
+          <button
+            className="w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
+            form="add_user"
+            type="submit"
+          >
             Submit
           </button>
         </form>

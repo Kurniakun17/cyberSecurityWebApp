@@ -1,22 +1,30 @@
-import { useForm } from 'react-hook-form';
-import { UserData } from '../utils/types';
-import { useEffect } from 'react';
-import { editProfile } from '../utils/api';
-import toast from 'react-hot-toast';
+import { useForm } from "react-hook-form";
+import { UserData } from "../utils/types";
+import { useEffect } from "react";
+import { editProfile } from "../utils/api";
+import toast from "react-hot-toast";
+import { getUserData } from "../utils/user";
 
-const Profile = ({ userData }: { userData: UserData }) => {
+const Profile = ({
+  userData,
+  setUserData,
+}: {
+  userData: UserData;
+  setUserData: React.Dispatch<React.SetStateAction<UserData>>;
+}) => {
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
   } = useForm<UserData>();
+
   useEffect(() => {
     if (userData) {
-      setValue('email', userData.email);
-      setValue('phone', userData.phone);
-      setValue('name', userData.name);
-      setValue('username', userData.username);
+      setValue("email", userData.email);
+      setValue("phone", userData.phone);
+      setValue("name", userData.name);
+      setValue("username", userData.username);
     }
   }, [setValue, userData]);
 
@@ -25,10 +33,16 @@ const Profile = ({ userData }: { userData: UserData }) => {
 
     if (res.success) {
       toast.success(res.msg);
+      const refetchData = await getUserData();
+      setUserData(refetchData.user);
       return;
     }
-    toast.error('Edit profile failed');
+    toast.error("Edit profile failed");
   };
+
+  if (!userData) {
+    return <div></div>;
+  }
 
   return (
     <form
@@ -44,12 +58,7 @@ const Profile = ({ userData }: { userData: UserData }) => {
                 <label htmlFor="profile_username">Username</label>
               </td>
               <td>
-                <input
-                  id="profile_username"
-                  type="text"
-                  {...register('username')}
-                  disabled
-                />
+                <p className="pl-2">{userData.username}</p>
               </td>
             </tr>
             <tr>
@@ -60,9 +69,9 @@ const Profile = ({ userData }: { userData: UserData }) => {
                 <input
                   id="profile_name"
                   type="text"
-                  {...register('name', { required: true })}
+                  {...register("name", { required: true })}
                 />
-                {errors.name?.type === 'required' && (
+                {errors.name?.type === "required" && (
                   <p className="text-red-500">Please fill out this field</p>
                 )}
               </td>
@@ -75,16 +84,15 @@ const Profile = ({ userData }: { userData: UserData }) => {
                 <input
                   id="profile_email"
                   type="text"
-                  {...register('email', {
+                  {...register("email", {
                     required: true,
-
                     pattern: /^[a-zA-Z0-9.]+@[a-zA-Z0-9.]+$/i,
                   })}
                 />
-                {errors.email?.type === 'required' && (
+                {errors.email?.type === "required" && (
                   <p className="text-red-500">Please fill out this field</p>
                 )}
-                {errors.email?.type === 'pattern' && (
+                {errors.email?.type === "pattern" && (
                   <p className="text-red-500">
                     Please input a correct email address
                   </p>
@@ -99,9 +107,9 @@ const Profile = ({ userData }: { userData: UserData }) => {
                 <input
                   id="profile_phone"
                   type="text"
-                  {...register('phone', { required: true })}
+                  {...register("phone", { required: true })}
                 />
-                {errors.phone?.type === 'required' && (
+                {errors.phone?.type === "required" && (
                   <p className="text-red-500">Please fill out this field</p>
                 )}
               </td>

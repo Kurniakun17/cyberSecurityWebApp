@@ -1,16 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
-import ChecklistItem from '../components/ChecklistItem';
-import { useParams } from 'react-router-dom';
-import useProjectDetail from '../hooks/useItemDetail';
-import Modal from '../components/Modal';
-import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form';
+import { useEffect, useRef, useState } from "react";
+import ChecklistItem from "../components/ChecklistItem";
+import { useParams } from "react-router-dom";
+import useProjectDetail from "../hooks/useItemDetail";
+import Modal from "../components/Modal";
+import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import {
   ChecklistDetailT,
   ChecklistItemType,
   ChecklistTag,
   UserData,
   projectDetailType,
-} from '../utils/types';
+} from "../utils/types";
 import {
   addChecklistTag,
   addChecklistTagItem,
@@ -26,7 +26,7 @@ import {
   toggleChecklist,
   updateChecklistTag,
   updateProject,
-} from '../utils/api';
+} from "../utils/api";
 import {
   ArrowDownUp,
   Crown,
@@ -36,18 +36,18 @@ import {
   Plus,
   Trash,
   Users2,
-} from 'lucide-react';
-import ChecklistModal from '../components/ChecklistModal';
-import { Jelly } from '@uiball/loaders';
+} from "lucide-react";
+import ChecklistModal from "../components/ChecklistModal";
+import { Jelly } from "@uiball/loaders";
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
-} from 'react-beautiful-dnd';
-import { searchUser } from '../utils/user';
-import { useDebouncedCallback } from 'use-debounce';
-import toast from 'react-hot-toast';
+} from "react-beautiful-dnd";
+import { searchUser } from "../utils/user";
+import { useDebouncedCallback } from "use-debounce";
+import toast from "react-hot-toast";
 
 type inputs = {
   update_tag_name: string;
@@ -72,13 +72,13 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
     });
   const { control, register, handleSubmit, reset, resetField, setValue } =
     useForm<inputs>();
-  const [checklistTagId, setChecklistTagId] = useState('');
+  const [checklistTagId, setChecklistTagId] = useState("");
   const [loading, setLoading] = useState(false);
   const [userSearchData, setUserSearchData] = useState<
     { id: string; username: string }[]
   >([]);
-  const [searchValue, setSearchValue] = useState('');
-  const [userSearchId, setUserSearchId] = useState('');
+  const [searchValue, setSearchValue] = useState("");
+  const [userSearchId, setUserSearchId] = useState("");
   const debounced = useDebouncedCallback((username) => {
     fetchSearchUser(username);
   }, 1000);
@@ -101,7 +101,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
     append: appendTarget_ip,
   } = useFieldArray({
     control,
-    name: 'target_ip',
+    name: "target_ip",
   });
 
   const {
@@ -110,16 +110,16 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
     append: appendTarget_url,
   } = useFieldArray({
     control,
-    name: 'target_url',
+    name: "target_url",
   });
 
   useEffect(() => {
     if (projectDetail != null) {
-      setValue('name', projectDetail?.name);
-      setValue('description', projectDetail.description);
-      setValue('target_ip', projectDetail.target_ip);
-      setValue('target_url', projectDetail.target_url);
-      setValue('publish', projectDetail.publish);
+      setValue("name", projectDetail?.name);
+      setValue("description", projectDetail.description);
+      setValue("target_ip", projectDetail.target_ip);
+      setValue("target_url", projectDetail.target_url);
+      setValue("publish", projectDetail.publish);
     }
   }, [projectDetail]);
 
@@ -153,7 +153,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
     );
 
     if (result.success) {
-      resetField('tag_name');
+      resetField("tag_name");
       triggerFetchProjectDetail();
     }
   };
@@ -163,13 +163,13 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
       collaborator_id: userSearchId,
     });
     if (res.success) {
-      toast.success('Success');
+      toast.success("Success");
       triggerFetchProjectDetail();
-      setSearchValue('');
-      setUserSearchId('');
+      setSearchValue("");
+      setUserSearchId("");
       return;
     }
-    toast.error('User is already a collaborator in this project');
+    toast.error("User is already a collaborator in this project");
   };
 
   const onExportModalSubmit: SubmitHandler<inputs> = async (data) => {
@@ -188,7 +188,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
   };
 
   const onChecklistTagModalSubmit: SubmitHandler<inputs> = async (data) => {
-    resetField('checklist_name');
+    resetField("checklist_name");
     const res = await addChecklistTagItem(
       projectDetail?.template.id as string,
       checklistTagId,
@@ -348,7 +348,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
   return (
     <>
       <div
-        className={`flex flex-col gap-6 pb-12 ${loading && 'overflow-hidden'}`}
+        className={`flex flex-col gap-6 pb-12 ${loading && "overflow-hidden"}`}
       >
         {loading && (
           <div className="fixed place-items-center inset-0 z-[9999] grid gap-24 justify-center bg-[rgba(255,255,255,0.9)] ">
@@ -429,7 +429,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
             <div className="flex">
               <div className="flex-1 flex gap-1 items-center">
                 <div className="w-2 h-2 bg-purple-700 rounded-full mt-0.5"></div>
-                <p>Crictical - {projectDetail.critical_vuln}</p>
+                <p>Critical - {projectDetail.critical_vuln}</p>
               </div>
               <div className="flex-1 flex gap-1 items-center">
                 <div className="w-2 h-2 bg-red-500 rounded-full mt-0.5"></div>
@@ -519,7 +519,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                       dialogEditTag.current?.showModal();
-                      setValue('update_tag_name', item.name);
+                      setValue("update_tag_name", item.name);
                       setChecklistTagId(item.id);
                     }}
                   >
@@ -557,9 +557,9 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                                   provided={provided}
                                   type={
                                     checklistItem.type as
-                                      | 'none'
-                                      | 'narrative'
-                                      | 'vulnerability'
+                                      | "none"
+                                      | "narrative"
+                                      | "vulnerability"
                                   }
                                   key={`checklistItem-${checklistItem.id}`}
                                   id={checklistItem.id}
@@ -586,7 +586,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                       >
                         <span className="text-blue-500 text-lg font-bold">
                           +
-                        </span>{' '}
+                        </span>{" "}
                         Add checklist item
                       </button>
                     </div>
@@ -597,7 +597,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
           ))}
         </DragDropContext>
       </div>
-      {/* checkpoint */}
+
       <Modal dialogRef={dialogCollaborator}>
         <div className="flex flex-col gap-3">
           <h1 className="font-bold  text-2xl text-center mb-1">Collaborator</h1>
@@ -607,12 +607,12 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                 key={item.id}
                 className={`p-4 px-6 flex items-center  gap-2 border border-[#d7d7d7] duration-300 rounded-2xl`}
               >
-                {item.role === 'owner' ? (
+                {item.role === "owner" ? (
                   <Crown color="#3b82f6" size={20} />
                 ) : null}
                 <p
                   className={`${
-                    item.role === 'owner' ? 'text-blue-500 font-semibold' : ''
+                    item.role === "owner" ? "text-blue-500 font-semibold" : ""
                   }`}
                 >
                   {item.user.username}
@@ -631,7 +631,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                     value={searchValue}
                     onChange={(e) => {
                       setSearchValue(e.target.value);
-                      setUserSearchId('');
+                      setUserSearchId("");
                       debounced(e.target.value);
                     }}
                   />
@@ -644,11 +644,11 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                       }}
                       key={data.id}
                       className={`p-2  hover:border-blue-500 ${
-                        userSearchId === data.id ? 'border-blue-500' : ''
+                        userSearchId === data.id ? "border-blue-500" : ""
                       } duration-300 text-start border-x ${
                         index == userSearchData.length - 1
-                          ? 'border-b rounded-b-lg'
-                          : ''
+                          ? "border-b rounded-b-lg"
+                          : ""
                       } border-gray-300 cursor-pointer `}
                       type="button"
                     >
@@ -658,7 +658,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                 </div>
                 <button
                   onClick={onAddCollaborator}
-                  disabled={userSearchId === '' ? true : false}
+                  disabled={userSearchId === "" ? true : false}
                   className="h-fit py-2 px-3 gap-1 items-center disabled:bg-slate-300 disabled:opacity-40 flex  text-sm group rounded-lg border border-[#D7D7D7] hover:border-transparent hover:bg-blue-500 hover:text-white duration-300 w-fit"
                 >
                   <Plus
@@ -756,7 +756,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
               Tag name
             </label>
             <input
-              {...register('update_tag_name')}
+              {...register("update_tag_name")}
               id="checklistTag"
               type="text"
               className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
@@ -784,7 +784,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
               Name
             </label>
             <input
-              {...register('name')}
+              {...register("name")}
               id="name"
               type="text"
               className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
@@ -795,7 +795,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
               Description
             </label>
             <textarea
-              {...register('description')}
+              {...register("description")}
               id="description"
               className="border resize-none h-[72px] border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
             />
@@ -828,7 +828,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
             <button
               type="button"
               onClick={() => {
-                appendTarget_ip('');
+                appendTarget_ip("");
               }}
               className="py-2 px-3 gap-4  text-sm rounded-lg border border-[#D7D7D7] w-fit"
             >
@@ -864,7 +864,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
             <button
               type="button"
               onClick={() => {
-                appendTarget_url('');
+                appendTarget_url("");
               }}
               className="py-2 px-3 gap-4  text-sm rounded-lg border border-[#D7D7D7] w-fit"
             >
@@ -876,7 +876,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
           <div className="flex gap-4 ">
             <label htmlFor="">Publish to reference</label>
             <input
-              {...register('publish')}
+              {...register("publish")}
               type="checkbox"
               className="w-6 border border-[#d7d7d7] text-blue-500 bg-blue-500"
             />
@@ -904,7 +904,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
           </h1>
           <div className="flex flex-col gap-1">
             <label htmlFor="">Name</label>
-            <input type="text" {...register('tag_name')} />
+            <input type="text" {...register("tag_name")} />
           </div>
           <button
             onClick={() => {
@@ -928,7 +928,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
           </h1>
           <div className="flex flex-col gap-1">
             <label htmlFor="">Name</label>
-            <input type="text" {...register('checklist_name')} />
+            <input type="text" {...register("checklist_name")} />
           </div>
           <button
             onClick={() => {
@@ -995,7 +995,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
             <input
               placeholder="PT ABC"
               type="text"
-              {...register('client_name')}
+              {...register("client_name")}
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -1003,7 +1003,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
             <input
               placeholder="Early Report Web App ABC"
               type="text"
-              {...register('report_type')}
+              {...register("report_type")}
             />
           </div>
           <button

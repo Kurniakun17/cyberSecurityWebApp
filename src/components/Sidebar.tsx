@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom';
-import { UserData } from '../utils/types';
-import { useEffect, useState } from 'react';
-import { GoRepoTemplate } from 'react-icons/go';
-import { GrUserAdmin } from 'react-icons/gr';
-import { BsBook, BsBookmark } from 'react-icons/bs';
-import { BiUserCircle } from 'react-icons/bi';
+import { useNavigate } from "react-router-dom";
+import { UserData } from "../utils/types";
+import { useEffect, useState } from "react";
+import { GoRepoTemplate } from "react-icons/go";
+import { RiAdminLine } from "react-icons/ri";
+import { BsBook, BsBookmark } from "react-icons/bs";
+import { BiUserCircle } from "react-icons/bi";
 
 const Sidebar = ({
   active,
@@ -32,13 +32,13 @@ const Sidebar = ({
       <ul>
         <li
           onClick={() => {
-            navigate('/projects');
-            onSetActive('projects');
+            navigate("/projects");
+            onSetActive("projects");
           }}
           className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl overflow-hidden relative ${
-            active === 'projects'
-              ? 'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
-              : 'hover:bg-gray-50'
+            active === "projects"
+              ? "text-blue-500 bg-gray-200 font-bold hover:bg-gray-200"
+              : "hover:bg-gray-50"
           }`}
         >
           <BsBook size="24" />
@@ -46,13 +46,13 @@ const Sidebar = ({
         </li>
         <li
           className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl relative  ${
-            active === 'templates'
-              ? 'text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200'
-              : 'hover:bg-gray-50'
+            active === "templates"
+              ? "text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200"
+              : "hover:bg-gray-50"
           }`}
           onClick={() => {
-            navigate('/templates');
-            onSetActive('templates');
+            navigate("/templates");
+            onSetActive("templates");
           }}
         >
           <GoRepoTemplate size="28" />
@@ -60,49 +60,51 @@ const Sidebar = ({
         </li>
         <li
           className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl relative  ${
-            active === 'reference'
-              ? ' text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200'
-              : 'hover:bg-gray-50'
+            active === "reference"
+              ? " text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200"
+              : "hover:bg-gray-50"
           }`}
           onClick={() => {
-            navigate('/reference');
-            onSetActive('reference');
+            navigate("/reference");
+            onSetActive("reference");
           }}
         >
           <BsBookmark size="26" />
           <p>Reference</p>
         </li>
-        {isAdmin ? (
+        {isAdmin && (
           <li
             onClick={() => {
-              navigate('/admin');
-              onSetActive('admin');
+              navigate("/admin");
+              onSetActive("admin");
             }}
             className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl overflow-hidden relative ${
-              active === 'admin'
-                ? 'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
-                : 'hover:bg-gray-50'
+              active === "admin"
+                ? "text-blue-500 bg-gray-200 font-bold hover:bg-gray-200"
+                : "hover:bg-gray-50"
             }`}
           >
-            <BiUserCircle size="28" className="shrink-0" />
+            <RiAdminLine
+              className={"text-[28px]"}
+              color={active === "admin" ? "#3b82f6" : "#000"}
+            />
             <p>Admin</p>
           </li>
-        ) : (
-          <li
-            onClick={() => {
-              navigate('/profile');
-              onSetActive('profile');
-            }}
-            className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl overflow-hidden relative ${
-              active === 'profile'
-                ? 'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
-                : 'hover:bg-gray-50'
-            }`}
-          >
-            <BiUserCircle size="28" className="shrink-0" />
-            <p>Profile</p>
-          </li>
         )}
+        <li
+          onClick={() => {
+            navigate("/profile");
+            onSetActive("profile");
+          }}
+          className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl overflow-hidden relative ${
+            active === "profile"
+              ? "text-blue-500 bg-gray-200 font-bold hover:bg-gray-200"
+              : "hover:bg-gray-50"
+          }`}
+        >
+          <BiUserCircle size="28" className="shrink-0" />
+          <p>Profile</p>
+        </li>
       </ul>
     </div>
   );
