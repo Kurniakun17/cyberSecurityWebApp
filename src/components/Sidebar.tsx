@@ -7,16 +7,17 @@ import { BsBook, BsBookmark } from "react-icons/bs";
 import { BiUserCircle } from "react-icons/bi";
 
 const Sidebar = ({
-  active,
+  // active,
   userData,
   onSetActive,
 }: {
-  active?: string;
+  // active?: string;
   userData: UserData;
   onSetActive: (data: string) => void;
 }) => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  let active = window.location.pathname.split("/")[1];
 
   useEffect(() => {
     if (userData) {

@@ -335,7 +335,6 @@ const getReference = async (
   vulnerability_name: string
 ) => {
   const url = `${mainUrl}/reference/checklist?page=${pageCount}&size=${sizeCount}&vulnerability_name=${vulnerability_name}&title=${title}`;
-  console.log(url);
   const res = await api.get(url);
   return res.data;
 };

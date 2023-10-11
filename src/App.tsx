@@ -114,7 +114,11 @@ const App = () => {
                 path="/profile"
                 element={
                   <Profile
-                    setUserData={setUserData}
+                    setUserData={
+                      setUserData as React.Dispatch<
+                        React.SetStateAction<UserData>
+                      >
+                    }
                     userData={userData as UserData}
                   />
                 }
