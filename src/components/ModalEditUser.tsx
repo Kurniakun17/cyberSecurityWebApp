@@ -44,12 +44,11 @@ const ModalEditUser = ({
   const dialogEditUser = useRef<HTMLDialogElement>(null);
   const editUserSubmit = async (data: inputs) => {
     const body = {
-      username: data.edit_username,
       name: data.edit_name,
       email: data.edit_email,
       phone: data.edit_phone,
       status: data.edit_status,
-      admin: false,
+      admin: data.edit_isAdmin,
     };
 
     const res = await editUserByAdmin(userData.id, body);
@@ -83,16 +82,6 @@ const ModalEditUser = ({
             <label htmlFor="edit_name">Name</label>
             <input type="text" {...register("edit_name", { required: true })} />
             {errors.edit_name?.type === "required" && (
-              <p className="text-red-500">Please fill out this field</p>
-            )}
-          </div>
-          <div className="w-full">
-            <label htmlFor="edit_username">Username</label>
-            <input
-              type="text"
-              {...register("edit_username", { required: true })}
-            />
-            {errors.edit_username?.type === "required" && (
               <p className="text-red-500">Please fill out this field</p>
             )}
           </div>
