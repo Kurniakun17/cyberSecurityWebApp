@@ -190,9 +190,9 @@ const Projects = () => {
           breakLabel="..."
           onPageChange={onPageProgressHandleClick}
           containerClassName="absolute bottom-0 left-1/2  -translate-x-1/2 flex gap-3 w-fit mx-auto"
-          pageClassName="p-2 px-4 rounded-md border font-bold"
-          nextClassName="p-2 px-4 border rounded-md font-bold"
-          previousClassName="p-2 px-4 border rounded-md font-bold "
+          pageClassName=" rounded-md border font-bold"
+          nextClassName=" border rounded-md font-bold"
+          previousClassName=" border rounded-md font-bold "
           activeClassName="border text-blue-500 border-blue-500"
         ></ReactPaginate>
       </div>
@@ -225,9 +225,9 @@ const Projects = () => {
           breakLabel="..."
           onPageChange={onPageClosedHandleClick}
           containerClassName="absolute bottom-0 left-1/2  -translate-x-1/2 flex gap-3 w-fit mx-auto"
-          pageClassName="p-2 px-4 rounded-md border font-bold"
-          nextClassName="p-2 px-4 border rounded-md font-bold"
-          previousClassName="p-2 px-4 border rounded-md font-bold "
+          pageClassName="rounded-md border font-bold"
+          nextClassName="border rounded-md font-bold"
+          previousClassName="border rounded-md font-bold "
           activeClassName="border text-blue-500 border-blue-500"
         ></ReactPaginate>
       </div>

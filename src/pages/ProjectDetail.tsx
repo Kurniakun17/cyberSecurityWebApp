@@ -349,11 +349,13 @@ const ProjectDetail = () => {
         className={`flex flex-col gap-6 pb-12 ${loading && 'overflow-hidden'}`}
       >
         {loading && (
-          <div className="fixed z-[9999] flex flex-col gap-24 justify-center items-center h-screen w-screen bg-[rgba(255,255,255,0.9)] ">
-            <Jelly size={100} color="#3b82f6" />
-            <h1 className="text-2xl text-blue-500 font-bold">
-              Exporting projects to docx...
-            </h1>
+          <div className="fixed place-items-center inset-0 z-[9999] grid gap-24 justify-center bg-[rgba(255,255,255,0.9)] ">
+            <div className="flex flex-col gap-12 items-center">
+              <Jelly size={100} color="#3b82f6" />
+              <h1 className="text-2xl text-blue-500 font-bold">
+                Exporting projects to docx
+              </h1>
+            </div>
           </div>
         )}
         <div className="flex justify-between">
