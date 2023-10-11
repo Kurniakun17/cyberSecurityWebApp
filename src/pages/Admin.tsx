@@ -7,7 +7,7 @@ import Modal from "../components/Modal";
 import { useEffect, useRef, useState } from "react";
 import ReactPaginate from "react-paginate";
 
-import ModalEditUser from "../components/modalEditUser";
+import ModalEditUser from "../components/ModalEditUser";
 
 type inputs = {
   name: string;
