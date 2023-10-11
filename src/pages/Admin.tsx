@@ -36,7 +36,7 @@ const Admin = ({ userData }: { userData: UserData }) => {
 
   const navigate = useNavigate();
   const dialogAddUser = useRef<HTMLDialogElement>(null);
-  const limit = 2;
+  const limit = 8;
 
   const fetchAllUserData = async (pageCount: number, sizeCount: number) => {
     const res = await getAllUserData(pageCount, sizeCount);
