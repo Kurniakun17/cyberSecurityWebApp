@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { fetchTemplates } from '../utils/api.ts';
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { fetchTemplates } from "../utils/api.ts";
 
 const useTemplates = <T,>(): [
   T | [],
@@ -10,10 +10,12 @@ const useTemplates = <T,>(): [
   const [value, setValue] = useState<T | []>([]);
   const [totalPage, setTotalPage] = useState<number>(0);
 
-  const limit = 6;
+  const limit = 8;
 
   const triggerFetchTemplate = async (pageCount: number, sizeCount: number) => {
-    const result:{totalPages: number, items: T} = (await fetchTemplates(pageCount, sizeCount)).data;
+    const result: { totalPages: number; items: T } = (
+      await fetchTemplates(pageCount, sizeCount)
+    ).data;
 
     setTotalPage(result.totalPages as number);
     setValue(result.items);

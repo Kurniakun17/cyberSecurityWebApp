@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { fetchProjects } from '../utils/api.ts';
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { fetchProjects } from "../utils/api.ts";
 
 const useProjects = <T,>({
   type,
@@ -13,7 +13,7 @@ const useProjects = <T,>({
 ] => {
   const [value, setValue] = useState<T | []>([]);
   const [totalPage, setTotalPage] = useState<number>(0);
-  const limit = 2;
+  const limit = 8;
 
   const triggerFetchProject = async (
     pageCount: number,
@@ -24,7 +24,7 @@ const useProjects = <T,>({
       await fetchProjects(pageCount, sizeCount, type)
     ).data;
 
-    setTotalPage(result['totalPages'] as number);
+    setTotalPage(result["totalPages"] as number);
     setValue(result.items);
   };
 
