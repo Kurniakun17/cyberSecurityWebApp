@@ -8,6 +8,7 @@ import {
   ChecklistDetailT,
   ChecklistItemType,
   ChecklistTag,
+  UserData,
   projectDetailType,
 } from '../utils/types';
 import {
@@ -63,7 +64,7 @@ type inputs = {
   publish: boolean;
 };
 
-const ProjectDetail = () => {
+const ProjectDetail = ({ userData }: { userData: UserData }) => {
   const { id } = useParams();
   const [projectDetail, setProjectDetail, triggerFetchProjectDetail] =
     useProjectDetail<projectDetailType>(async () => {
@@ -342,6 +343,7 @@ const ProjectDetail = () => {
   if (!projectDetail) {
     return <div>Loading</div>;
   }
+  console.log(projectDetail);
 
   return (
     <>
@@ -403,7 +405,7 @@ const ProjectDetail = () => {
             </button>
           </div>
         </div>
-        <div className="flex gap-6 w-fit items-center px-8 py-6 border mx-auto border-[#D7D7D7] rounded-2xl">
+        <div className="flex my-4 gap-6 items-center lg:w-[500px] w-fit px-8 py-6 border mx-auto border-[#D7D7D7] rounded-2xl">
           <div className="flex flex-col gap-3">
             <span className="font-bold text-[32px]">
               {Number.isNaN(
@@ -421,20 +423,36 @@ const ProjectDetail = () => {
               {projectDetail.done_checklist}/{projectDetail.total_checklist}
             </p>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 flex-1">
             <h3 className="text-[24px]">Vulnerability Summary</h3>
-            <table>
-              <tbody>
-                <tr>
-                  <td>High - {projectDetail.high_vuln}</td>
-                  <td>Low - {projectDetail.low_vuln}</td>
-                </tr>
-                <tr>
-                  <td>Medium - {projectDetail.medium_vuln}</td>
-                  <td>Informational - {projectDetail.informational_vuln}</td>
-                </tr>
-              </tbody>
-            </table>
+
+            <div className="flex">
+              <div className="flex-1 flex gap-1 items-center">
+                <div className="w-2 h-2 bg-purple-700 rounded-full mt-0.5"></div>
+                <p>Crictical - {projectDetail.critical_vuln}</p>
+              </div>
+              <div className="flex-1 flex gap-1 items-center">
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-0.5"></div>
+                <p>High - {projectDetail.high_vuln}</p>
+              </div>
+            </div>
+
+            <div className="flex">
+              <div className="flex-1 flex gap-1 items-center">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-0.5"></div>
+                <p>Medium - {projectDetail.medium_vuln}</p>
+              </div>
+
+              <div className="flex-1 flex gap-1 items-center">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mt-0.5"></div>
+                <p>Low - {projectDetail.low_vuln}</p>
+              </div>
+            </div>
+
+            <div className="flex-1 flex gap-1 items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-0.5"></div>
+              <p>Informational - {projectDetail.informational_vuln}</p>
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-3">
@@ -602,54 +620,56 @@ const ProjectDetail = () => {
               </div>
             );
           })}
-          <div className="flex flex-col gap-1">
-            <h2 className="font-semibold text-lg">Add collaborator</h2>
-            <div className="flex gap-3">
-              <div className="flex flex-col flex-1">
-                <input
-                  type="text"
-                  className="rounded-2xl h-full"
-                  value={searchValue}
-                  onChange={(e) => {
-                    setSearchValue(e.target.value);
-                    setUserSearchId('');
-                    debounced(e.target.value);
-                  }}
-                />
-                {userSearchData.map((data, index) => (
-                  <button
-                    onClick={() => {
-                      setUserSearchId(data.id);
-                      setSearchValue(data.username);
-                      setUserSearchData([]);
+          {userData.id === projectDetail.project_user[0].id && (
+            <div className="flex flex-col gap-1">
+              <h2 className="font-semibold text-lg">Add collaborator</h2>
+              <div className="flex gap-3">
+                <div className="flex flex-col flex-1">
+                  <input
+                    type="text"
+                    className="rounded-2xl h-full"
+                    value={searchValue}
+                    onChange={(e) => {
+                      setSearchValue(e.target.value);
+                      setUserSearchId('');
+                      debounced(e.target.value);
                     }}
-                    key={data.id}
-                    className={`p-2  hover:border-blue-500 ${
-                      userSearchId === data.id ? 'border-blue-500' : ''
-                    } duration-300 text-start border-x ${
-                      index == userSearchData.length - 1
-                        ? 'border-b rounded-b-lg'
-                        : ''
-                    } border-gray-300 cursor-pointer `}
-                    type="button"
-                  >
-                    <h3>{data.username}</h3>
-                  </button>
-                ))}
+                  />
+                  {userSearchData.map((data, index) => (
+                    <button
+                      onClick={() => {
+                        setUserSearchId(data.id);
+                        setSearchValue(data.username);
+                        setUserSearchData([]);
+                      }}
+                      key={data.id}
+                      className={`p-2  hover:border-blue-500 ${
+                        userSearchId === data.id ? 'border-blue-500' : ''
+                      } duration-300 text-start border-x ${
+                        index == userSearchData.length - 1
+                          ? 'border-b rounded-b-lg'
+                          : ''
+                      } border-gray-300 cursor-pointer `}
+                      type="button"
+                    >
+                      <h3>{data.username}</h3>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={onAddCollaborator}
+                  disabled={userSearchId === '' ? true : false}
+                  className="h-fit py-2 px-3 gap-1 items-center disabled:bg-slate-300 disabled:opacity-40 flex  text-sm group rounded-lg border border-[#D7D7D7] hover:border-transparent hover:bg-blue-500 hover:text-white duration-300 w-fit"
+                >
+                  <Plus
+                    size={16}
+                    className="text-blue-500 group-hover:text-white duration-300"
+                  />
+                  Add
+                </button>
               </div>
-              <button
-                onClick={onAddCollaborator}
-                disabled={userSearchId === '' ? true : false}
-                className="h-fit py-2 px-3 gap-1 items-center disabled:bg-slate-300 disabled:opacity-40 flex  text-sm group rounded-lg border border-[#D7D7D7] hover:border-transparent hover:bg-blue-500 hover:text-white duration-300 w-fit"
-              >
-                <Plus
-                  size={16}
-                  className="text-blue-500 group-hover:text-white duration-300"
-                />
-                Add
-              </button>
             </div>
-          </div>
+          )}
           <button
             onClick={() => {
               dialogCollaborator.current?.close();

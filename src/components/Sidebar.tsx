@@ -72,7 +72,7 @@ const Sidebar = ({
           <BsBookmark size="26" />
           <p>Reference</p>
         </li>
-        {isAdmin && (
+        {isAdmin ? (
           <li
             onClick={() => {
               navigate('/admin');
@@ -86,6 +86,21 @@ const Sidebar = ({
           >
             <BiUserCircle size="28" className="shrink-0" />
             <p>Admin</p>
+          </li>
+        ) : (
+          <li
+            onClick={() => {
+              navigate('/profile');
+              onSetActive('profile');
+            }}
+            className={`flex items-center gap-4 px-6 group py-4 cursor-pointer text-xl overflow-hidden relative ${
+              active === 'profile'
+                ? 'text-blue-500 bg-gray-200 font-bold hover:bg-gray-200'
+                : 'hover:bg-gray-50'
+            }`}
+          >
+            <BiUserCircle size="28" className="shrink-0" />
+            <p>Profile</p>
           </li>
         )}
       </ul>

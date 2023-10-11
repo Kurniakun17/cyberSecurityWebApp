@@ -13,6 +13,7 @@ import Admin from './pages/Admin';
 import Sidebar from './components/Sidebar';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
+import Profile from './pages/Profile';
 
 const App = () => {
   const [auth, setAuth] = useState<string>('');
@@ -98,13 +99,20 @@ const App = () => {
           >
             <Routes>
               <Route path="/projects" element={<Projects />} />
-              <Route path="/projects/:id" element={<ProjectDetail />} />
+              <Route
+                path="/projects/:id"
+                element={<ProjectDetail userData={userData as UserData} />}
+              />
               <Route path="/templates" element={<Templates />} />
               <Route path="/templates/:id" element={<TemplateDetail />} />
               <Route path="/reference" element={<References />} />
               <Route
                 path="/admin"
                 element={<Admin userData={userData as UserData} />}
+              />
+              <Route
+                path="/profile"
+                element={<Profile userData={userData as UserData} />}
               />
               <Route path="/login" element={<Login onSetAuth={onSetAuth} />} />
               <Route path="*" element={<Navigate to={'/projects'} />} />

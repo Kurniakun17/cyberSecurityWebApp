@@ -192,6 +192,9 @@ type UserData = {
   id: string,
   username: string,
   admin: boolean,
+  email: string,
+  phone: string,
+  name: string,
 }
 
 type Reference = {

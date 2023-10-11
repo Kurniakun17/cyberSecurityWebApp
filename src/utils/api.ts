@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ChecklistTag } from './types';
+import { ChecklistTag, UserData } from './types';
 const mainUrl = 'http://localhost:3000'
 
 const api = axios.create({
@@ -20,9 +20,17 @@ api.interceptors.request.use(function (config) {
 
 const addCollaborator = async (projectId: string, body: {collaborator_id: string}) => {
   try {
-    
     const res = await api.post(`http://localhost:3000/project/${projectId}/add-collaborator`, body);
     return res.data
+  } catch (error) {
+    return error;
+  }
+}
+
+const editProfile = async (body: UserData)=>{
+  try {
+    const res = await api.put(`${mainUrl}/user/edit`, body);
+    return res.data;
   } catch (error) {
     return error;
   }
@@ -206,4 +214,4 @@ const getReference = async (pageCount: number, sizeCount: number, title: string,
   return res.data;
 }
 
-export { moveTag, updateChecklistTag, getReference, api, updateTemplate, updateProject, addTemplate, deleteTemplate, fetchTemplates, addProject,getTemplateList, moveChecklist, moveChecklistToAnotherTag, fetchProjects, fetchProjectDetail, fetchTemplateDetail, addCollaborator, exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };
+export { editProfile, moveTag, updateChecklistTag, getReference, api, updateTemplate, updateProject, addTemplate, deleteTemplate, fetchTemplates, addProject,getTemplateList, moveChecklist, moveChecklistToAnotherTag, fetchProjects, fetchProjectDetail, fetchTemplateDetail, addCollaborator, exportToDocx, addChecklistTag, addChecklistTagItem, deleteChecklistItem, deleteChecklistTag, fetchChecklistDetail,toggleChecklist, toggleProject,deleteProject , updateChecklistItem, uploadPocImage, deletePOCImage };
