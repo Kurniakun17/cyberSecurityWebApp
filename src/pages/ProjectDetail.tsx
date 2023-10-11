@@ -343,8 +343,6 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
   if (!projectDetail) {
     return <div>Loading</div>;
   }
-  console.log(projectDetail);
-
   return (
     <>
       <div
@@ -597,7 +595,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
           ))}
         </DragDropContext>
       </div>
-
+      {/* checkpoint */}
       <Modal dialogRef={dialogCollaborator}>
         <div className="flex flex-col gap-3">
           <h1 className="font-bold  text-2xl text-center mb-1">Collaborator</h1>
@@ -620,7 +618,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
               </div>
             );
           })}
-          {userData.id === projectDetail.project_user[0].id && (
+          {userData.id === projectDetail.project_user[0].user_id && (
             <div className="flex flex-col gap-1">
               <h2 className="font-semibold text-lg">Add collaborator</h2>
               <div className="flex gap-3">
