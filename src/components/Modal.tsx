@@ -21,8 +21,8 @@ const Modal = ({
       onClick={(e) => {
         clickOutsideModal(e);
       }}
-      className={`rounded-xl w-[90%] ${
-        maxW === 'default' ? 'max-w-[600px]' : 'max-w-[800px]'
+      className={`rounded-xl ${
+        maxW === 'default' ? 'min-w-[600px]' : 'min-w-[800px]'
       } max-h-[648px] overflow-scroll no-scrollbar`}
       ref={dialogRef}
       id="dialog"

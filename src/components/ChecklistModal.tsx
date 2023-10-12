@@ -263,7 +263,7 @@ const ChecklistModal = ({
         className="flex flex-col gap-6"
         onSubmit={handleSubmit(onSaveHandler)}
       >
-        <h1 className="font-bold text-2xl text-center mb-1">Add Check List</h1>
+        <h1 className="font-bold text-2xl text-center mb-1">Edit Check List</h1>
         <div className="flex justify-between">
           <div className="flex flex-col gap-1">
             <label htmlFor="title">Title</label>
