@@ -1,19 +1,19 @@
-import { useState, useRef } from "react";
+import { useState, useRef } from 'react';
 
-import Modal from "../components/Modal";
-import useProjects from "../hooks/useProjects";
-import { projectsType } from "../utils/types";
+import Modal from '../components/Modal';
+import useProjects from '../hooks/useProjects';
+import { projectsType } from '../utils/types';
 import {
   addProject,
   deleteProject,
   getTemplateList,
   toggleProject,
-} from "../utils/api";
-import { useForm, useFieldArray } from "react-hook-form";
-import ItemCard from "../components/ItemCard";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import ReactPaginate from "react-paginate";
+} from '../utils/api';
+import { useForm, useFieldArray } from 'react-hook-form';
+import ItemCard from '../components/ItemCard';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import ReactPaginate from 'react-paginate';
 
 type inputs = {
   name: string;
@@ -30,14 +30,14 @@ const Projects = () => {
     totalOnProgressPage,
     triggerFetchOnProgressProjects,
   ] = useProjects<projectsType[] | []>({
-    type: "in-progress",
+    type: 'in-progress',
   });
   const [closedProjects, _, totalClosedPage, triggerFetchClosedProjects] =
-    useProjects<projectsType[] | []>({ type: "done" });
+    useProjects<projectsType[] | []>({ type: 'done' });
 
   const limit = 8;
 
-  const [toolTipId, setToolTipId] = useState("");
+  const [toolTipId, setToolTipId] = useState('');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [template, setTemplate] = useState([]);
   const {
@@ -54,7 +54,7 @@ const Projects = () => {
     append: appendTarget_ip,
   } = useFieldArray({
     control,
-    name: "target_ip",
+    name: 'target_ip',
   });
   const {
     fields: target_url,
@@ -62,40 +62,40 @@ const Projects = () => {
     append: appendTarget_url,
   } = useFieldArray({
     control,
-    name: "target_url",
+    name: 'target_url',
   });
 
   const onSetToolTip = (id: string) => {
-    setToolTipId((prev: string) => (prev === id ? "" : id));
+    setToolTipId((prev: string) => (prev === id ? '' : id));
   };
 
   const onPageProgressHandleClick = (data: { selected: number }) => {
-    triggerFetchOnProgressProjects(data.selected, limit, "in-progress");
+    triggerFetchOnProgressProjects(data.selected, limit, 'in-progress');
   };
   const onPageClosedHandleClick = (data: { selected: number }) => {
-    triggerFetchClosedProjects(data.selected, limit, "done");
+    triggerFetchClosedProjects(data.selected, limit, 'done');
   };
 
   const triggerFetchProjects = () => {
-    triggerFetchOnProgressProjects(0, limit, "in-progress");
-    triggerFetchClosedProjects(0, limit, "done");
+    triggerFetchOnProgressProjects(0, limit, 'in-progress');
+    triggerFetchClosedProjects(0, limit, 'done');
   };
 
   const onToggleProjects = async (id: string, newProgress: string) => {
     const res = await toggleProject(id, newProgress);
     if (res.success) {
       triggerFetchProjects();
-      setToolTipId("");
+      setToolTipId('');
     }
   };
 
   const onDeleteProjects = async (id: string) => {
-    setToolTipId("");
+    setToolTipId('');
     const res = await deleteProject(id);
     if (res.success) {
-      document.getElementById(id)?.classList.add("delete");
+      document.getElementById(id)?.classList.add('delete');
       setTimeout(() => {
-        toast.success("Project successfully deleted");
+        toast.success('Project successfully deleted');
         setProjects((prev: projectsType[]) =>
           prev.filter((project: projectsType) => project.id !== id)
         );
@@ -105,7 +105,7 @@ const Projects = () => {
     }
 
     toast.error(
-      "Failed deleting the project \n(only owners of the project can delete it)"
+      'Failed deleting the project \n(only owners of the project can delete it)'
     );
   };
 
@@ -119,7 +119,7 @@ const Projects = () => {
     if (res.success) {
       const data = res.data;
       setTemplate(data.items);
-      triggerFetchOnProgressProjects(0, limit, "in-progress");
+      triggerFetchOnProgressProjects(0, limit, 'in-progress');
       dialogRef.current?.showModal();
     }
   };
@@ -130,23 +130,23 @@ const Projects = () => {
       ...res,
       target_ip: res.target_ip ?? [],
       target_url: res.target_url ?? [],
-      progress: "in-progress",
+      progress: 'in-progress',
     };
 
-    if (res.template_id === "") {
+    if (res.template_id === '') {
       delete body.template_id;
     }
 
     const data = await addProject(body);
 
     if (data.success) {
-      toast.success("Project created!");
-      triggerFetchOnProgressProjects(0, limit, "in-progress");
+      toast.success('Project created!');
+      triggerFetchOnProgressProjects(0, limit, 'in-progress');
       reset();
       return;
     }
 
-    toast.error("Add project failed");
+    toast.error('Add project failed');
   };
 
   return (
@@ -243,12 +243,12 @@ const Projects = () => {
               Name
             </label>
             <input
-              {...register("name", { required: true })}
+              {...register('name', { required: true })}
               id="name"
               type="text"
               className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
             />
-            {errors.name?.type === "required" && (
+            {errors.name?.type === 'required' && (
               <p className="text-red-500">Please fill out this field</p>
             )}
           </div>
@@ -257,11 +257,11 @@ const Projects = () => {
               Description
             </label>
             <textarea
-              {...register("description", { required: true })}
+              {...register('description', { required: true })}
               id="description"
               className="border resize-none h-[72px] border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
             />
-            {errors.description?.type === "required" && (
+            {errors.description?.type === 'required' && (
               <p className="text-red-500">Please fill out this field</p>
             )}
           </div>
@@ -291,7 +291,7 @@ const Projects = () => {
                       Delete
                     </button>
                   </div>
-                  {errors.target_ip?.[index]?.type === "required" && (
+                  {errors.target_ip?.[index]?.type === 'required' && (
                     <p className="text-red-500">Please fill out this field</p>
                   )}
                 </div>
@@ -300,7 +300,7 @@ const Projects = () => {
             <button
               type="button"
               onClick={() => {
-                appendTarget_ip("");
+                appendTarget_ip('');
               }}
               className="py-2 px-3 gap-4  text-sm rounded-lg border border-[#D7D7D7] w-fit"
             >
@@ -314,31 +314,36 @@ const Projects = () => {
             </label>
             {target_url.map((field, index) => {
               return (
-                <div key={`target_url-${field.id}`} className="flex gap-3">
-                  <input
-                    key={field.id}
-                    type="text"
-                    {...register(`target_url.${index}` as const, {
-                      required: true,
-                    })}
-                    className=""
-                  />
-                  <button
-                    type="button"
-                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
-                    onClick={() => {
-                      removeTarget_url(index);
-                    }}
-                  >
-                    Delete
-                  </button>
+                <div key={`target_url-${field.id}`}>
+                  <div className="flex gap-3">
+                    <input
+                      key={field.id}
+                      type="text"
+                      {...register(`target_url.${index}` as const, {
+                        required: true,
+                      })}
+                      className=""
+                    />
+                    <button
+                      type="button"
+                      className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
+                      onClick={() => {
+                        removeTarget_url(index);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  {errors.target_url?.[index]?.type === 'required' && (
+                    <p className="text-red-500">Please fill out this field</p>
+                  )}
                 </div>
               );
             })}
             <button
               type="button"
               onClick={() => {
-                appendTarget_url("");
+                appendTarget_url('');
               }}
               className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
             >
@@ -351,11 +356,11 @@ const Projects = () => {
               Template
             </label>
             <select
-              {...register("template_id")}
+              {...register('template_id')}
               id="template"
               className="px-2 py-1 focus:outline-blue-500 border background rounded-md border-[#d7d7d7]"
             >
-              <option value={""}>No Template</option>
+              <option value={''}>No Template</option>
               {template.map((item: { name: string; id: string }) => {
                 return (
                   <option key={item.id} value={item.id}>

@@ -1,9 +1,8 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { fetchTemplates } from "../utils/api.ts";
+import { useEffect, useState } from 'react';
+import { fetchTemplates } from '../utils/api.ts';
 
 const useTemplates = <T,>(): [
   T | [],
-  Dispatch<SetStateAction<T | []>>,
   number,
   (pageCount: number, sizeCount: number) => void
 ] => {
@@ -25,7 +24,7 @@ const useTemplates = <T,>(): [
     triggerFetchTemplate(0, limit);
   }, []);
 
-  return [value, setValue, totalPage, triggerFetchTemplate];
+  return [value, totalPage, triggerFetchTemplate];
 };
 
 export default useTemplates;

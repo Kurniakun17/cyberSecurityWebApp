@@ -33,6 +33,8 @@ import ChecklistItem from '../components/ChecklistItem';
 import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Modal from '../components/Modal';
+import ModalAddTag from '../components/Modals/ModalAddTag';
+import ModalAddChecklistItem from '../components/Modals/ModalAddChecklistItem';
 
 type inputs = {
   update_tag_name: string;
@@ -130,10 +132,10 @@ const TemplateDetail = () => {
     }
   };
 
-  const onTagModalSubmit: SubmitHandler<inputs> = async (data) => {
+  const onTagModalSubmit = async (tag_name: string) => {
     const result = await addChecklistTag(
       templateDetail?.id as string,
-      data.tag_name
+      tag_name
     );
 
     if (result.success) {
@@ -221,16 +223,16 @@ const TemplateDetail = () => {
       },
     });
   }
-  const onChecklistTagModalSubmit: SubmitHandler<inputs> = async (data) => {
+  const onChecklistTagModalSubmit = async (checklist_name: string) => {
     resetField('checklist_name');
     const res = await addChecklistTagItem(
       templateDetail?.id as string,
       checklistTagId,
-      data.checklist_name
+      checklist_name
     );
     if (res.success) {
       triggerFetchTemplateDetail();
-      console.log('success');
+
       reset();
     }
   };
@@ -549,28 +551,10 @@ const TemplateDetail = () => {
       </Modal>
 
       {/* Modal Add Tag */}
-      <Modal dialogRef={dialogTagRef}>
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onTagModalSubmit)}
-        >
-          <h1 className="font-bold  text-2xl text-center mb-1">
-            Add Checklist Tag
-          </h1>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="">Name</label>
-            <input type="text" {...register('tag_name')} />
-          </div>
-          <button
-            onClick={() => {
-              dialogTagRef.current?.close();
-            }}
-            className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 font-bold  text-white py-2"
-          >
-            Create Checklist Tag
-          </button>
-        </form>
-      </Modal>
+      <ModalAddTag
+        dialogTagRef={dialogTagRef}
+        onTagModalSubmit={onTagModalSubmit}
+      />
 
       <Modal dialogRef={dialogDetailChecklist} maxW="custom">
         <form
@@ -636,28 +620,10 @@ const TemplateDetail = () => {
         </div>
       </Modal>
 
-      <Modal dialogRef={dialogChecklistRef}>
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onChecklistTagModalSubmit)}
-        >
-          <h1 className="font-bold  text-2xl text-center mb-1">
-            Add Checklist Item
-          </h1>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="">Name</label>
-            <input type="text" {...register('checklist_name')} />
-          </div>
-          <button
-            onClick={() => {
-              dialogChecklistRef.current?.close();
-            }}
-            className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 font-bold  text-white py-2"
-          >
-            Create Checklist Item
-          </button>
-        </form>
-      </Modal>
+      <ModalAddChecklistItem
+        dialogChecklistRef={dialogChecklistRef}
+        onChecklistTagModalSubmit={onChecklistTagModalSubmit}
+      />
     </div>
   );
 };

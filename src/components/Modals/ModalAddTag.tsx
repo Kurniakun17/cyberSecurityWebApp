@@ -1,4 +1,3 @@
-
 import Modal from '../Modal';
 import { useForm } from 'react-hook-form';
 type inputs = { tag_name: string };
@@ -19,6 +18,7 @@ const ModalAddTag = ({
 
   const onClickSubmit = (data: inputs) => {
     onTagModalSubmit(data.tag_name);
+    dialogTagRef.current?.close();
     reset();
   };
 

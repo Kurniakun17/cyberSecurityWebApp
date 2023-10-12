@@ -22,6 +22,7 @@ const ModalAddChecklistItem = ({
 
   const onClickSubmit = (data: inputs) => {
     onChecklistTagModalSubmit(data.checklist_name);
+    dialogChecklistRef.current?.close();
     reset();
   };
   return (

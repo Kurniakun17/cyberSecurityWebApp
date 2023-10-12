@@ -15,7 +15,7 @@ type inputs = {
 };
 
 const Templates = () => {
-  const [templates, setTemplates, totalPage, triggerFetchTemplate] =
+  const [templates, totalPage, triggerFetchTemplate] =
     useTemplates<templateType[]>();
   const [toolTipId, setToolTipId] = useState('');
   const {
@@ -24,6 +24,7 @@ const Templates = () => {
     handleSubmit,
     reset,
   } = useForm<inputs>();
+
   const dialogRef = useRef<HTMLDialogElement>(null);
   const limit = 8;
   const [currentPage, setCurrentPage] = useState(0);
