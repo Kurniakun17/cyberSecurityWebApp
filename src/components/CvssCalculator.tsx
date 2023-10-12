@@ -57,7 +57,6 @@ const CvssCalculator = ({
         severityName = '';
       }
 
-      setCvssValue((prev) => ({ ...prev, severity_level: severityName }));
       setSeverityLevel(severityName);
     }
   };
@@ -86,7 +85,8 @@ const CvssCalculator = ({
       CVSS31Weight.UI[cvssValue.UI];
 
     if (impact <= 0) {
-      setBaseScore(0);
+      updateSeverityLevel();
+      setBaseScore(0.0);
     } else {
       if (cvssValue.S === 'Unchanged') {
         setBaseScore(Roundup(Math.min(exploitability + impact, 10)));

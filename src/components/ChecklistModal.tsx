@@ -54,8 +54,15 @@ const ChecklistModal = ({
   templateId: string;
   triggerFetchProjectDetail: () => void;
 }) => {
-  const { control, register, handleSubmit, setValue, watch, resetField } =
-    useForm<inputValuesT>();
+  const {
+    control,
+    register,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+    watch,
+    resetField,
+  } = useForm<inputValuesT>();
   const dialogAddImageRef = useRef<HTMLDialogElement>(null);
   const [pocPreview, setPOCPreview] = useState<Image[]>([]);
   const [imagesFile, setImagesFile] = useState<FileList[]>([]);
@@ -170,6 +177,7 @@ const ChecklistModal = ({
           'vulnerability_description',
           data.vulnerability_description ?? ''
         );
+        setValue('image_caption', 'image caption');
         setSeverityLevel((data.severity_level as severityType) ?? '');
         setBaseScore(data.cvss_score);
         setValue('generate_to_word', data.generate_to_word);
@@ -598,7 +606,10 @@ const ChecklistModal = ({
         >
           <div className="flex flex-col gap-1">
             <label htmlFor="">Image Caption</label>
-            <input type="text" {...register('image_caption')} />
+            <input
+              type="text"
+              {...register('image_caption', { required: true })}
+            />
           </div>
           <button
             onClick={() => {

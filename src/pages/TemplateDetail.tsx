@@ -389,6 +389,7 @@ const TemplateDetail = () => {
                                 progress={checklistItem.progress}
                                 onToggleProgress={onToggleProgress}
                                 onDeleteCheckListItem={onDeleteCheckListItem}
+                                isTemplate={true}
                                 onModalOpen={asyncFetchChecklistDetail}
                               />
                             );

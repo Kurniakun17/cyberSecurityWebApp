@@ -1,13 +1,13 @@
-import { useRef, useState } from "react";
-import ItemCard from "../components/ItemCard";
-import useTemplates from "../hooks/useTemplate";
-import { useForm } from "react-hook-form";
-import Modal from "../components/Modal";
-import { templateType } from "../utils/types";
-import { addTemplate, deleteTemplate } from "../utils/api";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import ReactPaginate from "react-paginate";
+import { useRef, useState } from 'react';
+import ItemCard from '../components/ItemCard';
+import useTemplates from '../hooks/useTemplate';
+import { useForm } from 'react-hook-form';
+import Modal from '../components/Modal';
+import { templateType } from '../utils/types';
+import { addTemplate, deleteTemplate } from '../utils/api';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import ReactPaginate from 'react-paginate';
 
 type inputs = {
   name: string;
@@ -17,8 +17,13 @@ type inputs = {
 const Templates = () => {
   const [templates, setTemplates, totalPage, triggerFetchTemplate] =
     useTemplates<templateType[]>();
-  const [toolTipId, setToolTipId] = useState("");
-  const { register, handleSubmit, reset } = useForm<inputs>();
+  const [toolTipId, setToolTipId] = useState('');
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    reset,
+  } = useForm<inputs>();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const limit = 8;
   const [currentPage, setCurrentPage] = useState(0);
@@ -30,14 +35,14 @@ const Templates = () => {
   };
 
   const onSetToolTip = (id: string) => {
-    setToolTipId((prev: string) => (prev === id ? "" : id));
+    setToolTipId((prev: string) => (prev === id ? '' : id));
   };
 
   const onDeleteTemplate = async (id: string) => {
-    setToolTipId("");
+    setToolTipId('');
     const res = await deleteTemplate(id);
     if (res.success) {
-      document.getElementById(id)?.classList.add("delete");
+      document.getElementById(id)?.classList.add('delete');
       setTimeout(() => {
         triggerFetchTemplate(0, limit);
       }, 1000);
@@ -45,15 +50,16 @@ const Templates = () => {
   };
 
   const onSubmitAddTemplate = async (formResult: inputs) => {
+    dialogRef.current?.close();
     const res = await addTemplate(formResult);
     if (res.success) {
-      toast.success("Template Created");
+      toast.success('Template Created');
       triggerFetchTemplate(0, limit);
       setCurrentPage(0);
       reset();
       return;
     }
-    toast.error("Add template failed");
+    toast.error('Add template failed');
   };
 
   const onPageHandleClick = async (data: { selected: number }) => {
@@ -122,29 +128,30 @@ const Templates = () => {
               Name
             </label>
             <input
-              {...register("name")}
+              {...register('name', { required: true })}
               id="name"
               type="text"
               className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
             />
+            {errors.name?.type === 'required' && (
+              <p className="text-red-500">Please fill out this field</p>
+            )}
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="description" className="text-grayText">
               Description
             </label>
             <textarea
-              {...register("description")}
+              {...register('description', { required: true })}
               id="description"
               className="border resize-none h-[72px] border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
             />
+            {errors.description?.type === 'required' && (
+              <p className="text-red-500">Please fill out this field</p>
+            )}
           </div>
 
-          <button
-            onClick={() => {
-              dialogRef.current?.close();
-            }}
-            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
-          >
+          <button className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2">
             Create Template
           </button>
         </form>

@@ -10,17 +10,18 @@ const ChecklistItem = ({
   title,
   progress,
   dialogRef,
-
   onDeleteCheckListItem,
   onToggleProgress,
   onModalOpen,
   provided,
+  isTemplate = false,
 }: {
   id: string;
   type: 'none' | 'narrative' | 'vulnerability';
   templateId: string;
   title: string;
   progress: number;
+  isTemplate?: boolean;
   dialogRef: React.RefObject<HTMLDialogElement>;
   onDeleteCheckListItem: (templateId: string, checklistId: string) => void;
   onToggleProgress: (
@@ -51,7 +52,9 @@ const ChecklistItem = ({
             id={id}
             checked={Boolean(progress)}
             type="checkbox"
-            className="w-[20px] h-[20px] rounded-xl hover:cursor-pointer"
+            className={`w-[20px] ${
+              isTemplate && 'hidden'
+            } h-[20px] rounded-xl hover:cursor-pointer`}
             onChange={() => {
               onToggleProgress(templateId, id, progress);
             }}
