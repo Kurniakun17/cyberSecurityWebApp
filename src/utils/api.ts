@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ChecklistTag, UserData } from "./types";
+import ProjectDetail from "../pages/ProjectDetail";
 const mainUrl = "http://localhost:3000";
 
 const api = axios.create({
@@ -18,13 +19,27 @@ api.interceptors.request.use(function (config) {
   return config;
 });
 
+const removeCollaborator=  async (projectId: string,
+  body: { collaborator_id: string }) =>{
+    console.log(body);
+  try {
+    const res = await api.post(
+      `${mainUrl}/project/${projectId}/remove-collaborator`,
+      body
+    );
+    return res.data;
+  } catch (error) {
+    return error;
+  }
+};
+
 const addCollaborator = async (
   projectId: string,
   body: { collaborator_id: string }
 ) => {
   try {
     const res = await api.post(
-      `http://localhost:3000/project/${projectId}/add-collaborator`,
+      `http://localhost:3000}/project/${projectId}/add-collaborator`,
       body
     );
     return res.data;
@@ -229,7 +244,7 @@ const moveChecklistToAnotherTag = async ({
   body: unknown;
 }) => {
   const res = await api.post(
-    `http://localhost:3000/template/${templateId}/checklist/movetag`,
+    `http://localhost:3000}/template/${templateId}/checklist/movetag`,
     body
   );
   return res.data;
@@ -244,7 +259,7 @@ const moveTag = async ({
 }) => {
   try {
     const res = await api.post(
-      `http://localhost:3000/template/${templateId}/tag/move`,
+      `http://localhost:3000}/template/${templateId}/tag/move`,
       body
     );
     return res.data;
@@ -259,7 +274,7 @@ const updateChecklistTag = async (
   body: { name: string }
 ) => {
   const res = await api.put(
-    `http://localhost:3000/template/${templateId}/tag/${tagId}`,
+    `http://localhost:3000}/template/${templateId}/tag/${tagId}`,
     body
   );
   return res.data;
@@ -272,7 +287,7 @@ const addProject = async (body: {
   description: string;
   template_id?: string;
 }) => {
-  const res = await api.post(`http://localhost:3000/project`, body);
+  const res = await api.post(`${mainUrl}/project`, body);
   return res.data;
 };
 
@@ -291,7 +306,7 @@ const updateProject = async (
     target_ip: body.target_ip === "" ? [] : body.target_ip,
     target_url: body.target_url === "" ? [] : body.target_url,
   };
-  const res = await api.put(`http://localhost:3000/project/${projectId}`, body);
+  const res = await api.put(`${mainUrl}/project/${projectId}`, body);
 
   return res.data;
 };
@@ -312,7 +327,7 @@ const updateTemplate = async (
     target_url: body.target_url === "" ? [] : body.target_url,
   };
   const res = await api.put(
-    `http://localhost:3000/template/${templateId}`,
+    `${mainUrl}/template/${templateId}`,
     body
   );
 
@@ -370,4 +385,6 @@ export {
   updateChecklistItem,
   uploadPocImage,
   deletePOCImage,
+  removeCollaborator,
+  mainUrl
 };

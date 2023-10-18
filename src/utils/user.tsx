@@ -1,9 +1,9 @@
-import { api } from "./api";
+import { api, mainUrl } from './api';
 
 const loginAuth = async (body: { username: string; password: string }) => {
   try {
-    const res = await api.post("http://localhost:3000/user/auth/login", body);
-    localStorage.setItem("token", res.data.token);
+    const res = await api.post(`${mainUrl}/user/auth/login`, body);
+    localStorage.setItem('token', res.data.token);
     return res.data;
   } catch (error) {
     return { success: false };
@@ -11,21 +11,21 @@ const loginAuth = async (body: { username: string; password: string }) => {
 };
 
 const getUserData = async () => {
-  const res = await api.get("http://localhost:3000/user/me");
+  const res = await api.get(`${mainUrl}/user/me`);
 
   return res.data;
 };
 
 const getAllUserData = async (pageCount: number, sizeCount: number) => {
   const res = await api.get(
-    `http://localhost:3000/user?size=${sizeCount}&page=${pageCount}`
+    `${mainUrl}/user?size=${sizeCount}&page=${pageCount}`
   );
   return res.data;
 };
 
 const registerUser = async (body: { username: string; password: string }) => {
   try {
-    const res = await api.post("http://localhost:3000/user/register", body);
+    const res = await api.post(`${mainUrl}/user/register`, body);
 
     return res.data;
   } catch (error) {
@@ -34,25 +34,20 @@ const registerUser = async (body: { username: string; password: string }) => {
 };
 
 const signOut = async () => {
-  const res = await api.post("http://localhost:3000/user/auth/logout");
+  const res = await api.post(`${mainUrl}/user/auth/logout`);
 
   return res.data;
 };
 
 const searchUser = async (username: string) => {
-  const res = await api.get(
-    `http://localhost:3000/user/search?username=${username}`
-  );
+  const res = await api.get(`${mainUrl}/user/search?username=${username}`);
 
   return res.data;
 };
 
 const editUserByAdmin = async (userId: string, body: unknown) => {
   try {
-    const res = await api.put(
-      `http://localhost:3000/user/${userId}/edit`,
-      body
-    );
+    const res = await api.put(`${mainUrl}/user/${userId}/edit`, body);
     return res.data;
   } catch (error) {
     return error;

@@ -267,13 +267,17 @@ const ChecklistModal = ({
         <div className="flex justify-between">
           <div className="flex flex-col gap-1">
             <label htmlFor="title">Title</label>
-            <input type="text" {...register('title')} />
+            <input
+              type="text"
+              {...register('title')}
+              id="titleChecklistModal"
+            />
           </div>
           <div className="flex items-end">
             <div className="">
               <select
                 id="type"
-                className="px-2 py-1 pr-16 focus:outline-blue-500 border background rounded-xl border-[#d7d7d7] hover:cursor-pointer"
+                className="px-2 py-1 pr-16 focus:outline-blue-500 border background rounded-lg border-[#d7d7d7] hover:cursor-pointer"
                 {...register('type')}
               >
                 <option className="w-[40%]" value="none">

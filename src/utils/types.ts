@@ -227,4 +227,5 @@ export type {
   checklistItemInputT,
   cvss31ValueT,
   ChecklistDetailT,
+userCollaborator
 };
