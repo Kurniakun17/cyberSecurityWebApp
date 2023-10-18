@@ -24,7 +24,7 @@ const Login = ({ onSetAuth }: { onSetAuth: (token: string) => void }) => {
     <div className="h-screen grid place-items-center">
       <form
         onSubmit={handleSubmit(onLoginSubmit)}
-        className="flex flex-col gap-2 relative items-center justify-center max-w-[400px] p-8 shadow-xl border border-blue-500 rounded-md"
+        className="flex flex-col gap-2 relative items-center justify-center max-w-[400px] p-8 shadow-xl border border-[#d7d7d7] rounded-md"
       >
         <h1 className="text-xl font-bold">Login</h1>
         <div className="w-full">

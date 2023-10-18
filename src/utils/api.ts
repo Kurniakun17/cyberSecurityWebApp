@@ -1,6 +1,5 @@
 import axios from "axios";
 import { ChecklistTag, UserData } from "./types";
-import ProjectDetail from "../pages/ProjectDetail";
 const mainUrl = "http://localhost:3000";
 
 const api = axios.create({
@@ -39,7 +38,7 @@ const addCollaborator = async (
 ) => {
   try {
     const res = await api.post(
-      `http://localhost:3000}/project/${projectId}/add-collaborator`,
+      `${mainUrl}/project/${projectId}/add-collaborator`,
       body
     );
     return res.data;
@@ -171,8 +170,11 @@ const exportToDocx = async (
   if (res.data.success) {
     const link = document.createElement("a");
     link.download = `${body.client} report`;
-
-    link.href = `http://localhost:3000${res.data.response.path.replace(
+console.log(res.data.response.path.replace(
+      ".",
+      ""
+    ));
+    link.href = `${mainUrl}${res.data.response.path.replace(
       ".",
       ""
     )}`;
@@ -244,7 +246,7 @@ const moveChecklistToAnotherTag = async ({
   body: unknown;
 }) => {
   const res = await api.post(
-    `http://localhost:3000}/template/${templateId}/checklist/movetag`,
+    `${mainUrl}/template/${templateId}/checklist/movetag`,
     body
   );
   return res.data;
@@ -259,7 +261,7 @@ const moveTag = async ({
 }) => {
   try {
     const res = await api.post(
-      `http://localhost:3000}/template/${templateId}/tag/move`,
+      `${mainUrl}/template/${templateId}/tag/move`,
       body
     );
     return res.data;
@@ -274,7 +276,7 @@ const updateChecklistTag = async (
   body: { name: string }
 ) => {
   const res = await api.put(
-    `http://localhost:3000}/template/${templateId}/tag/${tagId}`,
+    `${mainUrl}/template/${templateId}/tag/${tagId}`,
     body
   );
   return res.data;
