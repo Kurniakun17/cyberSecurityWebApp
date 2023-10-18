@@ -69,7 +69,7 @@ const ModalEditUser = ({
           dialogEditUser.current?.showModal();
         }}
       >
-        <Pen />
+        <Pen className="hover:text-yellow-500 duration-300" />
       </button>
       <Modal dialogRef={dialogEditUser}>
         <form

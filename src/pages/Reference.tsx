@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getReference } from '../utils/api';
+import { getReference, mainUrl } from '../utils/api';
 import { Reference } from '../utils/types';
 
 import { useForm } from 'react-hook-form';
@@ -702,7 +702,7 @@ const References = () => {
                           className="flex flex-col items-center justify-center relative"
                         >
                           <img
-                            src={`http://localhost:3000${item.file_path}`}
+                            src={`${mainUrl}${item.file_path}`}
                             alt=""
                             className="aspect-video h-16 object-cover rounded-sm"
                           />

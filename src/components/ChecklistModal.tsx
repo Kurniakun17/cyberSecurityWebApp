@@ -581,7 +581,7 @@ const ChecklistModal = ({
                       <X size={18}></X>
                     </button>
                     <img
-                      src={`http://localhost:3000${item.file_path}`}
+                      src={`${mainUrl}${item.file_path}`}
                       alt=""
                       className="aspect-video h-16 object-cover rounded-sm"
                     />
