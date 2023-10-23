@@ -652,9 +652,9 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                       {item.user.username}
                     </p>
                   </div>
-                  {(userData.id === projectDetail.project_user[0].user_id &&
+                  {((userData.id === projectDetail.project_user[0].user_id &&
                     index != 0) ||
-                    (userData.admin && (
+                    userData.admin) && (
                       <button
                         onClick={() => {
                           onRemoveCollaborator(
@@ -668,13 +668,13 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                       >
                         Remove
                       </button>
-                    ))}
+                    )}
                 </div>
               </div>
             );
           })}
-          {userData.id === projectDetail.project_user[0].user_id ||
-            (userData.admin && (
+          {(userData.id === projectDetail.project_user[0].user_id ||
+            userData.admin) && (
               <div className="flex flex-col gap-1">
                 <h2 className="font-semibold text-lg">Add collaborator</h2>
                 <div className="flex gap-3">
@@ -723,7 +723,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                   </button>
                 </div>
               </div>
-            ))}
+            )}
           <button
             onClick={() => {
               dialogCollaborator.current?.close();
