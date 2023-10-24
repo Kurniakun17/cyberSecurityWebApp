@@ -184,6 +184,26 @@ console.log(res.data.response.path.replace(
   return res.data;
 };
 
+const getRiskMapList = async (  pageCount: number,
+  sizeCount: number,
+  title:string,
+  tag: string,
+) => {
+  try {
+    const res = await api.get(`${mainUrl}/reference/riskmapping?page=${pageCount}&tag=${tag}&size=${sizeCount}&title=${title}`);
+    return res.data
+  } catch (error) {
+    return error;
+  }
+}
+
+const deleteRiskMap = async (
+  riskMapId: string,
+) => {
+  const res = await api.delete(`${mainUrl}/reference/riskmapping/${riskMapId}`);
+  return res.data;
+};
+
 const deletePOCImage = async (
   templateId: string,
   checklistId: string,
@@ -193,6 +213,9 @@ const deletePOCImage = async (
   const res = await api.delete(url);
   return res.data;
 };
+
+// /reference/riskmapping
+
 
 const toggleChecklist = async (
   templateId: string,
@@ -380,6 +403,7 @@ export {
   addChecklistTagItem,
   deleteChecklistItem,
   deleteChecklistTag,
+  deleteRiskMap,
   fetchChecklistDetail,
   toggleChecklist,
   toggleProject,
@@ -388,5 +412,6 @@ export {
   uploadPocImage,
   deletePOCImage,
   removeCollaborator,
+  getRiskMapList,
   mainUrl
 };

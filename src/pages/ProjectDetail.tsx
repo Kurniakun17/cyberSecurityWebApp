@@ -67,7 +67,7 @@ type inputs = {
   target_url: string[];
   progress: string;
   username: string;
-  publish: boolean;
+  y;
 };
 
 const ProjectDetail = ({ userData }: { userData: UserData }) => {
@@ -944,15 +944,6 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
               <span className="text-blue-500 text-sm font-bold">+</span> Add
               Item
             </button>
-          </div>
-
-          <div className="flex gap-4 ">
-            <label htmlFor="">Publish to reference</label>
-            <input
-              {...register('publish')}
-              type="checkbox"
-              className="w-6 border border-[#d7d7d7] text-blue-500 bg-blue-500"
-            />
           </div>
 
           <button className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2">

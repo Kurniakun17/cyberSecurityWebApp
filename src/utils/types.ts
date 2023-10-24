@@ -53,7 +53,7 @@ type projectDetailType = {
   updatedAt: string;
   template: Template;
   project_user: userCollaborator[];
-  publish: boolean;
+
 };
 
 type userCollaborator = {
@@ -98,6 +98,7 @@ type cvss31ValueT = {
 
 type ChecklistDetailT = {
   id: string;
+  publish:boolean;
   type: string;
   progress: number;
   title: string;

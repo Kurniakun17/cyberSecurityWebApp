@@ -16,6 +16,7 @@ import {
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import {
   deletePOCImage,
+  mainUrl,
   updateChecklistItem,
   uploadPocImage,
 } from '../utils/api';
@@ -25,6 +26,7 @@ import { X } from 'lucide-react';
 type inputValuesT = {
   title: string;
   type: string;
+  publish: boolean;
   progress: number;
   description: string;
   generate_to_word: boolean;
@@ -54,27 +56,22 @@ const ChecklistModal = ({
   templateId: string;
   triggerFetchProjectDetail: () => void;
 }) => {
-  const {
-    control,
-    register,
-    formState: { errors },
-    handleSubmit,
-    setValue,
-    watch,
-    resetField,
-  } = useForm<inputValuesT>();
+  const { control, register, handleSubmit, setValue, watch, resetField } =
+    useForm<inputValuesT>();
   const dialogAddImageRef = useRef<HTMLDialogElement>(null);
+  const [imageCaption, setImageCaption] = useState<string>('');
   const [pocPreview, setPOCPreview] = useState<Image[]>([]);
   const [imagesFile, setImagesFile] = useState<FileList[]>([]);
 
-  const onAddImageCaptionSubmit = async (image: { image_caption: string }) => {
+  const onAddImageCaptionSubmit = async (imageCaption: string) => {
     const res = await uploadPocImage(templateId, data?.id as string, {
       file: imagesFile[imagesFile.length - 1][0],
-      caption: image.image_caption,
+      caption: imageCaption,
     });
 
     if (res.success) {
       setPOCPreview((prev) => [...prev, res.data] as never[]);
+      setImageCaption('');
     }
 
     resetField('image_caption');
@@ -185,6 +182,7 @@ const ChecklistModal = ({
         setValue('category', data.category ?? '');
         setValue('impact', data.impact ?? '');
         setValue('recommendation', data.recommendation ?? '');
+        setValue('publish', data.publish ?? false);
         setValue('type', data.type ?? 'none');
         setCvssValue({
           AV,
@@ -246,15 +244,16 @@ const ChecklistModal = ({
       };
     }
 
-    console.log(body);
-
     const res = await updateChecklistItem(
       templateId as string,
       data?.id as string,
       body
     );
 
-    if (res.success) triggerFetchProjectDetail();
+    if (res.success) {
+      dialogRef.current?.close();
+      triggerFetchProjectDetail();
+    }
   };
 
   return (
@@ -297,6 +296,14 @@ const ChecklistModal = ({
           <label htmlFor="">Complete</label>
           <input
             {...register('progress')}
+            type="checkbox"
+            className="w-6 border border-[#d7d7d7] text-blue-500 bg-blue-500"
+          />
+        </div>
+        <div className="flex gap-4 ">
+          <label htmlFor="">Publish to Reference</label>
+          <input
+            {...register('publish')}
             type="checkbox"
             className="w-6 border border-[#d7d7d7] text-blue-500 bg-blue-500"
           />
@@ -595,7 +602,7 @@ const ChecklistModal = ({
 
         <input
           onClick={() => {
-            dialogRef.current?.close();
+            // dialogRef.current?.close();
           }}
           type="submit"
           value="Save"
@@ -604,21 +611,23 @@ const ChecklistModal = ({
       </form>
 
       <Modal dialogRef={dialogAddImageRef}>
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={handleSubmit(onAddImageCaptionSubmit)}
-        >
+        <form className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <label htmlFor="">Image Caption</label>
             <input
               type="text"
-              {...register('image_caption', { required: true })}
+              value={imageCaption}
+              onChange={(e) => {
+                setImageCaption(e.target.value);
+              }}
             />
           </div>
           <button
             onClick={() => {
+              onAddImageCaptionSubmit(imageCaption);
               dialogAddImageRef.current?.close();
             }}
+            type="button"
             className="border border-[#d7d7d7] w-full rounded-lg mt-2 bg-blue-500 font-bold  text-white py-2"
           >
             Add Image
