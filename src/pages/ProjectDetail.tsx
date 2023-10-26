@@ -655,75 +655,75 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
                   {((userData.id === projectDetail.project_user[0].user_id &&
                     index != 0) ||
                     userData.admin) && (
-                      <button
-                        onClick={() => {
-                          onRemoveCollaborator(
-                            {
-                              collaborator_id: item.user_id,
-                            },
-                            index
-                          );
-                        }}
-                        className="border border-[#d7d7d7] hover:border-red-500 duration-300 px-4 py-1 text-sm font-semibold text-red-500 rounded-lg"
-                      >
-                        Remove
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        onRemoveCollaborator(
+                          {
+                            collaborator_id: item.user_id,
+                          },
+                          index
+                        );
+                      }}
+                      className="border border-[#d7d7d7] hover:border-red-500 duration-300 px-4 py-1 text-sm font-semibold text-red-500 rounded-lg"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
               </div>
             );
           })}
           {(userData.id === projectDetail.project_user[0].user_id ||
             userData.admin) && (
-              <div className="flex flex-col gap-1">
-                <h2 className="font-semibold text-lg">Add collaborator</h2>
-                <div className="flex gap-3">
-                  <div className="flex flex-col flex-1">
-                    <input
-                      type="text"
-                      className="rounded-2xl h-full"
-                      value={searchValue}
-                      onChange={(e) => {
-                        setSearchValue(e.target.value);
-                        setUserSearchId('');
-                        debounced(e.target.value);
+            <div className="flex flex-col gap-1">
+              <h2 className="font-semibold text-lg">Add collaborator</h2>
+              <div className="flex gap-3">
+                <div className="flex flex-col flex-1">
+                  <input
+                    type="text"
+                    className="rounded-2xl h-full"
+                    value={searchValue}
+                    onChange={(e) => {
+                      setSearchValue(e.target.value);
+                      setUserSearchId('');
+                      debounced(e.target.value);
+                    }}
+                  />
+                  {userSearchData.map((data, index) => (
+                    <button
+                      onClick={() => {
+                        setUserSearchId(data.id);
+                        setSearchValue(data.username);
+                        setUserSearchData([]);
                       }}
-                    />
-                    {userSearchData.map((data, index) => (
-                      <button
-                        onClick={() => {
-                          setUserSearchId(data.id);
-                          setSearchValue(data.username);
-                          setUserSearchData([]);
-                        }}
-                        key={data.id}
-                        className={`p-2  hover:border-blue-500 ${
-                          userSearchId === data.id ? 'border-blue-500' : ''
-                        } duration-300 text-start border-x ${
-                          index == userSearchData.length - 1
-                            ? 'border-b rounded-b-lg'
-                            : ''
-                        } border-gray-300 cursor-pointer `}
-                        type="button"
-                      >
-                        <h3>{data.username}</h3>
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={onAddCollaborator}
-                    disabled={userSearchId === '' ? true : false}
-                    className="h-fit py-2 px-3 gap-1 items-center disabled:bg-slate-300 disabled:opacity-40 flex  text-sm group rounded-lg border border-[#D7D7D7] hover:border-transparent hover:bg-blue-500 hover:text-white duration-300 w-fit"
-                  >
-                    <Plus
-                      size={16}
-                      className="text-blue-500 group-hover:text-white duration-300"
-                    />
-                    Add
-                  </button>
+                      key={data.id}
+                      className={`p-2  hover:border-blue-500 ${
+                        userSearchId === data.id ? 'border-blue-500' : ''
+                      } duration-300 text-start border-x ${
+                        index == userSearchData.length - 1
+                          ? 'border-b rounded-b-lg'
+                          : ''
+                      } border-gray-300 cursor-pointer `}
+                      type="button"
+                    >
+                      <h3>{data.username}</h3>
+                    </button>
+                  ))}
                 </div>
+                <button
+                  onClick={onAddCollaborator}
+                  disabled={userSearchId === '' ? true : false}
+                  className="h-fit py-2 px-3 gap-1 items-center disabled:bg-slate-300 disabled:opacity-40 flex  text-sm group rounded-lg border border-[#D7D7D7] hover:border-transparent hover:bg-blue-500 hover:text-white duration-300 w-fit"
+                >
+                  <Plus
+                    size={16}
+                    className="text-blue-500 group-hover:text-white duration-300"
+                  />
+                  Add
+                </button>
               </div>
-            )}
+            </div>
+          )}
           <button
             onClick={() => {
               dialogCollaborator.current?.close();
@@ -737,10 +737,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
       </Modal>
 
       <Modal dialogRef={dialogMoveTag}>
-        <form
-          onSubmit={handleSubmit(onSubmitEditTag)}
-          className="flex flex-col gap-3 text-black"
-        >
+        <form className="flex flex-col gap-3 text-black">
           <h1 className="font-bold  text-2xl text-center mb-1">
             Move Checklist Tag
           </h1>
@@ -793,36 +790,6 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
             className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 hover:bg-blue-400 duration-300 font-bold  text-white py-2"
           >
             Close
-          </button>
-        </form>
-      </Modal>
-
-      <Modal dialogRef={dialogEditTag}>
-        <form
-          onSubmit={handleSubmit(onSubmitEditTag)}
-          className="flex flex-col gap-3 text-black"
-        >
-          <h1 className="font-bold  text-2xl text-center mb-1">
-            Edit Checklist Tag
-          </h1>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="checklistTag" className="text-grayText">
-              Tag name
-            </label>
-            <input
-              {...register('update_tag_name')}
-              id="checklistTag"
-              type="text"
-              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
-            />
-          </div>
-          <button
-            onClick={() => {
-              dialogEditTag.current?.close();
-            }}
-            className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
-          >
-            Save Changes
           </button>
         </form>
       </Modal>

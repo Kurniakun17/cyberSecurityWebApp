@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import ReactPaginate from 'react-paginate';
-import { deleteRiskMap, getRiskMapList } from '../utils/api';
+import { deleteRiskMap, getRiskMapList, updateRiskMap } from '../utils/api';
 import Modal from '../components/Modal';
 
 type RiskList = {
@@ -14,7 +14,18 @@ type RiskList = {
 type inputs = {
   tag: string;
   title: string;
+};
+
+type inputsEdit = {
+  edit_tag: string[];
+  edit_title: string;
+  edit_url: string;
+};
+
+type inputsAdd = {
   add_tag: string[];
+  add_title: string;
+  add_url: string;
 };
 
 const RiskMapping = () => {
@@ -22,16 +33,38 @@ const RiskMapping = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [itemId, setItemId] = useState<string>('');
   const [itemIndex, setItemIndex] = useState<number>(-1);
+
   const dialogDeleteRef = useRef<HTMLDialogElement>(null);
   const dialogEditRef = useRef<HTMLDialogElement>(null);
+  const dialogAddRef = useRef<HTMLDialogElement>(null);
+
   const limit = 8;
 
+  const { register, watch } = useForm<inputs>();
+
   const {
-    register,
-    watch,
+    register: registerEdit,
+    handleSubmit,
     control,
+    setValue,
     formState: { errors },
-  } = useForm<inputs>();
+  } = useForm<inputsEdit>();
+
+  const {
+    fields: edit_tag,
+    remove: removeEdit_tags,
+    append: appendEdit_tags,
+  } = useFieldArray({
+    control,
+    name: 'edit_tag',
+  });
+
+  const {
+    register: registerAdd,
+    handleSubmit: handleSubmitAdd,
+    control: controlAdd,
+    formState: { errors: errorsAdd },
+  } = useForm<inputsAdd>();
 
   const {
     fields: add_tag,
@@ -53,6 +86,24 @@ const RiskMapping = () => {
       temp.splice(index, 1);
       setRiskList([...temp]);
     }
+  };
+
+  const onSaveEditHandler = async (res: inputsEdit) => {
+    const response = await updateRiskMap(itemId, {
+      title: res.edit_title,
+      tag: res.edit_tag,
+      url: res.edit_url ?? [''],
+    });
+
+    if (response.success) {
+      dialogEditRef.current?.close();
+      const temp = riskList;
+      temp.splice(itemIndex, 1, response.data);
+    }
+  };
+
+  const onAddReferenceHandler = async (res: inputsAdd) => {
+    console.log(res);
   };
 
   const fetchRiskMap = async (
@@ -80,7 +131,16 @@ const RiskMapping = () => {
     <>
       <div className="flex flex-col gap-6">
         <div className="flex justify-between">
-          <h2 className="font-bold text-2xl">Risk Mapping</h2>
+          <h2 className="font-bold text-2xl">Risk Mapping Reference</h2>
+          <button
+            onClick={() => {
+              dialogAddRef.current?.showModal();
+            }}
+            className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] hover:border-blue-500 duration-300 w-fit"
+          >
+            <span className="text-blue-500 text-sm font-bold">+</span> Add
+            Reference
+          </button>
         </div>
         <div className="flex flex-col gap-2">
           <input type="text" {...register('title')} placeholder="Title Name" />
@@ -100,7 +160,6 @@ const RiskMapping = () => {
               onClick={() => {
                 window.open(item.url, '_blank');
               }}
-              // target="_blank"
               className="p-4 px-8 flex items-center justify-between border border-[#D7D7D7] hover:border-blue-500 duration-300 rounded-2xl cursor-pointer"
             >
               <h2 className="text-start pr-8">{item.title}</h2>
@@ -110,6 +169,10 @@ const RiskMapping = () => {
                     e.stopPropagation();
                     setItemId(item.id);
                     setItemIndex(index);
+
+                    setValue('edit_title', riskList[index].title);
+                    setValue('edit_url', riskList[index].url);
+                    setValue('edit_tag', riskList[index].tag.split(','));
                     dialogEditRef.current?.showModal();
                   }}
                   className="py-1 h-fit px-4 gap-3 rounded-lg hover:border-yellow-500 hover:text-yellow-500 duration-300 border border-[#D7D7D7]"
@@ -178,16 +241,54 @@ const RiskMapping = () => {
         </div>
       </Modal>
 
-      <Modal dialogRef={dialogEditRef}>
-        <form action="">
+      <Modal dialogRef={dialogAddRef}>
+        <form
+          className="flex flex-col gap-3 text-black"
+          onSubmit={handleSubmitAdd(onAddReferenceHandler)}
+        >
+          <h1 className="font-bold text-2xl text-center mb-1">
+            Add Risk Map Reference
+          </h1>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="checklistTag" className="text-grayText">
+              Title
+            </label>
+            <input
+              {...registerAdd('add_title', { required: true })}
+              id="checklistTag"
+              type="text"
+              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+            {errorsAdd.add_title?.type === 'required' && (
+              <p className="text-red-500">Please fill out this field</p>
+            )}
+          </div>
+          {/*  */}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="checklistTag" className="text-grayText">
+              Url
+            </label>
+            <input
+              {...registerAdd('add_url', { required: true })}
+              id="checklistTag"
+              type="text"
+              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+            {errorsAdd.add_url?.type === 'required' && (
+              <p className="text-red-500">Please fill out this field</p>
+            )}
+          </div>
           <div className="flex flex-col gap-2 col-span-4">
+            <label htmlFor="target-ip" className="text-grayText">
+              Target IP
+            </label>
             {add_tag.map((field, index) => {
               return (
                 <div key={`add_tag-${field.id}`} className="flex  gap-8">
                   <input
                     key={field.id}
                     type="text"
-                    {...register(`add_tag.${index}` as const)}
+                    {...registerAdd(`add_tag.${index}` as const)}
                     className=""
                   />
                   <button
@@ -213,6 +314,88 @@ const RiskMapping = () => {
               Item
             </button>
           </div>
+          <button className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2">
+            Save
+          </button>
+        </form>
+      </Modal>
+
+      <Modal dialogRef={dialogEditRef}>
+        <form
+          className="flex flex-col gap-3 text-black"
+          onSubmit={handleSubmit(onSaveEditHandler)}
+        >
+          <h1 className="font-bold  text-2xl text-center mb-1">
+            Edit Risk Map Reference
+          </h1>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="checklistTag" className="text-grayText">
+              Title
+            </label>
+            <input
+              {...registerEdit('edit_title', { required: true })}
+              id="checklistTag"
+              type="text"
+              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+            {errors.edit_title?.type === 'required' && (
+              <p className="text-red-500">Please fill out this field</p>
+            )}
+          </div>
+          {/*  */}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="checklistTag" className="text-grayText">
+              Url
+            </label>
+            <input
+              {...registerEdit('edit_url', { required: true })}
+              id="checklistTag"
+              type="text"
+              className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
+            />
+            {errors.edit_url?.type === 'required' && (
+              <p className="text-red-500">Please fill out this field</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2 col-span-4">
+            <label htmlFor="target-ip" className="text-grayText">
+              Target IP
+            </label>
+            {edit_tag.map((field, index) => {
+              return (
+                <div key={`add_tag-${field.id}`} className="flex  gap-8">
+                  <input
+                    key={field.id}
+                    type="text"
+                    {...registerEdit(`edit_tag.${index}` as const)}
+                    className=""
+                  />
+                  <button
+                    type="button"
+                    className="px-4 py-2 border border-[#d7d7d7] rounded-xl"
+                    onClick={() => {
+                      removeEdit_tags(index);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => {
+                appendEdit_tags('');
+              }}
+              className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
+            >
+              <span className="text-blue-500 text-sm font-bold">+</span> Add
+              Item
+            </button>
+          </div>
+          <button className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2">
+            Save
+          </button>
         </form>
       </Modal>
     </>

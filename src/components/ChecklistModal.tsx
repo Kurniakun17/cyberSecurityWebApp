@@ -19,7 +19,6 @@ import {
   mainUrl,
   updateChecklistItem,
   uploadPocImage,
-  mainUrl
 } from '../utils/api';
 import Modal from './Modal';
 import { X } from 'lucide-react';

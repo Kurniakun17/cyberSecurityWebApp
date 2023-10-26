@@ -293,6 +293,7 @@ const moveTag = async ({
   }
 };
 
+
 const updateChecklistTag = async (
   templateId: string,
   tagId: string,
@@ -303,6 +304,26 @@ const updateChecklistTag = async (
     body
   );
   return res.data;
+};
+
+const updateRiskMap = async (
+  riskMapId: string,
+  body: {
+    "title": string;
+    "url": string;
+    "tag": string[];
+}
+) => {
+  try {
+    const res = await api.put(
+      `${mainUrl}/reference/riskmapping/${riskMapId}`,
+      body
+    );
+    return res.data;
+    
+  } catch (error) {
+    return error;
+  }
 };
 
 const addProject = async (body: {
@@ -413,5 +434,6 @@ export {
   deletePOCImage,
   removeCollaborator,
   getRiskMapList,
-  mainUrl
+  mainUrl,
+  updateRiskMap
 };
