@@ -326,6 +326,26 @@ const updateRiskMap = async (
   }
 };
 
+const addRiskMap = async (
+  body: {
+    "title": string;
+    "url": string;
+    "tag": string[];
+}
+) => {
+  try {
+    const res = await api.post(
+      `${mainUrl}/reference/riskmapping`,
+      body
+      );
+      return res.data;
+    } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+
 const addProject = async (body: {
   target_ip: string[];
   progress: string;
@@ -410,6 +430,7 @@ export {
   updateProject,
   addTemplate,
   deleteTemplate,
+  addRiskMap,
   fetchTemplates,
   addProject,
   getTemplateList,

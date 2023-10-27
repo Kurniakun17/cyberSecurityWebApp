@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import ReactPaginate from 'react-paginate';
-import { deleteRiskMap, getRiskMapList, updateRiskMap } from '../utils/api';
+import {
+  addRiskMap,
+  deleteRiskMap,
+  getRiskMapList,
+  updateRiskMap,
+} from '../utils/api';
 import Modal from '../components/Modal';
 
 type RiskList = {
@@ -17,13 +22,13 @@ type inputs = {
 };
 
 type inputsEdit = {
-  edit_tag: string[];
+  edit_tag: { value: string }[];
   edit_title: string;
   edit_url: string;
 };
 
 type inputsAdd = {
-  add_tag: string[];
+  add_tag: { value: string }[];
   add_title: string;
   add_url: string;
 };
@@ -42,6 +47,7 @@ const RiskMapping = () => {
 
   const { register, watch } = useForm<inputs>();
 
+  // useform untuk add reference
   const {
     register: registerEdit,
     handleSubmit,
@@ -59,10 +65,12 @@ const RiskMapping = () => {
     name: 'edit_tag',
   });
 
+  // useform untuk add reference
   const {
     register: registerAdd,
     handleSubmit: handleSubmitAdd,
     control: controlAdd,
+    reset,
     formState: { errors: errorsAdd },
   } = useForm<inputsAdd>();
 
@@ -71,7 +79,7 @@ const RiskMapping = () => {
     remove: removeAdd_tags,
     append: appendAdd_tags,
   } = useFieldArray({
-    control,
+    control: controlAdd,
     name: 'add_tag',
   });
 
@@ -91,8 +99,8 @@ const RiskMapping = () => {
   const onSaveEditHandler = async (res: inputsEdit) => {
     const response = await updateRiskMap(itemId, {
       title: res.edit_title,
-      tag: res.edit_tag,
-      url: res.edit_url ?? [''],
+      url: res.edit_url,
+      tag: res.edit_tag.map((obj) => obj.value) ?? [''],
     });
 
     if (response.success) {
@@ -103,7 +111,16 @@ const RiskMapping = () => {
   };
 
   const onAddReferenceHandler = async (res: inputsAdd) => {
-    console.log(res);
+    const data = await addRiskMap({
+      title: res.add_title,
+      url: res.add_url,
+      tag: res.add_tag.map((obj) => obj.value) ?? [''],
+    });
+    if (data.success) {
+      setRiskList((prev) => [data.data, ...prev]);
+      reset();
+      dialogAddRef.current?.close();
+    }
   };
 
   const fetchRiskMap = async (
@@ -160,7 +177,7 @@ const RiskMapping = () => {
               onClick={() => {
                 window.open(item.url, '_blank');
               }}
-              className="p-4 px-8 flex items-center justify-between border border-[#D7D7D7] hover:border-blue-500 duration-300 rounded-2xl cursor-pointer"
+              className="p-4 px-5 flex items-center justify-between border border-[#D7D7D7] hover:border-blue-500 duration-300 rounded-2xl cursor-pointer"
             >
               <h2 className="text-start pr-8">{item.title}</h2>
               <div className="flex gap-2">
@@ -172,7 +189,14 @@ const RiskMapping = () => {
 
                     setValue('edit_title', riskList[index].title);
                     setValue('edit_url', riskList[index].url);
-                    setValue('edit_tag', riskList[index].tag.split(','));
+                    setValue(
+                      'edit_tag',
+                      riskList[index].tag.split(',').map((e: string) => {
+                        return {
+                          value: e,
+                        };
+                      })
+                    );
                     dialogEditRef.current?.showModal();
                   }}
                   className="py-1 h-fit px-4 gap-3 rounded-lg hover:border-yellow-500 hover:text-yellow-500 duration-300 border border-[#D7D7D7]"
@@ -266,10 +290,14 @@ const RiskMapping = () => {
           {/*  */}
           <div className="flex flex-col gap-1">
             <label htmlFor="checklistTag" className="text-grayText">
-              Url
+              URL
             </label>
             <input
-              {...registerAdd('add_url', { required: true })}
+              {...registerAdd('add_url', {
+                required: true,
+                pattern:
+                  /(http(s):\/\/.)[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/i,
+              })}
               id="checklistTag"
               type="text"
               className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
@@ -277,10 +305,16 @@ const RiskMapping = () => {
             {errorsAdd.add_url?.type === 'required' && (
               <p className="text-red-500">Please fill out this field</p>
             )}
+            {errorsAdd.add_url?.type === 'pattern' && (
+              <p className="text-red-500">
+                Please input a valid URL. (must contain http or https and .com
+                and such)
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-2 col-span-4">
             <label htmlFor="target-ip" className="text-grayText">
-              Target IP
+              Tag
             </label>
             {add_tag.map((field, index) => {
               return (
@@ -288,7 +322,7 @@ const RiskMapping = () => {
                   <input
                     key={field.id}
                     type="text"
-                    {...registerAdd(`add_tag.${index}` as const)}
+                    {...registerAdd(`add_tag.${index}.value` as const)}
                     className=""
                   />
                   <button
@@ -306,7 +340,7 @@ const RiskMapping = () => {
             <button
               type="button"
               onClick={() => {
-                appendAdd_tags('');
+                appendAdd_tags({ value: '' });
               }}
               className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
             >
@@ -345,10 +379,14 @@ const RiskMapping = () => {
           {/*  */}
           <div className="flex flex-col gap-1">
             <label htmlFor="checklistTag" className="text-grayText">
-              Url
+              URL
             </label>
             <input
-              {...registerEdit('edit_url', { required: true })}
+              {...registerEdit('edit_url', {
+                required: true,
+                pattern:
+                  /(http(s):\/\/.)[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/i,
+              })}
               id="checklistTag"
               type="text"
               className="border border-[#d7d7d7] w-full rounded-md px-2 py-1 focus:outline-blue-500"
@@ -356,10 +394,16 @@ const RiskMapping = () => {
             {errors.edit_url?.type === 'required' && (
               <p className="text-red-500">Please fill out this field</p>
             )}
+            {errors.edit_url?.type === 'pattern' && (
+              <p className="text-red-500">
+                Please input a valid URL. (must contain http or https and .com
+                and such)
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-2 col-span-4">
             <label htmlFor="target-ip" className="text-grayText">
-              Target IP
+              Tag
             </label>
             {edit_tag.map((field, index) => {
               return (
@@ -367,7 +411,7 @@ const RiskMapping = () => {
                   <input
                     key={field.id}
                     type="text"
-                    {...registerEdit(`edit_tag.${index}` as const)}
+                    {...registerEdit(`edit_tag.${index}.value` as const)}
                     className=""
                   />
                   <button
@@ -385,7 +429,7 @@ const RiskMapping = () => {
             <button
               type="button"
               onClick={() => {
-                appendEdit_tags('');
+                appendEdit_tags({ value: '' });
               }}
               className="py-2 px-3 gap-4  text-sm rounded-xl border border-[#D7D7D7] w-fit"
             >
