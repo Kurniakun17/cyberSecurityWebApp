@@ -545,7 +545,7 @@ const TemplateDetail = () => {
             }}
             className="border border-[#d7d7d7] w-full rounded-lg mt-2 mb-1 bg-blue-500 font-bold  text-white py-2"
           >
-            Create Project
+            Edit Template
           </button>
         </form>
       </Modal>

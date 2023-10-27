@@ -101,7 +101,7 @@ const Profile = ({
             </tr>
             <tr>
               <td className="w-fit">
-                <label htmlFor="profile_phone">phone</label>
+                <label htmlFor="profile_phone">Phone</label>
               </td>
               <td>
                 <input
