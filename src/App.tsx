@@ -106,8 +106,8 @@ const App = () => {
               />
               <Route path="/templates" element={<Templates />} />
               <Route path="/templates/:id" element={<TemplateDetail />} />
-              <Route path="/reference" element={<References />} />
-              <Route path="/risk-mapping" element={<RiskMapping />} />
+              <Route path="/reference/checklist" element={<References />} />
+              <Route path="/reference/risk-mapping" element={<RiskMapping />} />
               <Route
                 path="/admin"
                 element={<Admin userData={userData as UserData} />}

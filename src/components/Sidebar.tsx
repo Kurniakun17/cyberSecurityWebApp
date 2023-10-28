@@ -40,28 +40,12 @@ const Sidebar = ({
   }, [window.location.pathname]);
 
   useEffect(() => {
-    // if (!isAccordionActive) {
-    //   const checklist = document.getElementById('checklist');
-    //   checklist?.classList.add('hidden');
-    // }
-  }, []);
+    if (active == 'reference') {
+      setActive(window.location.pathname.split('/')[2]);
+    }
+  }, [active]);
 
-  useEffect(() => {
-    // const checklist = document.getElementById('checklist');
-    // // const riskMapping = document.getElementById('risk-mapping');
-    // if (!isAccordionActive) {
-    //   console.log(isAccordionActive);
-    //   setTimeout(() => {
-    //     checklist?.classList.add('hidden');
-    //     checklist?.classList.remove('flex');
-    //   }, 900);
-    // } else {
-    //   setTimeout(() => {
-    //     checklist?.classList.remove('hidden');
-    //     checklist?.classList.add('flex');
-    //   }, 900);
-    // }
-  }, [isAccordionActive]);
+  console.log(active);
 
   return (
     <div
@@ -119,13 +103,13 @@ const Sidebar = ({
           <Collapse isOpened={isAccordionActive}>
             <div
               className={`items-center flex duration-1000 gap-4 px-12 group py-4 cursor-pointer text-xl relative  ${
-                active === 'reference'
+                active === 'checklist'
                   ? ' text-blue-500 bg-gray-200 font-bold  hover:bg-gray-200'
                   : 'hover:bg-gray-50'
               }`}
               onClick={() => {
-                navigate('/reference');
-                onSetActive('reference');
+                navigate('/reference/checklist');
+                onSetActive('checklist');
               }}
             >
               <Check size="26" />
@@ -144,7 +128,7 @@ const Sidebar = ({
                   : 'hover:bg-gray-50'
               }`}
               onClick={() => {
-                navigate('/risk-mapping');
+                navigate('reference/risk-mapping');
                 onSetActive('risk-mapping');
               }}
             >
