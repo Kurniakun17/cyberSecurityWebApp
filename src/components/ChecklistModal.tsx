@@ -312,6 +312,14 @@ const ChecklistModal = ({
           <label htmlFor="description">Description</label>
           <textarea {...register('description')} />
         </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="description">Best Practice</label>
+          <textarea {...register('best_practice')} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="description">Proof Of Concept</label>
+          <textarea {...register('poc')} />
+        </div>
         <div className="flex gap-4 ">
           <label htmlFor="">Generate To Word</label>
 
@@ -508,14 +516,6 @@ const ChecklistModal = ({
             </div>
           </>
         )}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="description">Best Practice</label>
-          <textarea {...register('best_practice')} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="description">Proof Of Concept</label>
-          <textarea {...register('poc')} />
-        </div>
 
         {/* imageInput */}
         <div className="">
