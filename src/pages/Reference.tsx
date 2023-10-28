@@ -137,6 +137,7 @@ const References = () => {
                 <label htmlFor="title">Title</label>
 
                 <input
+                  style={{ width: '500px' }}
                   type="text"
                   value={reference?.items![referenceIndex].title}
                   disabled
@@ -162,11 +163,19 @@ const References = () => {
 
             <div className="flex flex-col gap-1">
               <label htmlFor="description">Description</label>
-              <textarea
+              <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem]" 
                 disabled
                 value={reference?.items![referenceIndex].description}
               />
             </div>
+            <div className="flex flex-col gap-1">
+                <label htmlFor="description">Best Practice</label>
+                <textarea
+                  className="resize-y border rounded-md p-2 w-full min-h-[5rem]"
+                  disabled
+                  value={reference.items![referenceIndex].best_practice}
+                />
+              </div>
             {reference?.items![referenceIndex].type === 'vulnerability' ? (
               <>
                 <div className="grid grid-cols-6 gap-6">
@@ -184,7 +193,7 @@ const References = () => {
                   </label>
                   <textarea
                     id=""
-                    className="col-span-4 "
+                    className="resize-y border rounded-md p-2 w-full min-h-[5rem] col-span-4"
                     disabled
                     value={
                       reference?.items![referenceIndex]
@@ -642,7 +651,7 @@ const References = () => {
                     disabled
                     value={reference.items[referenceIndex].impact}
                     id=""
-                    className="col-span-4"
+                    className="resize-y border rounded-md p-2 w-full min-h-[5rem] col-span-4"
                   />
 
                   <label htmlFor="impact" className="col-span-2 break-words">
@@ -652,23 +661,17 @@ const References = () => {
                     disabled
                     value={reference.items[referenceIndex].recommendation}
                     id=""
-                    className="col-span-4"
+                    className="resize-y border rounded-md p-2 w-full min-h-[5rem] col-span-4"
                   />
                 </div>
               </>
             ) : (
-              <div className="flex flex-col gap-1">
-                <label htmlFor="description">Best Practice</label>
-                <textarea
-                  disabled
-                  value={reference.items![referenceIndex].best_practice}
-                />
-              </div>
+             <></>
             )}
 
             <div className="flex flex-col gap-1">
               <label htmlFor="description">Proof Of Concept</label>
-              <textarea disabled value={reference.items![referenceIndex].poc} />
+              <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem]" disabled value={reference.items![referenceIndex].poc} />
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="" className="">

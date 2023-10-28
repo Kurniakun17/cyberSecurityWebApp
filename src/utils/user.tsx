@@ -38,8 +38,8 @@ const signOut = async () => {
   return res.data;
 };
 
-const searchUser = async (username: string) => {
-  const res = await api.get(`${mainUrl}/user/search?username=${username}`);
+const searchUser = async (username: string, projectId: string) => {
+  const res = await api.get(`${mainUrl}/user/search?username=${username}&project=${projectId}`);
   return res.data;
 };
 

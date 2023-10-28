@@ -137,7 +137,7 @@ const ProjectDetail = ({ userData }: { userData: UserData }) => {
   }, [projectDetail]);
 
   const fetchSearchUser = async (username: string) => {
-    const res = await searchUser(username);
+    const res = await searchUser(username, projectDetail.id);
     if (res.data.success) {
       setUserSearchData(res.data.items);
     }

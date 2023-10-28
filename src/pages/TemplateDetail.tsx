@@ -567,16 +567,16 @@ const TemplateDetail = () => {
           <div className="flex justify-between">
             <div className="flex flex-col gap-1">
               <label htmlFor="title">Title</label>
-              <input type="text" {...register('title')} />
+              <input style={{ width: '500px' }} type="text" {...register('title')} />
             </div>
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="description">Description</label>
-            <textarea {...register('description')} />
+            <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem]" {...register('description')} />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="best_practice">Best Practice</label>
-            <textarea id="best_practice" {...register('best_practice')} />
+            <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem]" id="best_practice" {...register('best_practice')} />
           </div>
           <button
             onClick={() => {

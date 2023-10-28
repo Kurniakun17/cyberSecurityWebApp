@@ -267,6 +267,7 @@ const ChecklistModal = ({
           <div className="flex flex-col gap-1">
             <label htmlFor="title">Title</label>
             <input
+              style={{ width: '500px' }}
               type="text"
               {...register('title')}
               id="titleChecklistModal"
@@ -310,11 +311,11 @@ const ChecklistModal = ({
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="description">Description</label>
-          <textarea {...register('description')} />
+          <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem]" {...register('description')} />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="description">Best Practice</label>
-          <textarea {...register('best_practice')} />
+          <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem]" {...register('best_practice')} />
         </div>
 
         <div className="flex gap-4 ">
@@ -341,8 +342,7 @@ const ChecklistModal = ({
                 Vulnerability Description
               </label>
               <textarea
-                id=""
-                className="col-span-4 "
+                className="resize-y border rounded-md p-2 w-full min-h-[5rem] col-span-4"
                 {...register('vulnerability_description')}
               />
             </div>
@@ -500,15 +500,15 @@ const ChecklistModal = ({
               <label htmlFor="impact" className="col-span-2">
                 Impact
               </label>
-              <textarea {...register('impact')} id="" className="col-span-4" />
+              <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem] col-span-4" {...register('impact')} id="" />
 
               <label htmlFor="impact" className="col-span-2">
                 Recommendation
               </label>
               <textarea
+                className="resize-y border rounded-md p-2 w-full min-h-[5rem] col-span-4"
                 {...register('recommendation')}
                 id=""
-                className="col-span-4"
               />
             </div>
           </>
@@ -516,7 +516,7 @@ const ChecklistModal = ({
 
         <div className="flex flex-col gap-1">
           <label htmlFor="description">Proof Of Concept</label>
-          <textarea {...register('poc')} />
+          <textarea className="resize-y border rounded-md p-2 w-full min-h-[5rem]" {...register('poc')} />
         </div>
 
         {/* imageInput */}
