@@ -58,9 +58,11 @@ const changePassword = async (body: {
 }) => {
   try {
     const res = await api.post(`${mainUrl}/user/auth/change-password`, body);
-    
     return res.data;
+    console.log(res.data);
   } catch (error) {
+    console.log(error);
+
     return error;
   }
 };

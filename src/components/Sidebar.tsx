@@ -45,8 +45,6 @@ const Sidebar = ({
     }
   }, [active]);
 
-  console.log(active);
-
   return (
     <div
       key={active}

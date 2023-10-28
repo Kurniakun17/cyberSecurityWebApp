@@ -67,6 +67,7 @@ const Profile = ({
       reset();
       return;
     }
+      toast.error('Change password failed!');
     console.log(response.data);
   };
 
