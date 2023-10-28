@@ -6,7 +6,7 @@ const loginAuth = async (body: { username: string; password: string }) => {
     localStorage.setItem('token', res.data.token);
     return res.data;
   } catch (error) {
-    return { success: false };
+    return error;
   }
 };
 
@@ -35,19 +35,30 @@ const registerUser = async (body: { username: string; password: string }) => {
 
 const signOut = async () => {
   const res = await api.post(`${mainUrl}/user/auth/logout`);
-
   return res.data;
 };
 
 const searchUser = async (username: string) => {
   const res = await api.get(`${mainUrl}/user/search?username=${username}`);
-
   return res.data;
 };
 
 const editUserByAdmin = async (userId: string, body: unknown) => {
   try {
     const res = await api.put(`${mainUrl}/user/${userId}/edit`, body);
+    return res.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+const changePassword = async (body: {
+  old_password: string;
+  new_password: string;
+}) => {
+  try {
+    const res = await api.post(`${mainUrl}/user/auth/change-password`, body);
+    
     return res.data;
   } catch (error) {
     return error;
@@ -62,4 +73,5 @@ export {
   getUserData,
   getAllUserData,
   registerUser,
+  changePassword,
 };

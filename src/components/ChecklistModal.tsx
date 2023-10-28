@@ -321,7 +321,7 @@ const ChecklistModal = ({
             className="w-6 border border-[#d7d7d7] text-blue-500 bg-blue-500"
           />
         </div>
-        {watch('type') === 'vulnerability' ? (
+        {watch('type') === 'vulnerability' && (
           <>
             <div className="grid grid-cols-6 gap-6">
               <label htmlFor="" className="col-span-2">
@@ -507,12 +507,11 @@ const ChecklistModal = ({
               />
             </div>
           </>
-        ) : (
-          <div className="flex flex-col gap-1">
-            <label htmlFor="description">Best Practice</label>
-            <textarea {...register('best_practice')} />
-          </div>
         )}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="description">Best Practice</label>
+          <textarea {...register('best_practice')} />
+        </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="description">Proof Of Concept</label>
           <textarea {...register('poc')} />

@@ -80,7 +80,7 @@ const References = () => {
   return (
     <>
       <div className="flex justify-between">
-        <h2 className="font-bold text-2xl">Reference</h2>
+        <h2 className="font-bold text-2xl">Checklist Reference</h2>
       </div>
       <div className="flex flex-col gap-2">
         <input type="text" {...register('title')} placeholder="Title" />

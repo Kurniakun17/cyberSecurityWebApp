@@ -83,7 +83,6 @@ const Admin = ({ userData }: { userData: UserData }) => {
     navigate('/projects');
   }
 
-  console.log(allUserData);
   return (
     <>
       <div className="flex flex-col gap-6">
