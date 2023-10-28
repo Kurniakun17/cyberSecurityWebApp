@@ -126,7 +126,7 @@ const References = () => {
         activeClassName="border text-blue-500 border-blue-500"
       ></ReactPaginate>
 
-      <Modal dialogRef={dialogChecklistDetail}>
+      <Modal maxW="custom" dialogRef={dialogChecklistDetail}>
         {reference?.items![referenceIndex] != null && (
           <form className="flex flex-col gap-6">
             <h1 className="font-bold text-2xl text-center mb-1">
