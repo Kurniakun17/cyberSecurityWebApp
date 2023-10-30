@@ -154,7 +154,7 @@ const Admin = ({ userData }: { userData: UserData }) => {
           className="flex flex-col items-center gap-3 p-4 w-[500px]"
           id="add_user"
         >
-          <h2 className="font-bold  text-2xl text-center mb-1">
+          <h2 className="flex flex-col items-center justify-between gap-3 p-4">
             Create Account
           </h2>
           <div className="w-full">
