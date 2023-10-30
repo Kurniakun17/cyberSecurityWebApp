@@ -151,10 +151,10 @@ const Admin = ({ userData }: { userData: UserData }) => {
       <Modal dialogRef={dialogAddUser}>
         <form
           onSubmit={handleSubmit(submitHandler)}
-          className="flex flex-col items-center gap-3 p-4 w-[500px]"
+          className="flex flex-col items-center justify-between gap-3 p-4"
           id="add_user"
         >
-          <h2 className="flex flex-col items-center justify-between gap-3 p-4">
+          <h2 className="font-bold  text-2xl text-center mb-1">
             Create Account
           </h2>
           <div className="w-full">
